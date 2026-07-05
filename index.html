@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kidunaverse — Become a founding member of Kinship Duna</title>
+<meta name="description" content="The Kidunaverse is where people and intelligent agents build organizations together. Founding membership in Kinship Duna is $100 — once, for life.">
+<link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+<link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+<link rel="stylesheet" href="colors_and_type.css">
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg-deep); }
+  .page { max-width: 1160px; margin: 0 auto; padding: 24px 24px 72px; }
+
+  /* Prototype notice */
+  .proto { text-align: center; font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.1em; color: var(--fg-dim); padding: 8px 0 16px; text-transform: uppercase; }
+
+  /* Nav */
+  .nav { display: flex; align-items: center; justify-content: space-between; padding: 14px 22px; background: rgba(39,27,17,0.65); backdrop-filter: blur(10px); border: 1px solid var(--border); border-radius: var(--radius-pill); margin-bottom: 40px; position: sticky; top: 16px; z-index: 50; }
+  .nav img { height: 30px; width: auto; max-width: min(46vw, 420px); object-fit: contain; display: block; }
+  .nav-links { display: flex; gap: 22px; font-size: 14px; color: var(--fg-muted); align-items: center; }
+  .nav-links a { color: inherit; }
+  .nav-links a:hover { color: var(--fg); }
+
+  .btn { font-family: var(--font-sans); font-weight: 700; font-size: 14px; padding: 12px 20px; border-radius: var(--radius-xs); border: 1px solid transparent; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; transition: 160ms; text-decoration: none; }
+  .btn-primary { background: var(--accent); color: #08272A; }
+  .btn-primary:hover { background: var(--accent-hover); color: #08272A; }
+  .btn-secondary { background: transparent; color: var(--fg); border-color: var(--border-strong); }
+  .btn-secondary:hover { border-color: var(--fg-soft); color: var(--fg); }
+  .btn-big { padding: 16px 26px; font-size: 15px; }
+
+  /* Hero */
+  .hero { position: relative; padding: 84px 56px 72px; border-radius: var(--radius-xl); overflow: hidden; margin-bottom: 20px; text-align: left;
+    background:
+      radial-gradient(1100px 420px at 88% -10%, rgba(3,204,217,0.26), transparent 55%),
+      radial-gradient(760px 520px at -8% 110%, rgba(143,230,198,0.12), transparent 60%),
+      radial-gradient(620px 420px at 50% 120%, rgba(193,154,107,0.18), transparent 60%),
+      linear-gradient(150deg, #2A1A2B, #1C140D 78%);
+    border: 1px solid var(--border);
+  }
+  .hero .eyebrow { font-size: 11px; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: var(--kin-skyblue); margin-bottom: 20px; font-family: var(--font-sans); }
+  .hero h1 { font-size: clamp(44px, 7vw, 76px); line-height: 1.02; max-width: 880px; margin: 0 0 26px; text-wrap: balance; }
+  .hero .lead { font-size: 18px; color: var(--fg-muted); max-width: 640px; line-height: 1.55; margin: 0 0 12px; }
+  .hero .price-line { font-family: var(--font-display); font-size: 26px; color: var(--kid-moon-cream); margin: 18px 0 30px; }
+  .hero-ctas { display: flex; gap: 12px; flex-wrap: wrap; }
+  .hero .mark { position: absolute; right: 48px; bottom: -40px; width: 220px; opacity: 0.10; pointer-events: none; }
+
+  /* Stat strip */
+  .strip-kicker { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--fg-soft); margin: 0 0 10px 4px; }
+  .stat-strip { display: grid; grid-template-columns: repeat(4, 1fr); background: linear-gradient(135deg, #33251A, #271B11); border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; margin-bottom: 64px; }
+  .stat-strip > div { padding: 26px 24px; border-right: 1px solid var(--border); }
+  .stat-strip > div:last-child { border-right: 0; }
+  .stat-strip .k { font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--fg-soft); }
+  .stat-strip .v { font-family: var(--font-display); font-size: 40px; line-height: 1.05; margin-top: 8px; color: var(--fg); }
+  .stat-strip .s { font-size: 12px; color: var(--fg-soft); margin-top: 6px; }
+
+  /* Sections */
+  section { margin-bottom: 72px; }
+  .section-head { margin: 0 0 26px; }
+  .section-head .kicker { font-family: var(--font-mono); font-size: 11px; color: var(--fg-soft); letter-spacing: 0.12em; text-transform: uppercase; display: block; margin-bottom: 10px; }
+  .section-head h2 { font-size: clamp(30px, 4vw, 40px); margin: 0; }
+  .section-head p { max-width: 640px; margin: 14px 0 0; }
+
+  /* Spine cards */
+  .spine-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; }
+  .spine { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; }
+  .spine .cover { height: 120px; }
+  .cover-a { background: radial-gradient(circle at 30% 30%, #C19A6B 0%, #6F4A2E 45%, #1C140D 100%); }
+  .cover-b { background: radial-gradient(circle at 70% 40%, #03CCD9 0%, #2A1A2B 60%, #1C140D 100%); }
+  .cover-c { background: radial-gradient(circle at 50% 70%, #8FE6C6 0%, #2A1A2B 55%, #1C140D 100%); }
+  .cover-d { background: radial-gradient(circle at 60% 30%, #EAAA00 0%, #4E3629 55%, #1C140D 100%); }
+  .spine .body { padding: 20px 20px 24px; }
+  .spine .step { font-family: var(--font-mono); font-size: 11px; color: var(--fg-soft); letter-spacing: 0.12em; text-transform: uppercase; }
+  .spine h3 { font-size: 24px; margin: 8px 0 10px; }
+  .spine p { font-size: 14px; margin: 0; line-height: 1.55; }
+
+  /* Offer */
+  .offer { display: grid; grid-template-columns: 0.9fr 1.1fr; gap: 20px; }
+  .offer-price { background: linear-gradient(180deg, rgba(3,204,217,0.12), transparent 70%), var(--surface); border: 1px solid rgba(3,204,217,0.4); box-shadow: var(--shadow-glow-accent); border-radius: var(--radius-lg); padding: 30px; display: flex; flex-direction: column; }
+  .offer-price .tier { font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--fg-soft); font-weight: 700; }
+  .offer-price .amt { font-family: var(--font-display); font-size: 88px; line-height: 1; margin: 16px 0 4px; color: var(--fg); }
+  .offer-price .amt-sub { font-size: 15px; color: var(--fg-soft); margin-bottom: 22px; }
+  .offer-price .note { font-size: 13px; color: var(--fg-soft); margin-top: auto; line-height: 1.5; }
+  .offer-list { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 30px; }
+  .offer-list h3 { font-size: 24px; margin: 0 0 18px; }
+  .offer-list ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 14px; }
+  .offer-list li { position: relative; padding-left: 28px; font-size: 15px; color: var(--fg-muted); line-height: 1.5; }
+  .offer-list li::before { content: "→"; position: absolute; left: 0; top: 0; color: var(--accent); font-weight: 700; }
+  .offer-list li b { color: var(--fg); font-weight: 700; }
+
+  /* Waterfall */
+  .bar { display: flex; height: 64px; border-radius: var(--radius-md); overflow: hidden; border: 1px solid var(--border); margin: 26px 0 18px; }
+  .bar > div { display: grid; place-items: center; font-family: var(--font-display); font-size: 22px; color: #14100B; }
+  .bar .b-liq { width: 20%; background: var(--kin-camel); }
+  .bar .b-lin { width: 30%; background: var(--kid-moon-cream); }
+  .bar .b-tre { width: 50%; background: var(--kin-skyblue); }
+  .flow-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  .flow { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 20px; }
+  .flow .pct { font-family: var(--font-display); font-size: 34px; color: var(--fg); }
+  .flow h4 { font-size: 18px; margin: 6px 0 8px; }
+  .flow p { font-size: 13.5px; margin: 0; line-height: 1.55; }
+  .honesty { font-size: 13.5px; color: var(--fg-soft); max-width: 720px; line-height: 1.6; margin-top: 20px; }
+
+  /* Kiduna Family */
+  .fam-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  .fam { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 24px; display: flex; flex-direction: column; }
+  .fam .tag { align-self: flex-start; font-size: 10.5px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--kin-camel); background: var(--accent-warm-soft); border-radius: var(--radius-pill); padding: 5px 12px; margin-bottom: 14px; }
+  .fam h3 { font-size: 22px; margin: 0 0 10px; }
+  .fam p { font-size: 13.5px; margin: 0 0 10px; line-height: 1.6; }
+  .fam p:last-child { margin-bottom: 0; }
+  .fam .mono-note { font-family: var(--font-mono); font-size: 11px; color: var(--fg-soft); margin-top: auto; padding-top: 12px; }
+
+  /* Join */
+  .join-wrap { background: linear-gradient(150deg, #2A1A2B, #1C140D 80%); border: 1px solid var(--border); border-radius: var(--radius-xl); padding: 48px; }
+  .join-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 30px; }
+  .join-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 28px; }
+  .join-card h3 { font-size: 22px; margin: 0 0 8px; }
+  .join-card p { font-size: 14px; margin: 0 0 18px; line-height: 1.55; }
+  .field { width: 100%; background: rgba(255,248,240,0.05); border: 1px solid var(--border-strong); border-radius: var(--radius-xs); color: var(--fg); font-family: var(--font-sans); font-size: 15px; padding: 13px 14px; margin-bottom: 12px; }
+  .field::placeholder { color: var(--fg-dim); }
+  .field:focus { outline: none; border-color: var(--accent); }
+  .join-msg { font-size: 13px; min-height: 18px; margin: 4px 0 0; }
+  .join-msg.ok { color: var(--kin-complete); }
+  .join-msg.err { color: var(--danger); }
+
+  /* Contact */
+  .contact-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 28px; max-width: 640px; }
+  .name-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  textarea.field { resize: vertical; min-height: 120px; line-height: 1.5; }
+
+  /* FAQ */
+  .faq { display: grid; gap: 10px; max-width: 780px; }
+  .faq details { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 0; }
+  .faq summary { cursor: pointer; padding: 18px 20px; font-family: var(--font-sans); font-weight: 700; font-size: 15px; color: var(--fg); list-style: none; display: flex; justify-content: space-between; align-items: center; }
+  .faq summary::after { content: "→"; color: var(--accent); transition: transform 160ms; }
+  .faq details[open] summary::after { transform: rotate(90deg); }
+  .faq .a { padding: 0 20px 20px; font-size: 14.5px; color: var(--fg-muted); line-height: 1.6; }
+  .faq .a p { margin: 0 0 10px; }
+
+  /* Footer */
+  footer { margin-top: 24px; padding-top: 28px; border-top: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; gap: 20px; color: var(--fg-soft); font-size: 12.5px; flex-wrap: wrap; }
+  footer img { height: 40px; opacity: 0.9; }
+
+  /* Modal (mock checkout) */
+  .modal-veil { position: fixed; inset: 0; background: rgba(10,6,3,0.72); backdrop-filter: blur(6px); display: none; place-items: center; z-index: 100; padding: 20px; }
+  .modal-veil.open { display: grid; }
+  .modal { width: 100%; max-width: 460px; background: var(--surface-elev); border: 1px solid var(--border-strong); border-radius: var(--radius-lg); box-shadow: var(--shadow-lg); padding: 32px; }
+  .modal .m-kicker { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--fg-soft); margin-bottom: 12px; }
+  .modal h3 { font-size: 26px; margin: 0 0 10px; }
+  .modal p { font-size: 14px; line-height: 1.55; }
+  .payrow { display: grid; gap: 10px; margin: 20px 0 8px; }
+  .paybtn { font-family: var(--font-sans); font-weight: 700; font-size: 15px; padding: 14px; border-radius: var(--radius-xs); border: 1px solid var(--border-strong); background: rgba(255,248,240,0.05); color: var(--fg); cursor: pointer; }
+  .paybtn:hover { border-color: var(--fg-soft); }
+  .modal .fine { font-size: 12px; color: var(--fg-dim); margin-top: 14px; }
+  .modal .close { float: right; background: none; border: 0; color: var(--fg-soft); font-size: 18px; cursor: pointer; }
+  .welcome-num { font-family: var(--font-display); font-size: 60px; color: var(--kid-moon-cream); margin: 12px 0; }
+  .mint { color: var(--kin-mint); }
+
+  @media (max-width: 880px) {
+    .stat-strip { grid-template-columns: repeat(2, 1fr); }
+    .stat-strip > div:nth-child(2) { border-right: 0; }
+    .spine-grid, .flow-grid, .offer, .join-grid, .fam-grid { grid-template-columns: 1fr; }
+    .hero { padding: 56px 28px 48px; }
+    .join-wrap { padding: 32px 24px; }
+    .nav-links { display: none; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="proto">Prototype · payments are not live</div>
+
+  <!-- NAV -->
+  <nav class="nav">
+    <a href="#top"><img src="assets/kidunaverse-banner.svg" alt="Kidunaverse"></a>
+    <div class="nav-links">
+      <a href="#what">What this is</a>
+      <a href="#offer">The offer</a>
+      <a href="#where">Where your $100 goes</a>
+      <a href="#faq">Questions</a>
+      <a class="btn btn-secondary" href="#join">Become a founder →</a>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero" id="top">
+    <div class="eyebrow">Everybody eats</div>
+    <h1>Create allies. Build alliances. Launch organizations. <em class="kin-emph">Shape the agentic economy.</em></h1>
+    <p class="lead">Create intelligent allies that work on your behalf. Join them together with others to build alliances, launch organizations, and shape an economy where ownership, governance, and value belong to the people and communities doing the work. It all begins with Kinship Duna, the genesis organization. Become a founding member.</p>
+    <div class="price-line">Buy $100 of compute to power your allies, alliances, and organizations. Become a Founding Member for Life.</div>
+    <div class="hero-ctas">
+      <a class="btn btn-primary btn-big" href="#join">Become a founding member →</a>
+      <a class="btn btn-secondary btn-big" href="#contact">Contact us</a>
+    </div>
+    <img class="mark" src="assets/kiduna-mark.svg" alt="">
+  </section>
+
+  <!-- STAT STRIP -->
+  <div class="strip-kicker">The network · day one</div>
+  <div class="stat-strip">
+    <div>
+      <div class="k">Allies</div>
+      <div class="v">0</div>
+      <div class="s">Intelligent agents created by members to collaborate, automate work, and represent people and organizations.</div>
+    </div>
+    <div>
+      <div class="k">Alliances</div>
+      <div class="v">0</div>
+      <div class="s">Teams of people, organizations, and allies working together around a shared mission, project, or opportunity.</div>
+    </div>
+    <div>
+      <div class="k">Organizations</div>
+      <div class="v">31</div>
+      <div class="s">Member-owned DUNAs with legal standing, governance, treasury, and their own agentic economy.</div>
+    </div>
+    <div>
+      <div class="k">Economy</div>
+      <div class="v">$0</div>
+      <div class="s">The total value of agentic currencies circulating across the Kiduna network.</div>
+    </div>
+  </div>
+
+  <!-- WHAT THIS IS -->
+  <section id="what">
+    <div class="section-head">
+      <span class="kicker">01 · The Architecture of the Kidunaverse</span>
+      <h2>The agentic internet <em class="kin-emph">starts here.</em></h2>
+      <p>The Kidunaverse is a living creation engine where software, governance, economics, and culture are forged into the next generation of agentic allies, alliances, organizations and economies operating at internet scale and machine speed.</p>
+    </div>
+    <div class="spine-grid">
+      <div class="spine">
+        <div class="cover cover-b"></div>
+        <div class="body">
+          <div class="step">Agency</div>
+          <h3>Create allies</h3>
+          <p>Intelligent agents that know you, represent you, and work on your behalf. Every ally carries cryptographic authority, collaborates securely with other allies, and can operate safely across the open internet.</p>
+        </div>
+      </div>
+      <div class="spine">
+        <div class="cover cover-a"></div>
+        <div class="body">
+          <div class="step">Coordination</div>
+          <h3>Build alliances</h3>
+          <p>Dynamic networks of people and agents that coordinate work, share resources, make decisions, and execute together at machine speed.</p>
+        </div>
+      </div>
+      <div class="spine">
+        <div class="cover cover-c"></div>
+        <div class="body">
+          <div class="step">Standing</div>
+          <h3>Launch organizations</h3>
+          <p>Transform alliances into member-owned associations with legal standing, governance, treasury, identity, and intelligent agents capable of operating continuously on behalf of the organization.</p>
+        </div>
+      </div>
+      <div class="spine">
+        <div class="cover cover-d"></div>
+        <div class="body">
+          <div class="step">Capital</div>
+          <h3>Shape economies</h3>
+          <p>Every organization has its own agentic currency while remaining connected to the broader Kiduna economy, allowing value, intelligence, agency, and liquidity to flow freely across the network without fragmenting into isolated systems.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- THE OFFER -->
+  <section id="offer">
+    <div class="section-head">
+      <span class="kicker">02 · The offer</span>
+      <h2>Founding membership in <em class="kin-emph">Kinship Duna.</em></h2>
+      <p>Kinship Duna is the genesis duna — the organization that owns and operates the Kidunaverse, and the factory that builds every duna after it.</p>
+    </div>
+    <div class="offer">
+      <div class="offer-price">
+        <div class="tier">Founding member</div>
+        <div class="amt">$100</div>
+        <div class="amt-sub">one payment · lifetime membership</div>
+        <a class="btn btn-primary" href="#join" style="align-self:flex-start;">Join the founding round →</a>
+        <p class="note">Pay by card, Apple Pay, or Google Pay. Membership is by invitation — you'll need a Kinship Code from a current member, or you can request one below.</p>
+      </div>
+      <div class="offer-list">
+        <h3>What you receive</h3>
+        <ul>
+          <li><b>A founding member badge</b> — permanent, on the record, in your wallet. Once a member, always a member.</li>
+          <li><b>$KIDUNA in your wallet</b> — the currency of Kinship Duna. It buys intelligence: the tokens your ally and its agents run on.</li>
+          <li><b>A voice in governance</b> — proposals and decisions are made by members, not a board. There is no board.</li>
+          <li><b>Paid work, if you want it</b> — Kinship Duna pays members to build the factory and the dunas it spins out. Bring in a member who gets paid, and you earn alongside them.</li>
+          <li><b>The tools</b> — design your ally, form alliances, and when you're ready, launch a duna of your own.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- WHERE YOUR $100 GOES -->
+  <section id="where">
+    <div class="section-head">
+      <span class="kicker">03 · Where your $100 goes</span>
+      <h2>Every dollar stays <em class="kin-emph">inside the system.</em></h2>
+      <p>Profit is never extracted from the Kidunaverse. When the founding round closes, the funds move on-chain as USDC and split three ways — publicly, permanently, verifiably.</p>
+    </div>
+    <div class="bar" aria-hidden="true">
+      <div class="b-liq">20</div>
+      <div class="b-lin">30</div>
+      <div class="b-tre">50</div>
+    </div>
+    <div class="flow-grid">
+      <div class="flow">
+        <div class="pct">20%</div>
+        <h4>Liquidity</h4>
+        <p>Backs $KIDUNA so it can be openly traded. Your membership isn't locked in a company — it lives in a currency with a market.</p>
+      </div>
+      <div class="flow">
+        <div class="pct">30%</div>
+        <h4>Lineage</h4>
+        <p>Flows back through the chain of members who invited you, four generations deep. Growing the organization is rewarded — automatically, transparently.</p>
+      </div>
+      <div class="flow">
+        <div class="pct">50%</div>
+        <h4>Treasury</h4>
+        <p>The organization's shared funds, spent only by member decision — on building software, paying members, and launching new dunas.</p>
+      </div>
+    </div>
+    <p class="honesty">Until the founding round reaches its $100,000 minimum and closes, funds sit in Kinship Duna's bank account in West Virginia. The round is capped at $10,000,000. If the round doesn't close, founding payments are returned.</p>
+  </section>
+
+  <!-- THE KIDUNA FAMILY -->
+  <section id="family">
+    <div class="section-head">
+      <span class="kicker">04 · The Kiduna Family</span>
+      <h2>A bridge between two <em class="kin-emph">worlds.</em></h2>
+      <p>Some things still require traditional institutions — at least for now. Maybe not forever. The Kiduna family of companies bridges the institutional world and the agentic world, and each one supports Kinship Duna through a contractual relationship. Institutions are non-duna organizations: they have no agents of their own, and they connect to the Kidunaverse the old way — by contract.</p>
+    </div>
+    <div class="fam-grid">
+      <div class="fam">
+        <span class="tag">Delaware C Corp</span>
+        <h3>Kiduna Club</h3>
+        <p>Developed the underlying technology and stewards the technology IP. Every kiduna signs a licensing agreement with Kiduna Club at formation to maintain the <b style="color:var(--fg)">Kinship Agency Protocol</b> — the blockchain protocol that connects allies to their owners and lets allies be bought, sold, and transferred — and the Kiduna platform: the app, the middleware and orchestration layer, and the databases, including the Kinship Graph.</p>
+        <div class="mono-note">Open source · Apache 2.0</div>
+      </div>
+      <div class="fam">
+        <span class="tag">501(c)(3) Public Charity</span>
+        <h3>Kinship Intelligence Institute</h3>
+        <p>The charitable arm. The Institute can provide fiscal sponsorship to any duna operating with a charitable purpose — so dunas doing public-good work can receive grants and tax-deductible donations without becoming traditional nonprofits themselves.</p>
+        <div class="mono-note">Fiscal sponsorship · grants · donations</div>
+      </div>
+      <div class="fam">
+        <span class="tag">Consulting &amp; Integration</span>
+        <h3>Kinship Systems</h3>
+        <p>The dealmakers. Kinship Systems implements agreements between dunas and institutions of every kind — companies, nonprofits, governments — across a wide variety of domains, translating between contracts on one side and agents on the other.</p>
+        <div class="mono-note">duna ↔ institution</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- JOIN -->
+  <section id="join">
+    <div class="join-wrap">
+      <div class="section-head" style="margin-bottom:0;">
+        <span class="kicker">05 · Join</span>
+        <h2>Membership is by <em class="kin-emph">invitation.</em></h2>
+        <p>Every member arrives through another member — that's what makes the lineage real, and it's how trust works here. If nobody has handed you a Kinship Code yet, ask for one.</p>
+      </div>
+      <div class="join-grid">
+        <div class="join-card">
+          <h3>I have a Kinship Code</h3>
+          <p>Enter the code a member shared with you. It's your invitation — it connects you to your lineage and unlocks the founding membership.</p>
+          <input class="field" id="code-input" type="text" placeholder="KIN-XXXX-XXXX" autocomplete="off">
+          <button class="btn btn-primary" style="width:100%; justify-content:center;" onclick="startCheckout()">Continue — $100 →</button>
+          <p class="join-msg" id="code-msg"></p>
+        </div>
+        <div class="join-card">
+          <h3>I don't have one yet</h3>
+          <p>Tell us who you are. A member of Kinship Duna will review your request and send you a Kinship Code personally.</p>
+          <input class="field" id="req-name" type="text" placeholder="Your name">
+          <input class="field" id="req-email" type="email" placeholder="you@example.com">
+          <button class="btn btn-secondary" style="width:100%; justify-content:center;" onclick="requestInvite()">Request an invitation</button>
+          <p class="join-msg" id="req-msg"></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section id="faq">
+    <div class="section-head">
+      <span class="kicker">06 · Questions</span>
+      <h2>Asked and <em class="kin-emph">answered.</em></h2>
+    </div>
+    <div class="faq">
+      <details>
+        <summary>What is a duna?</summary>
+        <div class="a"><p>A duna is an organization that's born on the internet and owned by its members. Legally, it's a DUNA — a Decentralized Unincorporated Nonprofit Association, a new kind of entity under West Virginia law. Like an LLC, it's a real legal wrapper: it can own property, sign agreements, open bank accounts, and hire people. Unlike an LLC, it has no board and no shares — members govern it directly, and its agents act on its behalf.</p></div>
+      </details>
+      <details>
+        <summary>Why do I need a Kinship Code?</summary>
+        <div class="a"><p>Because on the open internet, trust has to come from somewhere. A Kinship Code is a cryptographic invitation from a real member — it establishes who vouched for you, connects you to your lineage, and gives your ally a verified place in the network. No anonymous floods, no bots buying in bulk. People, invited by people.</p></div>
+      </details>
+      <details>
+        <summary>What is $KIDUNA, exactly?</summary>
+        <div class="a"><p>$KIDUNA is Kinship Duna's currency. Its first practical use: buying intelligence — the LLM tokens that power your ally and the agents working under it. It's openly tradable, so as the organization does well, the currency can too. Every duna issues its own currency and they all work the same way.</p></div>
+      </details>
+      <details>
+        <summary>Is this a crypto thing?</summary>
+        <div class="a"><p>The blockchain is in here, but not for speculation — it's how agents and members verify identity, hold ownership, and move value without a corporation in the middle. You pay in dollars. Your ally, your badge, and your $KIDUNA live in a wallet the system manages for you. If you never want to think about the chain, you won't have to.</p></div>
+      </details>
+      <details>
+        <summary>What happens if the round doesn't reach $100,000?</summary>
+        <div class="a"><p>The founding round has a $100,000 minimum and a $10,000,000 cap. Funds stay in Kinship Duna's bank account until the minimum is met and the round closes; only then does the 20/30/50 split execute on-chain. If the round doesn't close, founding payments are returned.</p></div>
+      </details>
+      <details>
+        <summary>Who is behind this?</summary>
+        <div class="a"><p>Kinship Duna — Org ID 628407, registered with the West Virginia Secretary of State, based in Shepherdstown, WV. The software is built by Kiduna Club, and by members of Kinship Duna itself: the factory is built by the people who own it. Questions? Write to <a href="mailto:david@kiduna.club">david@kiduna.club</a>.</p></div>
+      </details>
+    </div>
+  </section>
+
+  <!-- CONTACT -->
+  <section id="contact">
+    <div class="section-head">
+      <span class="kicker">07 · Contact</span>
+      <h2>Ask us <em class="kin-emph">anything.</em></h2>
+      <p>Questions about membership, dunas, allies, or the founding round — write to us and a member will get back to you.</p>
+    </div>
+    <div class="contact-card">
+      <div class="name-row">
+        <input class="field" id="ct-first" type="text" placeholder="First name" autocomplete="given-name">
+        <input class="field" id="ct-last" type="text" placeholder="Last name" autocomplete="family-name">
+      </div>
+      <input class="field" id="ct-email" type="email" placeholder="you@example.com" autocomplete="email">
+      <textarea class="field" id="ct-msg" rows="5" placeholder="Your question"></textarea>
+      <button class="btn btn-secondary" onclick="sendContact()">Send message</button>
+      <p class="join-msg" id="ct-status"></p>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <img src="assets/kidunaverse-banner.svg" alt="Kidunaverse">
+    <div>Kinship Duna · Org ID 628407 · Shepherdstown, West Virginia · <a href="mailto:david@kiduna.club">david@kiduna.club</a></div>
+  </footer>
+</div>
+
+<!-- MOCK CHECKOUT MODAL -->
+<div class="modal-veil" id="veil">
+  <div class="modal" id="modal-box"></div>
+</div>
+
+<script>
+  var founderNumber = 48; // mock
+
+  function sendContact() {
+    var first = document.getElementById('ct-first').value.trim();
+    var last = document.getElementById('ct-last').value.trim();
+    var email = document.getElementById('ct-email').value.trim();
+    var msg = document.getElementById('ct-msg').value.trim();
+    var status = document.getElementById('ct-status');
+    if (!first || !last || !msg || email.indexOf('@') < 0) {
+      status.textContent = 'Name, a working email, and your question — that\'s all we need.';
+      status.className = 'join-msg err';
+      return;
+    }
+    status.textContent = 'Message received. A member will write back to you soon.';
+    status.className = 'join-msg ok';
+  }
+
+  function veil(open) {
+    document.getElementById('veil').classList.toggle('open', open);
+  }
+
+  function startCheckout() {
+    var code = document.getElementById('code-input').value.trim();
+    var msg = document.getElementById('code-msg');
+    if (!code) {
+      msg.textContent = 'Enter the Kinship Code a member shared with you.';
+      msg.className = 'join-msg err';
+      return;
+    }
+    msg.textContent = '';
+    var box = document.getElementById('modal-box');
+    box.innerHTML =
+      '<button class="close" onclick="veil(false)">✕</button>' +
+      '<div class="m-kicker">Step 1 of 2 · Code accepted</div>' +
+      '<h3>Welcome. You were invited.</h3>' +
+      '<p>Code <b style="color:var(--kin-mint)">' + escapeHtml(code) + '</b> checks out. One payment makes you a founding member of Kinship Duna — for life.</p>' +
+      '<div class="payrow">' +
+        '<button class="paybtn" onclick="finishCheckout()"> Pay with Apple&nbsp;Pay — $100</button>' +
+        '<button class="paybtn" onclick="finishCheckout()">G · Pay with Google&nbsp;Pay — $100</button>' +
+        '<button class="paybtn" onclick="finishCheckout()">Pay with card — $100</button>' +
+      '</div>' +
+      '<p class="fine">Prototype — no payment will be taken. In the live version this is Stripe checkout.</p>';
+    veil(true);
+  }
+
+  function finishCheckout() {
+    var box = document.getElementById('modal-box');
+    box.innerHTML =
+      '<button class="close" onclick="veil(false)">✕</button>' +
+      '<div class="m-kicker">Step 2 of 2 · Complete</div>' +
+      '<h3>You\'re a founding member.</h3>' +
+      '<div class="welcome-num">Nº ' + founderNumber + '</div>' +
+      '<p>Founding member number ' + founderNumber + ' of Kinship Duna. Your badge is permanent, and your <span class="mint">$KIDUNA</span> arrives in your wallet when the founding round closes.</p>' +
+      '<p style="margin-top:16px;">Next: <b>design your ally.</b></p>' +
+      '<div class="payrow"><button class="paybtn" onclick="veil(false)">Enter the Kidunaverse →</button></div>' +
+      '<p class="fine">Prototype — the app is where this button will take you.</p>';
+  }
+
+  function requestInvite() {
+    var name = document.getElementById('req-name').value.trim();
+    var email = document.getElementById('req-email').value.trim();
+    var msg = document.getElementById('req-msg');
+    if (!name || !email || email.indexOf('@') < 0) {
+      msg.textContent = 'A name and a working email — that\'s all we need.';
+      msg.className = 'join-msg err';
+      return;
+    }
+    msg.textContent = 'Request received. A member will send your Kinship Code personally.';
+    msg.className = 'join-msg ok';
+  }
+
+  function escapeHtml(s) {
+    var d = document.createElement('div');
+    d.textContent = s;
+    return d.innerHTML;
+  }
+</script>
+</body>
+</html>

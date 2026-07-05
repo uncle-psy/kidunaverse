@@ -1,0 +1,240 @@
+/* ==========================================================================
+   Kidunaverse Design System — Colors + Type
+   The Kidunaverse: the actual Kinship DUNA — the first DUNA registered in
+   West Virginia — a Kiduna Factory building software-based, internet-native
+   agentic organizations.
+   Goudy Heavyface (display) + Avenir (body). Deep-umber backgrounds, sky-blue
+   primary action, Kiduna sun-gold + moon-cream from the mark, warm camel +
+   chocolate earth tones, a touch of mint magic. Dark-UI native.
+   ========================================================================== */
+
+/* ---- Fonts -------------------------------------------------------------- */
+
+@font-face {
+  font-family: "Goudy Heavyface";
+  src: url("./fonts/goudy_heavyface_bt.ttf") format("truetype");
+  font-weight: 400 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Avenir";
+  src: url("./fonts/avenir-light.ttf") format("truetype");
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Avenir";
+  src: url("./fonts/avenir-book.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Avenir";
+  src: url("./fonts/avenir-regular.ttf") format("truetype");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Avenir";
+  src: url("./fonts/avenir-heavy.ttf") format("truetype");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Avenir";
+  src: url("./fonts/avenir-black.ttf") format("truetype");
+  font-weight: 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  /* ---- Brand palette -------------------------------------------------- */
+  /* PRIMARY — sky blue is now the brand action color (replaces orange). */
+  --kin-skyblue:       #03CCD9;   /* primary CTA + brand */
+  --kin-skyblue-hover: #2FE0EA;
+  --kin-skyblue-soft:  rgba(3, 204, 217, 0.14);
+
+  /* EARTH — warm browns carry the surfaces + secondary warmth. */
+  --kin-camel:         #C19A6B;   /* signature warm neutral */
+  --kin-chocolate:     #6F4A2E;   /* mid chocolate, pairs with camel */
+  --kin-darkumber:     #4E3629;   /* mid umber */
+  --kin-espresso:      #1C140D;   /* almost-black brown — page ground */
+  --kin-aubergine:     #2A1A2B;   /* deep plum-brown alt ground */
+
+  /* KIDUNA MARK — the sun + moon carry two colors of their own. */
+  --kid-sun-gold:      #EAAA00;   /* Kiduna sun gold — logo + gold moments */
+  --kid-moon-cream:    #FFF6D5;   /* Kiduna moon cream — highlight on dark */
+
+  /* MAGIC — mint sparks the system; reserved + rare. */
+  --kin-mint:          #8FE6C6;
+  --kin-mint-soft:     rgba(143, 230, 198, 0.16);
+
+  /* Retained brand colors (still in the system, now supporting roles) */
+  --kin-navyblue:      #100E59;
+  --kin-darkblue:      #09073A;
+  --kin-orange:        #F7941D;   /* legacy / energy accent only */
+  --kin-gold:          #FFCA05;
+  --kin-lime:          #BEEF00;
+  --kin-magenta:       #EC008C;
+  --kin-cream-white:   #FFFFE6;   /* off-white paper */
+  --kin-cream:         #F9DDB7;   /* warm cream */
+  --kin-black:         #1E1F20;
+
+  /* Extended accents */
+  --kin-accent-purple:       #6536BB;
+  --kin-accent-purple-scn:   #3F2270;
+  --kin-accent-chocobrown:   #5D4037;
+  --kin-accent-rusticbrown:  #8B4513;
+  --kin-accent-chestnut:     #7B3F00;
+  --kin-grey:                #9094A3;
+
+  /* Feedback */
+  --kin-error:       #FF3A3A;
+  --kin-error-tob:   #AF0E0E;
+  --kin-complete:    #00EB75;
+  --kin-warning:     #FFCA05;   /* gold doubles as warning */
+
+  /* Signature brand gradient — sky → indigo (the "magic" lockup) */
+  --kin-gradient-brand: linear-gradient(120deg, #03CCD9 0%, #2FB4E0 38%, #6536BB 100%); /* @kind other */
+  --kin-gradient-mint:  linear-gradient(120deg, #03CCD9 0%, #8FE6C6 100%); /* @kind other */
+
+  /* ---- Semantic tokens — dark theme (default) -------------------------- */
+  --bg:             var(--kin-espresso);        /* deep-umber page ground */
+  --bg-deep:        #120C07;                    /* deeper edges / behind bg */
+  --surface:        #271B11;                    /* warm brown cards */
+  --surface-elev:   #33251A;                    /* elevated cards */
+  --surface-muted:  rgba(255, 248, 240, 0.04);
+
+  --fg:             #FFFBF5;                    /* warm white text */
+  --fg-muted:       #E0D3C4;                    /* secondary text */
+  --fg-soft:        rgba(255, 251, 245, 0.60);  /* tertiary / captions */
+  --fg-dim:         rgba(255, 251, 245, 0.35);
+
+  --border:         rgba(255, 248, 240, 0.12);
+  --border-strong:  rgba(255, 248, 240, 0.22);
+  --hairline:       rgba(193, 154, 107, 0.30);  /* camel hairline */
+
+  --accent:         var(--kin-skyblue);         /* primary CTA — sky */
+  --accent-hover:   var(--kin-skyblue-hover);
+  --accent-soft:    var(--kin-skyblue-soft);
+
+  --accent-warm:      var(--kin-camel);         /* warm secondary action */
+  --accent-warm-soft: rgba(193, 154, 107, 0.16);
+
+  --link:           var(--kin-skyblue);
+  --success:        var(--kin-complete);
+  --danger:         var(--kin-error);
+
+  /* ---- Type system ---------------------------------------------------- */
+  --font-display:   "Goudy Heavyface", "Goudy Old Style", Georgia, serif;
+  --font-sans:      "Avenir", "Avenir Next", ui-sans-serif, system-ui, sans-serif;
+  --font-mono:      ui-monospace, "SF Mono", Menlo, monospace;
+
+  /* Scale — matches corporate ID body sizes (9/11/13/16px body, 20/24/30/54
+     display) anchored to a 16px base. */
+  --fs-xs:   12px;
+  --fs-sm:   14px;
+  --fs-base: 16px;
+  --fs-lg:   18px;
+  --fs-xl:   20px;
+  --fs-2xl:  24px;
+  --fs-3xl:  30px;
+  --fs-4xl:  40px;
+  --fs-5xl:  54px;
+  --fs-6xl:  72px;
+
+  --lh-tight:  1.05; /* @kind other */
+  --lh-snug:   1.2;  /* @kind other */
+  --lh-body:   1.5;  /* @kind other */
+  --lh-loose:  1.7;  /* @kind other */
+
+  --tracking-caps: 0.16em;   /* eyebrow labels */
+
+  /* ---- Space + radius ------------------------------------------------- */
+  --space-1:  4px;
+  --space-2:  8px;
+  --space-3:  12px;
+  --space-4:  16px;
+  --space-5:  20px;
+  --space-6:  24px;
+  --space-8:  32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+
+  --radius-xs:   4px;
+  --radius-sm:   6px;
+  --radius-md:   10px;
+  --radius-lg:   14px;
+  --radius-xl:   20px;
+  --radius-pill: 9999px;
+
+  /* ---- Elevation — warm, deep shadows on umber ------------------------ */
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.40);
+  --shadow-md: 0 6px 20px rgba(12, 7, 3, 0.50);
+  --shadow-lg: 0 18px 48px rgba(12, 7, 3, 0.60);
+  --shadow-glow-accent: 0 0 0 1px rgba(3,204,217,0.35), 0 8px 28px rgba(3,204,217,0.18);
+  --shadow-glow-sky:    0 0 0 1px rgba(3,204,217,0.35), 0 8px 28px rgba(3,204,217,0.18);
+  --shadow-glow-warm:   0 0 0 1px rgba(193,154,107,0.40), 0 8px 28px rgba(193,154,107,0.16);
+}
+
+/* ---- Semantic element styles -------------------------------------------- */
+
+html, body { background: var(--bg); color: var(--fg); }
+
+body {
+  font-family: var(--font-sans);
+  font-size: var(--fs-base);
+  line-height: var(--lh-body);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+h1, h2, h3, h4, h5, h6,
+.kin-display {
+  font-family: var(--font-display);
+  font-weight: 400;         /* Goudy Heavyface is already heavy */
+  letter-spacing: 0;
+  line-height: var(--lh-tight);
+  color: var(--fg);
+}
+
+h1 { font-size: var(--fs-5xl); }
+h2 { font-size: var(--fs-3xl); line-height: var(--lh-snug); }
+h3 { font-size: var(--fs-2xl); line-height: var(--lh-snug); }
+h4 { font-size: var(--fs-xl);  line-height: var(--lh-snug); }
+h5 { font-size: var(--fs-lg);  line-height: var(--lh-snug); }
+h6 { font-size: var(--fs-base); line-height: var(--lh-snug); }
+
+p  { color: var(--fg-muted); }
+a  { color: var(--link); text-decoration: none; }
+a:hover { color: color-mix(in oklch, var(--link) 80%, white); }
+
+small, .kin-small { font-size: var(--fs-sm); color: var(--fg-soft); }
+
+code, pre, .kin-mono { font-family: var(--font-mono); font-size: 0.92em; }
+
+/* Signature Kinship move: italic serif phrase inside a display headline,
+   set in the brand orange. Used for emphasis in hero copy. */
+em.kin-emph, .kin-emph {
+  font-family: var(--font-display);
+  font-style: italic;
+  color: var(--accent);
+}
+
+/* Eyebrow / caps label */
+.kin-eyebrow, .label-caps {
+  font-family: var(--font-sans);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: var(--tracking-caps);
+  text-transform: uppercase;
+  color: var(--fg-soft);
+}
