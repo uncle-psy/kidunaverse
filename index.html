@@ -76,12 +76,16 @@
   .spine p { font-size: 14px; margin: 0; line-height: 1.55; }
 
   /* Offer */
-  .offer { display: grid; grid-template-columns: 0.9fr 1.1fr; gap: 20px; }
-  .offer-price { background: linear-gradient(180deg, rgba(3,204,217,0.12), transparent 70%), var(--surface); border: 1px solid rgba(3,204,217,0.4); box-shadow: var(--shadow-glow-accent); border-radius: var(--radius-lg); padding: 30px; display: flex; flex-direction: column; }
+  .offer { display: grid; grid-template-columns: 1fr; gap: 20px; }
+  .offer-price { background: linear-gradient(180deg, rgba(3,204,217,0.12), transparent 70%), var(--surface); border: 1px solid rgba(3,204,217,0.4); box-shadow: var(--shadow-glow-accent); border-radius: var(--radius-lg); padding: 34px; display: grid; grid-template-columns: auto 1fr; gap: 12px 48px; align-items: center; }
+  .offer-price .price-left { display: flex; flex-direction: column; }
+  .offer-price .price-right { display: flex; flex-direction: column; align-items: flex-start; }
+  @media (max-width: 720px) { .offer-price { grid-template-columns: 1fr; } }
   .offer-price .tier { font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--fg-soft); font-weight: 700; }
   .offer-price .amt { font-family: var(--font-display); font-size: 88px; line-height: 1; margin: 16px 0 4px; color: var(--fg); }
   .offer-price .amt-sub { font-size: 15px; color: var(--fg-soft); margin-bottom: 22px; }
   .offer-price .note { font-size: 13px; color: var(--fg-soft); margin-top: auto; line-height: 1.5; }
+  .section-head .ethos { font-family: var(--font-display); font-size: 24px; color: var(--kid-moon-cream); margin-top: 20px; }
   .offer-list { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 30px; }
   .offer-list h3 { font-size: 24px; margin: 0 0 18px; }
   .offer-list ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 14px; }
@@ -101,6 +105,17 @@
   .flow h4 { font-size: 18px; margin: 6px 0 8px; }
   .flow p { font-size: 13.5px; margin: 0; line-height: 1.55; }
   .honesty { font-size: 13.5px; color: var(--fg-soft); max-width: 720px; line-height: 1.6; margin-top: 20px; }
+  .goal-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; max-width: 720px; }
+  .goal { background: var(--surface); border: 1px solid var(--hairline); border-radius: var(--radius-lg); padding: 20px 22px; }
+  .goal h4 { font-size: 19px; margin: 0 0 8px; }
+  .goal p { font-size: 13.5px; margin: 0; line-height: 1.55; }
+  .subhead { font-size: 28px; margin: 44px 0 0; }
+  .sub-lead { font-size: 15px; color: var(--fg-muted); max-width: 640px; margin: 12px 0 0; }
+  .callout { margin-top: 28px; background: linear-gradient(150deg, #2A1A2B, #1C140D 85%); border: 1px solid var(--hairline); border-radius: var(--radius-xl); padding: 34px 36px; max-width: 860px; }
+  .co-kicker { font-family: var(--font-sans); font-size: 11px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: var(--kin-camel); margin-bottom: 14px; }
+  .callout p { font-size: 15px; line-height: 1.65; max-width: 720px; }
+  .callout .principle { font-family: var(--font-display); font-size: 24px; line-height: 1.3; color: var(--kid-moon-cream); margin: 22px 0 12px; }
+  .callout .co-close { font-size: 14px; color: var(--fg-soft); margin-bottom: 0; }
 
   /* Kiduna Family */
   .fam-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
@@ -109,7 +124,8 @@
   .fam h3 { font-size: 22px; margin: 0 0 10px; }
   .fam p { font-size: 13.5px; margin: 0 0 10px; line-height: 1.6; }
   .fam p:last-child { margin-bottom: 0; }
-  .fam .mono-note { font-family: var(--font-mono); font-size: 11px; color: var(--fg-soft); margin-top: auto; padding-top: 12px; }
+  .fam .mono-note { font-family: var(--font-mono); font-size: 11px; color: var(--fg-soft); margin-top: auto; padding-top: 12px; line-height: 1.7; }
+  .fam a.learn { font-size: 13px; font-weight: 700; margin-top: 10px; align-self: flex-start; }
 
   /* Join */
   .join-wrap { background: linear-gradient(150deg, #2A1A2B, #1C140D 80%); border: 1px solid var(--border); border-radius: var(--radius-xl); padding: 48px; }
@@ -123,6 +139,14 @@
   .join-msg { font-size: 13px; min-height: 18px; margin: 4px 0 0; }
   .join-msg.ok { color: var(--kin-complete); }
   .join-msg.err { color: var(--danger); }
+  .ea-card { max-width: 560px; margin-top: 30px; }
+  .flabel { display: block; font-family: var(--font-sans); font-size: 12px; font-weight: 700; letter-spacing: 0.06em; color: var(--fg-muted); margin: 0 0 6px; }
+  .field-group { margin-bottom: 4px; }
+  .ea-card .name-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .fs-err { display: block; color: var(--danger); font-size: 12px; min-height: 0; margin: 0 0 4px; }
+  .fs-success { color: var(--kin-complete); font-size: 14px; margin-top: 12px; }
+  .req-note { font-size: 12px; color: var(--fg-dim); margin: 0 0 14px; }
+  .fineprint { font-size: 12px; color: var(--fg-dim); line-height: 1.55; margin: 14px 0 0; }
 
   /* Contact */
   .contact-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 28px; max-width: 640px; }
@@ -160,7 +184,7 @@
   @media (max-width: 880px) {
     .stat-strip { grid-template-columns: repeat(2, 1fr); }
     .stat-strip > div:nth-child(2) { border-right: 0; }
-    .spine-grid, .flow-grid, .offer, .join-grid, .fam-grid { grid-template-columns: 1fr; }
+    .spine-grid, .flow-grid, .offer, .join-grid, .fam-grid, .goal-grid { grid-template-columns: 1fr; }
     .hero { padding: 56px 28px 48px; }
     .join-wrap { padding: 32px 24px; }
     .nav-links { display: none; }
@@ -178,7 +202,7 @@
     <div class="nav-links">
       <a href="#what">What this is</a>
       <a href="#offer">The offer</a>
-      <a href="#where">Where your $100 goes</a>
+      <a href="#where">The economy</a>
       <a href="#faq">Questions</a>
       <a class="btn btn-secondary" href="#join">Become a founder →</a>
     </div>
@@ -213,12 +237,12 @@
     <div>
       <div class="k">Organizations</div>
       <div class="v">31</div>
-      <div class="s">Member-owned DUNAs with legal standing, governance, treasury, and their own agentic economy.</div>
+      <div class="s">Member-owned associations with legal standing, governance, treasury, and their own agentic economy.</div>
     </div>
     <div>
       <div class="k">Economy</div>
       <div class="v">$0</div>
-      <div class="s">The total value of agentic currencies circulating across the Kiduna network.</div>
+      <div class="s">The total value of agentic currencies circulating throughout the Kidunaverse and across the open internet.</div>
     </div>
   </div>
 
@@ -251,7 +275,7 @@
         <div class="body">
           <div class="step">Standing</div>
           <h3>Launch organizations</h3>
-          <p>Transform alliances into member-owned associations with legal standing, governance, treasury, identity, and intelligent agents capable of operating continuously on behalf of the organization.</p>
+          <p>Transform alliances into member-owned associations with legal standing, governance, treasury, identity, and intelligent agents capable of operating continuously on behalf of the collective.</p>
         </div>
       </div>
       <div class="spine">
@@ -259,7 +283,7 @@
         <div class="body">
           <div class="step">Capital</div>
           <h3>Shape economies</h3>
-          <p>Every organization has its own agentic currency while remaining connected to the broader Kiduna economy, allowing value, intelligence, agency, and liquidity to flow freely across the network without fragmenting into isolated systems.</p>
+          <p>Every organization has its own currency for managing compute resources and capacity while remaining connected to the broader agentic economy, allowing value, intelligence, agency, and liquidity to flow freely across the network without fragmenting into isolated systems.</p>
         </div>
       </div>
     </div>
@@ -268,38 +292,66 @@
   <!-- THE OFFER -->
   <section id="offer">
     <div class="section-head">
-      <span class="kicker">02 · The offer</span>
-      <h2>Founding membership in <em class="kin-emph">Kinship Duna.</em></h2>
-      <p>Kinship Duna is the genesis duna — the organization that owns and operates the Kidunaverse, and the factory that builds every duna after it.</p>
+      <span class="kicker">02 · The Founding Round</span>
+      <h2>Join as a founder and gain early access to the Kidunaverse, our <em class="kin-emph">creation engine</em> for the agentic internet.</h2>
+      <p>Become a co-founder of Kinship Duna, the first legally recognized, internet-native, agentic organization. You'll be granted immediate access to the Kidunaverse, where you can create allies, build alliances, launch your own organizations, and shape the agentic economy.</p>
+      <p>Our founding round will raise between $100,000 and $1,000,000 through the issuance of 10 million $KIDUNA, the compute currency that powers the allies, alliances, organizations, and economies native to the agentic internet. Every founding member will receive a proportional share of the compute resources issued at the initial launch price to design, develop, and deploy their own contributions to the Kidunaverse.</p>
+      <p>You're not renting access to a software platform, you're co-founding a real internet-native, agentic organization with legal standing, collective governance, shared ownership, and an economy designed to reward creativity, passion, and expertise.</p>
+      <p class="ethos">The agentic internet starts here. Everybody eats!</p>
     </div>
     <div class="offer">
       <div class="offer-price">
-        <div class="tier">Founding member</div>
-        <div class="amt">$100</div>
-        <div class="amt-sub">one payment · lifetime membership</div>
-        <a class="btn btn-primary" href="#join" style="align-self:flex-start;">Join the founding round →</a>
-        <p class="note">Pay by card, Apple Pay, or Google Pay. Membership is by invitation — you'll need a Kinship Code from a current member, or you can request one below.</p>
+        <div class="price-left">
+          <div class="tier">Founding Membership</div>
+          <div class="amt">$100</div>
+        </div>
+        <div class="price-right">
+          <div class="amt-sub">Exchange $100 for an initial share of the founding issuance of $KIDUNA, gain early access, and become a Founding Member for life.</div>
+          <a class="btn btn-primary" href="#join">Join the founding round →</a>
+          <p class="note">Founding Membership and early access are by invitation only. Join now with a Kinship Code or learn how to get one today.</p>
+        </div>
       </div>
       <div class="offer-list">
-        <h3>What you receive</h3>
+        <h3>Founding members receive</h3>
         <ul>
-          <li><b>A founding member badge</b> — permanent, on the record, in your wallet. Once a member, always a member.</li>
-          <li><b>$KIDUNA in your wallet</b> — the currency of Kinship Duna. It buys intelligence: the tokens your ally and its agents run on.</li>
-          <li><b>A voice in governance</b> — proposals and decisions are made by members, not a board. There is no board.</li>
-          <li><b>Paid work, if you want it</b> — Kinship Duna pays members to build the factory and the dunas it spins out. Bring in a member who gets paid, and you earn alongside them.</li>
-          <li><b>The tools</b> — design your ally, form alliances, and when you're ready, launch a duna of your own.</li>
+          <li><b>Lifetime recognition.</b> Become one of the founding members who capitalize Kinship Duna for launch. Your founding membership will never expire.</li>
+          <li><b>Your share of the founding issuance.</b> Receive your proportional allocation of the initial 10 million in $KIDUNA compute currency when the founding round closes. Purchase as much compute as you want at the founder's price.</li>
+          <li><b>Early access.</b> Experience the Kidunaverse before it's open to the general public and also receive early access to future releases, such as our specialized environments for organizers (Kiduna Agency), creators (Kiduna Studio), and builders (Kiduna Tech).</li>
+          <li><b>An ally that represents you.</b> Create an intelligent ally with cryptographic authority that safely and securely acts on your behalf across the open internet.</li>
+          <li><b>An equal voice in governance.</b> No bosses, no shareholders, no board. Nothing above the members who govern the organization together on equal footing, with equal say.</li>
+          <li><b>An opportunity to organize, create, and build the agentic internet.</b> Transform passion into action. Coordinate people and intelligent agents to launch ventures, fund missions, create markets, govern communities, and accomplish together what no individual, movement, or traditional organization could achieve alone.</li>
+          <li><b>Shared prosperity in a reciprocal economy.</b> Unlike platforms that exploit users and extract value for shareholders, Kinship Duna is member-owned, reinvesting its resources into its mission and members. Members earn by creating, building, organizing, teaching, governing, and launching new ventures. Every contributor participates in the transparent distribution of treasury assets, rewarding the members who expand the realm of possibility for everyone.</li>
         </ul>
       </div>
     </div>
   </section>
 
-  <!-- WHERE YOUR $100 GOES -->
+  <!-- THE AGENTIC ECONOMY -->
   <section id="where">
     <div class="section-head">
-      <span class="kicker">03 · Where your $100 goes</span>
-      <h2>Every dollar stays <em class="kin-emph">inside the system.</em></h2>
-      <p>Profit is never extracted from the Kidunaverse. When the founding round closes, the funds move on-chain as USDC and split three ways — publicly, permanently, verifiably.</p>
+      <span class="kicker">03 · The agentic economy</span>
+      <h2>Every organization runs on its own <em class="kin-emph">compute currency.</em></h2>
+      <p>The agricultural economy was built on land. The industrial economy was built on labor. The information economy was built on platforms. The agentic economy will be built on the compute that powers intelligent, autonomous, and decentralized organizations.</p>
+      <p>Every agentic organization issues its own compute currency. Members purchase that currency with US dollars, which the organization uses to pay for intelligence, storage, software, expertise, services, infrastructure, and anything else required to accomplish its mission. Compute currencies are freely tradable through decentralized exchanges, and they can be converted back into US dollars and deposited into personal and commercial bank accounts. This model ensures the agentic economy will remain open, so it can never be captured by a single platform.</p>
+      <p>Compute currency prices will fluctuate. As an organization becomes more capable, attracts more members, and delivers greater value to the people and communities it serves, demand for its compute resources will increase.</p>
+      <p>Unlike the boards of traditional companies that approve the issuance of shares or the central banks that print the money supply of nations, an agentic organization's supply of compute currency is governed by the members themselves. Governance forums continuously balance supply with demand so the currency remains useful, sustainable, valuable, and aligned with the organization's long-term mission. Every governance decision therefore serves two goals simultaneously:</p>
     </div>
+    <div class="goal-grid">
+      <div class="goal">
+        <h4>Advance the mission</h4>
+        <p>Create lasting value that strengthens and supports the people, communities, or causes the organization was built to serve.</p>
+      </div>
+      <div class="goal">
+        <h4>Steward the treasury</h4>
+        <p>Spend carefully, avoid waste, and maximize the amount of agency the organization can create from every dollar it raises or earns.</p>
+      </div>
+    </div>
+    <div class="section-head" style="margin-top:26px;">
+      <p style="margin-top:0;">Those incentives are mutually reinforcing. Organizations that create meaningful value while operating efficiently become more attractive. Their currencies become more useful, more people participate, and more compute resources become available. The organization itself becomes stronger and gains greater capacity to accomplish its mission.</p>
+      <p>This creates a reciprocal economy where every participant benefits from increasing the organization's operational capacity. The more effectively an organization serves its mission, the more valuable its compute economy becomes — and the more resources it has to continue serving its mission even more capably.</p>
+    </div>
+    <h3 class="subhead">Where your money goes</h3>
+    <p class="sub-lead">Whenever an agentic organization issues compute currency, the funds raised in the sale are distributed to foster liquidity, reward organizers, and serve the mission.</p>
     <div class="bar" aria-hidden="true">
       <div class="b-liq">20</div>
       <div class="b-lin">30</div>
@@ -309,47 +361,57 @@
       <div class="flow">
         <div class="pct">20%</div>
         <h4>Liquidity</h4>
-        <p>Backs $KIDUNA so it can be openly traded. Your membership isn't locked in a company — it lives in a currency with a market.</p>
+        <p>Twenty percent of the funds raised are used to seed decentralized exchanges so compute resources can be bought and sold freely. Members own a liquid asset rather than a non-transferable membership or a captive platform account.</p>
       </div>
       <div class="flow">
         <div class="pct">30%</div>
-        <h4>Lineage</h4>
-        <p>Flows back through the chain of members who invited you, four generations deep. Growing the organization is rewarded — automatically, transparently.</p>
+        <h4>Organizers</h4>
+        <p>Thirty percent of the funds raised are used to reward four generations of members who helped grow the network by recruiting and mentoring creators, builders, and other organizers. By aligning rewards with developing talent, strengthening communities, and cultivating future leaders, the system makes organization-building one of the most valuable forms of work in the agentic economy. Those who help organizations flourish share in the long-term value they create.</p>
       </div>
       <div class="flow">
         <div class="pct">50%</div>
         <h4>Treasury</h4>
-        <p>The organization's shared funds, spent only by member decision — on building software, paying members, and launching new dunas.</p>
+        <p>Fifty percent of the funds raised go to the member-governed treasury that purchases compute resources, funds creators and builders, launches new ventures, finances the initiatives that advance the organization's mission, and invests in the long-term growth of the ecosystem.</p>
       </div>
     </div>
-    <p class="honesty">Until the founding round reaches its $100,000 minimum and closes, funds sit in Kinship Duna's bank account in West Virginia. The round is capped at $10,000,000. If the round doesn't close, founding payments are returned.</p>
+    <div class="callout">
+      <div class="co-kicker">Capital Formation</div>
+      <p>Every organization defines a minimum and maximum amount of funds to raise before issuing its compute currency, aggregating the necessary capital to accomplish its mission. This ensures the formation of a robust, reciprocal economy rather than the creation of new speculative assets.</p>
+      <p>Money enters as US dollars, becomes compute, performs useful work through the coordination of talented people and intelligent agents, and exits once again as US dollars when a significant unit of work is complete and quantifiable value has been created. Compute currency is simply the mechanism that allocates resources and builds capacity across and among internet-native agentic organizations.</p>
+      <p class="principle">Capital becomes compute. Compute becomes individual, organizational, and collective agency.</p>
+      <p class="co-close">The value isn't as much in the currency or the software as much as the agency created: the capacity of internet-native agentic organizations to coordinate, decide, and accomplish meaningful work together.</p>
+    </div>
   </section>
 
   <!-- THE KIDUNA FAMILY -->
   <section id="family">
     <div class="section-head">
       <span class="kicker">04 · The Kiduna Family</span>
-      <h2>A bridge between two <em class="kin-emph">worlds.</em></h2>
-      <p>Some things still require traditional institutions — at least for now. Maybe not forever. The Kiduna family of companies bridges the institutional world and the agentic world, and each one supports Kinship Duna through a contractual relationship. Institutions are non-duna organizations: they have no agents of their own, and they connect to the Kidunaverse the old way — by contract.</p>
+      <h2>The traditional institutions of today become the <em class="kin-emph">agentic organizations of tomorrow.</em></h2>
+      <p>The global economy is built on traditional institutions — corporations, schools, governments, and charities. The Kiduna family of companies bridges the institutional and agentic worlds by enabling established institutions and internet-native organizations to work together through agreements that can be negotiated and modified by their respective governing bodies.</p>
     </div>
     <div class="fam-grid">
       <div class="fam">
         <span class="tag">Delaware C Corp</span>
         <h3>Kiduna Club</h3>
-        <p>Developed the underlying technology and stewards the technology IP. Every kiduna signs a licensing agreement with Kiduna Club at formation to maintain the <b style="color:var(--fg)">Kinship Agency Protocol</b> — the blockchain protocol that connects allies to their owners and lets allies be bought, sold, and transferred — and the Kiduna platform: the app, the middleware and orchestration layer, and the databases, including the Kinship Graph.</p>
-        <div class="mono-note">Open source · Apache 2.0</div>
+        <p>Develops and maintains the underlying technology and stewards the intellectual property. At formation, every agentic organization licenses the <b style="color:var(--fg)">Kinship Agency Protocol</b> and software stack from Kiduna Club. The protocol establishes tamper-proof identity, authority, accountability, ownership, and delegated agency — foundational primitives that enable allies and organizations to form trusted relationships, verify permissions, own and transfer assets, and transact securely across institutional boundaries and the open internet. The software stack includes front-end applications, middleware and orchestration services, and back-end infrastructure such as the Kinship Graph.</p>
+        <div class="mono-note">Open source · Apache 2.0 · blockchain protocol · patent pending</div>
+        <a class="learn" href="https://kiduna.club" target="_blank" rel="noopener">Learn more ↗</a>
       </div>
       <div class="fam">
         <span class="tag">501(c)(3) Public Charity</span>
         <h3>Kinship Intelligence Institute</h3>
-        <p>The charitable arm. The Institute can provide fiscal sponsorship to any duna operating with a charitable purpose — so dunas doing public-good work can receive grants and tax-deductible donations without becoming traditional nonprofits themselves.</p>
-        <div class="mono-note">Fiscal sponsorship · grants · donations</div>
+        <p>The Institute exists to ensure the agentic economy remains a public good. It expands access to individual, organizational, and collective agency by supporting the people, communities, and places with the fewest resources to participate, create, and govern. Through research, education, standards, fiscal sponsorship, grants, and partnerships, it helps prevent the concentration of power while accelerating the spread of trustworthy agentic organizations.</p>
+        <p>The Institute can provide fiscal sponsorship to any agentic organization operating for a charitable purpose, allowing internet-native organizations serving the public good to receive grants and tax-deductible donations without first qualifying as traditional nonprofits or NGOs.</p>
+        <div class="mono-note">Fiscal sponsorship · research · grants · donations</div>
+        <a class="learn" href="https://kinship.institute" target="_blank" rel="noopener">Learn more ↗</a>
       </div>
       <div class="fam">
-        <span class="tag">Consulting &amp; Integration</span>
+        <span class="tag">Wyoming LLC</span>
         <h3>Kinship Systems</h3>
-        <p>The dealmakers. Kinship Systems implements agreements between dunas and institutions of every kind — companies, nonprofits, governments — across a wide variety of domains, translating between contracts on one side and agents on the other.</p>
-        <div class="mono-note">duna ↔ institution</div>
+        <p>Kinship Systems helps traditional institutions participate in the agentic economy through consulting projects, systems integration, and forward-deployed engineering. It designs, develops, integrates, and operates custom solutions for businesses, nonprofits, governments, universities, and other organizations — connecting existing systems, policies, contracts, and workflows to intelligent agents. Whether through custom development, white-label solutions, organizational transformation, or enterprise integration, Kinship Systems bridges the institutional world and the emerging agentic internet.</p>
+        <div class="mono-note">Organizational development · enterprise integration · digital transformation</div>
+        <a class="learn" href="https://kinship.systems" target="_blank" rel="noopener">Learn more ↗</a>
       </div>
     </div>
   </section>
@@ -358,27 +420,35 @@
   <section id="join">
     <div class="join-wrap">
       <div class="section-head" style="margin-bottom:0;">
-        <span class="kicker">05 · Join</span>
-        <h2>Membership is by <em class="kin-emph">invitation.</em></h2>
-        <p>Every member arrives through another member — that's what makes the lineage real, and it's how trust works here. If nobody has handed you a Kinship Code yet, ask for one.</p>
+        <span class="kicker">05 · Be a Founding Member</span>
+        <h2>Join <em class="kin-emph">Early Access.</em></h2>
+        <p>We're looking for passionate creators, builders, organizers, sponsors, and partners to help shape the future of the agentic economy. Join the founding community for early access, exclusive events, product updates, and opportunities to build alongside exceptional people and intelligent agents at the frontiers of governance, technology, economics, and culture.</p>
       </div>
-      <div class="join-grid">
-        <div class="join-card">
-          <h3>I have a Kinship Code</h3>
-          <p>Enter the code a member shared with you. It's your invitation — it connects you to your lineage and unlocks the founding membership.</p>
-          <input class="field" id="code-input" type="text" placeholder="KIN-XXXX-XXXX" autocomplete="off">
-          <button class="btn btn-primary" style="width:100%; justify-content:center;" onclick="startCheckout()">Continue — $100 →</button>
-          <p class="join-msg" id="code-msg"></p>
+      <form class="join-card ea-card" id="ea-form">
+        <input type="hidden" name="form" value="early-access">
+        <div class="name-row">
+          <div class="field-group">
+            <label class="flabel" for="ea-name">Name *</label>
+            <input class="field" id="ea-name" name="name" type="text" required autocomplete="name" data-fs-field>
+            <span class="fs-err" data-fs-error="name"></span>
+          </div>
+          <div class="field-group">
+            <label class="flabel" for="ea-email">Email *</label>
+            <input class="field" id="ea-email" name="email" type="email" required autocomplete="email" data-fs-field>
+            <span class="fs-err" data-fs-error="email"></span>
+          </div>
         </div>
-        <div class="join-card">
-          <h3>I don't have one yet</h3>
-          <p>Tell us who you are. A member of Kinship Duna will review your request and send you a Kinship Code personally.</p>
-          <input class="field" id="req-name" type="text" placeholder="Your name">
-          <input class="field" id="req-email" type="email" placeholder="you@example.com">
-          <button class="btn btn-secondary" style="width:100%; justify-content:center;" onclick="requestInvite()">Request an invitation</button>
-          <p class="join-msg" id="req-msg"></p>
+        <div class="field-group">
+          <label class="flabel" for="ea-msg">Message</label>
+          <textarea class="field" id="ea-msg" name="message" rows="4" data-fs-field></textarea>
+          <span class="fs-err" data-fs-error="message"></span>
         </div>
-      </div>
+        <p class="req-note">* required</p>
+        <button type="submit" class="btn btn-primary" style="width:100%; justify-content:center;" data-fs-submit-btn>Join early access</button>
+        <div class="fs-success" data-fs-success></div>
+        <div class="fs-err" data-fs-error></div>
+        <p class="fineprint">By joining early access, you agree to receive occasional emails from Kiduna about your invitation, product updates, events, and opportunities to participate. You may unsubscribe at any time.</p>
+      </form>
     </div>
   </section>
 
@@ -407,7 +477,7 @@
       </details>
       <details>
         <summary>What happens if the round doesn't reach $100,000?</summary>
-        <div class="a"><p>The founding round has a $100,000 minimum and a $10,000,000 cap. Funds stay in Kinship Duna's bank account until the minimum is met and the round closes; only then does the 20/30/50 split execute on-chain. If the round doesn't close, founding payments are returned.</p></div>
+        <div class="a"><p>The founding round has a $100,000 minimum and a $1,000,000 cap. Funds stay in Kinship Duna's bank account until the minimum is met and the round closes; only then does the 20/30/50 split execute on-chain. If the round doesn't close, founding payments are returned.</p></div>
       </details>
       <details>
         <summary>Who is behind this?</summary>
@@ -423,16 +493,34 @@
       <h2>Ask us <em class="kin-emph">anything.</em></h2>
       <p>Questions about membership, dunas, allies, or the founding round — write to us and a member will get back to you.</p>
     </div>
-    <div class="contact-card">
+    <form class="contact-card" id="ct-form">
       <div class="name-row">
-        <input class="field" id="ct-first" type="text" placeholder="First name" autocomplete="given-name">
-        <input class="field" id="ct-last" type="text" placeholder="Last name" autocomplete="family-name">
+        <div class="field-group">
+          <label class="flabel" for="ct-first">First name *</label>
+          <input class="field" id="ct-first" name="first-name" type="text" required autocomplete="given-name" data-fs-field>
+          <span class="fs-err" data-fs-error="first-name"></span>
+        </div>
+        <div class="field-group">
+          <label class="flabel" for="ct-last">Last name *</label>
+          <input class="field" id="ct-last" name="last-name" type="text" required autocomplete="family-name" data-fs-field>
+          <span class="fs-err" data-fs-error="last-name"></span>
+        </div>
       </div>
-      <input class="field" id="ct-email" type="email" placeholder="you@example.com" autocomplete="email">
-      <textarea class="field" id="ct-msg" rows="5" placeholder="Your question"></textarea>
-      <button class="btn btn-secondary" onclick="sendContact()">Send message</button>
-      <p class="join-msg" id="ct-status"></p>
-    </div>
+      <div class="field-group">
+        <label class="flabel" for="ct-email">Email *</label>
+        <input class="field" id="ct-email" name="email" type="email" required autocomplete="email" data-fs-field>
+        <span class="fs-err" data-fs-error="email"></span>
+      </div>
+      <div class="field-group">
+        <label class="flabel" for="ct-msg">Message *</label>
+        <textarea class="field" id="ct-msg" name="message" rows="5" required data-fs-field></textarea>
+        <span class="fs-err" data-fs-error="message"></span>
+      </div>
+      <p class="req-note">* required</p>
+      <button type="submit" class="btn btn-secondary" data-fs-submit-btn>Send message</button>
+      <div class="fs-success" data-fs-success></div>
+      <div class="fs-err" data-fs-error></div>
+    </form>
   </section>
 
   <!-- FOOTER -->
@@ -442,88 +530,11 @@
   </footer>
 </div>
 
-<!-- MOCK CHECKOUT MODAL -->
-<div class="modal-veil" id="veil">
-  <div class="modal" id="modal-box"></div>
-</div>
-
 <script>
-  var founderNumber = 48; // mock
-
-  function sendContact() {
-    var first = document.getElementById('ct-first').value.trim();
-    var last = document.getElementById('ct-last').value.trim();
-    var email = document.getElementById('ct-email').value.trim();
-    var msg = document.getElementById('ct-msg').value.trim();
-    var status = document.getElementById('ct-status');
-    if (!first || !last || !msg || email.indexOf('@') < 0) {
-      status.textContent = 'Name, a working email, and your question — that\'s all we need.';
-      status.className = 'join-msg err';
-      return;
-    }
-    status.textContent = 'Message received. A member will write back to you soon.';
-    status.className = 'join-msg ok';
-  }
-
-  function veil(open) {
-    document.getElementById('veil').classList.toggle('open', open);
-  }
-
-  function startCheckout() {
-    var code = document.getElementById('code-input').value.trim();
-    var msg = document.getElementById('code-msg');
-    if (!code) {
-      msg.textContent = 'Enter the Kinship Code a member shared with you.';
-      msg.className = 'join-msg err';
-      return;
-    }
-    msg.textContent = '';
-    var box = document.getElementById('modal-box');
-    box.innerHTML =
-      '<button class="close" onclick="veil(false)">✕</button>' +
-      '<div class="m-kicker">Step 1 of 2 · Code accepted</div>' +
-      '<h3>Welcome. You were invited.</h3>' +
-      '<p>Code <b style="color:var(--kin-mint)">' + escapeHtml(code) + '</b> checks out. One payment makes you a founding member of Kinship Duna — for life.</p>' +
-      '<div class="payrow">' +
-        '<button class="paybtn" onclick="finishCheckout()"> Pay with Apple&nbsp;Pay — $100</button>' +
-        '<button class="paybtn" onclick="finishCheckout()">G · Pay with Google&nbsp;Pay — $100</button>' +
-        '<button class="paybtn" onclick="finishCheckout()">Pay with card — $100</button>' +
-      '</div>' +
-      '<p class="fine">Prototype — no payment will be taken. In the live version this is Stripe checkout.</p>';
-    veil(true);
-  }
-
-  function finishCheckout() {
-    var box = document.getElementById('modal-box');
-    box.innerHTML =
-      '<button class="close" onclick="veil(false)">✕</button>' +
-      '<div class="m-kicker">Step 2 of 2 · Complete</div>' +
-      '<h3>You\'re a founding member.</h3>' +
-      '<div class="welcome-num">Nº ' + founderNumber + '</div>' +
-      '<p>Founding member number ' + founderNumber + ' of Kinship Duna. Your badge is permanent, and your <span class="mint">$KIDUNA</span> arrives in your wallet when the founding round closes.</p>' +
-      '<p style="margin-top:16px;">Next: <b>design your ally.</b></p>' +
-      '<div class="payrow"><button class="paybtn" onclick="veil(false)">Enter the Kidunaverse →</button></div>' +
-      '<p class="fine">Prototype — the app is where this button will take you.</p>';
-  }
-
-  function requestInvite() {
-    var name = document.getElementById('req-name').value.trim();
-    var email = document.getElementById('req-email').value.trim();
-    var msg = document.getElementById('req-msg');
-    if (!name || !email || email.indexOf('@') < 0) {
-      msg.textContent = 'A name and a working email — that\'s all we need.';
-      msg.className = 'join-msg err';
-      return;
-    }
-    msg.textContent = 'Request received. A member will send your Kinship Code personally.';
-    msg.className = 'join-msg ok';
-  }
-
-  function escapeHtml(s) {
-    var d = document.createElement('div');
-    d.textContent = s;
-    return d.innerHTML;
-  }
+  window.formspree = window.formspree || function () { (formspree.q = formspree.q || []).push(arguments); };
+  formspree('initForm', { formElement: '#ea-form', formId: 'mpqgbkel' });
+  formspree('initForm', { formElement: '#ct-form', formId: 'xzdloopb' });
 </script>
+<script src="https://unpkg.com/@formspree/ajax@1" defer></script>
 </body>
 </html>
