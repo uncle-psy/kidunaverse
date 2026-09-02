@@ -1,4 +1,4 @@
-import { fieldObjects, historyEntries, layoutTypes, packages } from './data.js';
+import { coherenceDimensions, fieldObjects, historyEntries, layoutTypes, packages, receiverThemes, transmitterCatalog } from './data.js';
 import { icon } from './icons.js';
 
 const escapeHtml = (value = '') => String(value).replace(/[&<>'"]/g, character => ({
@@ -201,15 +201,97 @@ function vaultPanel() {
     ${actionRow('Ask Ki about these resources')}`);
 }
 
+function activeReceptionProfile(state) {
+  return state.receiverProfiles.find(profile => profile.id === state.activeReceiverProfileId) || state.receiverProfiles[0];
+}
+
+function receiverFreeform(state) {
+  const proposal = state.receiverProposal;
+  return `<section class="receiver-command" aria-labelledby="receiver-command-title">
+    <div><span>Natural-language tuning</span><h3 id="receiver-command-title">Tell the Receiver what to change</h3><p>Add or remove transmitters, change distance, quiet interruptions, strength, or time. Nothing changes until you apply the preview.</p></div>
+    <label for="receiver-command" class="sr-only">Receiver change request</label>
+    <textarea id="receiver-command" rows="3" placeholder="Try: Bring Alice closer, remove Systems Oracle, use a steady stream for the last month…">${escapeHtml(state.receiverCommand)}</textarea>
+    <div class="receiver-command-actions"><button class="primary-button" type="button" data-action="receiver-interpret">Preview changes</button><button class="text-button" type="button" data-action="receiver-command-clear">Clear</button></div>
+    ${proposal ? `<div class="receiver-proposal" role="status" aria-live="polite"><span>Proposed change · review before applying</span><ul>${proposal.summary.map(item => `<li>${escapeHtml(item)}</li>`).join('')}</ul>${proposal.unresolved?.length ? `<p><b>Needs revision:</b> ${proposal.unresolved.map(escapeHtml).join(', ')}</p>` : ''}<div><button class="primary-button" type="button" data-action="receiver-apply-proposal" ${proposal.operations.length ? '' : 'disabled'}>Apply</button><button class="secondary-button" type="button" data-action="receiver-revise-proposal">Revise</button><button class="text-button" type="button" data-action="receiver-cancel-proposal">Cancel</button></div></div>` : ''}
+  </section>`;
+}
+
+function receiverSummary(state, profile) {
+  const transmitters = profile.transmitterIds.map(id => transmitterCatalog.find(item => item.id === id)).filter(Boolean);
+  const close = transmitters.filter(item => profile.sourcePreferences[item.id]?.stage === 'Bring closer');
+  const muted = transmitters.filter(item => profile.sourcePreferences[item.id]?.stage === 'Mute');
+  const held = transmitters.filter(item => profile.sourcePreferences[item.id]?.stage === 'Hold');
+  const likely = transmitters.filter(item => !['Mute', 'Hold', 'Send farther'].includes(profile.sourcePreferences[item.id]?.stage)).slice(0, 4);
+  return `<div class="receiver-view receiver-summary" data-receiver-screen="summary">
+    <div class="receiver-metrics" aria-label="Profile overview">
+      <article><span>Transmitters</span><strong>${transmitters.length}</strong><small>${close.length} brought closer</small></article>
+      <article><span>Strength</span><strong>${profile.strength}%</strong><small>${profile.strength === 0 ? 'Trickle' : profile.strength === 100 ? 'Firehose' : profile.strength === 50 ? 'Steady stream' : 'Custom flow'}</small></article>
+      <article><span>Time window</span><strong>${escapeHtml(profile.time.preset)}</strong><small>${profile.time.timezone}</small></article>
+    </div>
+    <section class="receiver-card"><div class="section-heading"><h3>What this profile receives</h3><button type="button" data-receiver-view="topics">Edit</button></div>
+      <div class="receiver-label-group"><span>Themes</span><div class="chip-cloud">${profile.themes.map(item => `<span class="summary-chip">${escapeHtml(item)}</span>`).join('') || '<small>None selected</small>'}</div></div>
+      <div class="receiver-label-group"><span>Foci</span><div class="chip-cloud">${profile.foci.map(item => `<span class="summary-chip">${escapeHtml(item)}</span>`).join('') || '<small>None selected</small>'}</div></div>
+      <div class="receiver-label-group"><span>Topics</span><div class="chip-cloud">${profile.topics.map(item => `<span class="summary-chip">${escapeHtml(item)}</span>`).join('') || '<small>None selected</small>'}</div></div>
+    </section>
+    <div class="receiver-summary-grid">
+      <section class="receiver-card"><div class="section-heading"><h3>Priorities</h3><button type="button" data-receiver-view="transmitters">Edit</button></div>${close.length ? `<ol class="receiver-compact-list">${close.sort((a,b) => (profile.sourcePreferences[a.id]?.order || 99) - (profile.sourcePreferences[b.id]?.order || 99)).map(item => `<li><b>${escapeHtml(item.name)}</b><span>Bring closer · ${profile.sourcePreferences[item.id]?.interruption}</span></li>`).join('')}</ol>` : '<p class="receiver-empty">Nothing has been brought closer.</p>'}</section>
+      <section class="receiver-card"><div class="section-heading"><h3>Vibe dimensions</h3><button type="button" data-receiver-view="vibes">Edit</button></div><ul class="receiver-compact-list">${coherenceDimensions.map(item => `<li><b>${item.label}</b><span>${profile.vibeRanges[item.id]?.[0] ?? 0}–${profile.vibeRanges[item.id]?.[1] ?? 100} · ${item.status.replace('Published · ', '')}</span></li>`).join('')}</ul></section>
+    </div>
+    <section class="receiver-card"><div class="section-heading"><h3>Likely to reach the composition</h3><button type="button" data-action="receiver-ask-why">Ask why</button></div><p class="receiver-help">A preview of eligible, visible material—not a promise, ranking, or universal importance score.</p><ul class="receiver-preview-list">${likely.map(item => `<li><span class="receiver-type">${item.type}</span><b>${escapeHtml(item.name)}</b><small>${escapeHtml(item.why)}</small></li>`).join('') || '<li><b>No transmitter is currently near.</b><small>Muted and held material stays preserved.</small></li>'}</ul></section>
+    <div class="receiver-summary-grid"><section class="receiver-card"><div class="section-heading"><h3>Held issues</h3><button type="button" data-action="receiver-review-held">Review held</button></div><p>${held.length} held · ${muted.length} muted</p><small>Held and muted material is preserved and can be restored.</small></section><section class="receiver-card"><h3>Interruptions</h3><p>${transmitters.filter(item => !['Do not interrupt', 'Ambient only'].includes(profile.sourcePreferences[item.id]?.interruption)).length} sources may claim attention under their stated conditions.</p><small>Urgency never authorizes interruption by itself.</small></section></div>
+    <section class="receiver-card"><div class="section-heading"><h3>Recent changes</h3>${state.receiverUndo ? '<button type="button" data-action="receiver-undo">Undo last change</button>' : ''}</div><ul class="receiver-compact-list">${(state.recentReceiverChanges || []).slice(0, 5).map(item => `<li><b>${escapeHtml(item.label)}</b><span>${escapeHtml(item.time)}</span></li>`).join('') || '<li><span>No local changes yet.</span></li>'}</ul></section>
+    <div class="receiver-footer-actions"><button class="secondary-button" type="button" data-action="receiver-duplicate-profile">Duplicate profile</button><button class="secondary-button" type="button" data-action="receiver-reset-profile">Reset profile</button></div>
+  </div>`;
+}
+
+function receiverProfilesView(state, active) {
+  return `<div class="receiver-view" data-receiver-screen="profiles">
+    <section class="receiver-card receiver-profile-create"><h3>Create a Reception Profile</h3><p>Profiles keep different Source-relative reception choices separate.</p><div><input id="receiver-profile-name" type="text" value="${escapeHtml(state.receiverProfileDraft)}" placeholder="Profile name"><button class="primary-button" type="button" data-action="receiver-create-profile">Create</button></div></section>
+    <div class="receiver-profile-list">${state.receiverProfiles.map(profile => `<article class="receiver-profile-row ${profile.id === active.id ? 'active' : ''}"><div><span>${profile.id === active.id ? 'Active profile' : 'Reception profile'}</span><b>${escapeHtml(profile.name)}</b><small>${profile.transmitterIds.length} transmitters · ${profile.strength}% strength</small></div><div><button type="button" data-receiver-activate="${profile.id}" ${profile.id === active.id ? 'disabled' : ''}>${profile.id === active.id ? 'Active' : 'Activate'}</button><button type="button" data-receiver-rename="${profile.id}">Rename</button><button type="button" data-receiver-duplicate="${profile.id}">Duplicate</button><button class="danger-text" type="button" data-receiver-delete="${profile.id}" ${state.receiverProfiles.length === 1 ? 'disabled' : ''}>Delete</button></div>${state.receiverConfirmDelete === profile.id ? `<div class="receiver-confirm" role="alert"><span>Delete “${escapeHtml(profile.name)}”? You can restore it during this session.</span><button type="button" data-receiver-delete-confirm="${profile.id}">Delete</button><button type="button" data-action="receiver-cancel-delete">Cancel</button></div>` : ''}${state.receiverRenameId === profile.id ? `<div class="receiver-inline-edit"><input id="receiver-rename-input" type="text" value="${escapeHtml(profile.name)}"><button type="button" data-action="receiver-save-rename">Save</button><button type="button" data-action="receiver-cancel-rename">Cancel</button></div>` : ''}</article>`).join('')}</div>
+    ${state.deletedReceiverProfile ? `<button class="receiver-restore" type="button" data-action="receiver-restore-profile">Restore deleted profile “${escapeHtml(state.deletedReceiverProfile.name)}”</button>` : ''}
+  </div>`;
+}
+
+function receiverTransmittersView(state, profile) {
+  const query = state.receiverTransmitterQuery.toLowerCase();
+  const filter = state.receiverTransmitterFilter;
+  const present = transmitterCatalog.filter(item => profile.transmitterIds.includes(item.id));
+  const filtered = present.filter(item => (!query || Object.values(item).flat().join(' ').toLowerCase().includes(query)) && (filter === 'All' || item.type === filter));
+  const sorted = [...filtered].sort((a, b) => state.receiverTransmitterSort === 'Type' ? a.type.localeCompare(b.type) || a.name.localeCompare(b.name) : state.receiverTransmitterSort === 'Priority' ? (profile.sourcePreferences[a.id]?.order || 99) - (profile.sourcePreferences[b.id]?.order || 99) : a.name.localeCompare(b.name));
+  const missing = transmitterCatalog.filter(item => !profile.transmitterIds.includes(item.id) && (!query || Object.values(item).flat().join(' ').toLowerCase().includes(query)) && (filter === 'All' || item.type === filter));
+  const types = ['All', ...new Set(transmitterCatalog.map(item => item.type))];
+  return `<div class="receiver-view" data-receiver-screen="transmitters">
+    <div class="receiver-tools"><label class="receiver-search">${icon('search', 16)}<input id="receiver-transmitter-search" type="search" value="${escapeHtml(state.receiverTransmitterQuery)}" placeholder="Search Realms, Avatars, Allies, Actors, maps…"></label><select id="receiver-transmitter-filter" aria-label="Filter transmitters by type">${types.map(type => `<option ${filter === type ? 'selected' : ''}>${type}</option>`).join('')}</select><select id="receiver-transmitter-sort" aria-label="Sort transmitters"><option ${state.receiverTransmitterSort === 'Name' ? 'selected' : ''}>Name</option><option ${state.receiverTransmitterSort === 'Type' ? 'selected' : ''}>Type</option><option ${state.receiverTransmitterSort === 'Priority' ? 'selected' : ''}>Priority</option></select></div>
+    <section class="receiver-section"><div class="section-heading"><h3>In this profile</h3><span>${sorted.length}</span></div><div class="transmitter-list">${sorted.map(item => {
+      const pref = profile.sourcePreferences[item.id] || { stage: 'Normal', order: 0, interruption: 'Ambient only' };
+      return `<article class="transmitter-row"><div class="transmitter-main"><span class="receiver-type">${item.type}</span><b>${escapeHtml(item.name)}</b><small>${escapeHtml(item.context)} · ${item.signalKinds.join(', ')}</small></div><label>Distance<select data-receiver-stage="${item.id}">${['Bring closer', 'Normal', 'Send farther', 'Hold', 'Mute'].map(choice => `<option ${pref.stage === choice ? 'selected' : ''}>${choice}</option>`).join('')}</select></label>${pref.stage === 'Bring closer' ? `<label>Order<input data-receiver-order="${item.id}" type="number" min="1" max="99" value="${pref.order || 1}"></label>` : ''}<label>Interruption<select data-receiver-interruption="${item.id}">${['Do not interrupt', 'Ambient only', 'When available', 'Threshold only', 'Interrupt now'].map(choice => `<option ${pref.interruption === choice ? 'selected' : ''}>${choice}</option>`).join('')}</select></label><div class="transmitter-actions"><button type="button" data-receiver-details="${item.id}">${state.receiverDetailId === item.id ? 'Hide details' : 'Details'}</button><button class="danger-text" type="button" data-receiver-remove="${item.id}">Remove</button></div>${state.receiverDetailId === item.id ? `<div class="transmitter-detail"><dl><div><dt>Why included</dt><dd>${escapeHtml(item.why)}</dd></div><div><dt>Added</dt><dd>${item.addedAt}</dd></div><div><dt>What it does not establish</dt><dd>Truth, membership, permission, authority, consent, or universal importance.</dd></div></dl></div>` : ''}</article>`;
+    }).join('') || '<p class="receiver-empty">No transmitters match this view.</p>'}</div></section>
+    <section class="receiver-section"><div class="section-heading"><h3>Available to add</h3><span>${missing.length}</span></div><div class="receiver-add-grid">${missing.map(item => `<article><span class="receiver-type">${item.type}</span><b>${escapeHtml(item.name)}</b><small>${escapeHtml(item.context)}</small><button type="button" data-add-receiver="${item.id}">Add to Receiver</button></article>`).join('') || '<p class="receiver-empty">Everything matching this view is already in the active profile.</p>'}</div></section>
+  </div>`;
+}
+
+function receiverTopicsView(state, profile) {
+  return `<div class="receiver-view" data-receiver-screen="topics"><p class="receiver-help">Themes and Foci use the canonical taxonomy. Topics are open-ended labels for extra specificity.</p><section class="receiver-card"><h3>Themes</h3><div class="receiver-choice-grid">${receiverThemes.map(theme => `<button class="receiver-choice ${profile.themes.includes(theme.name) ? 'active' : ''}" type="button" data-receiver-theme="${escapeHtml(theme.name)}" aria-pressed="${profile.themes.includes(theme.name)}"><b>${theme.name}</b><small>${theme.foci.length} canonical Foci</small></button>`).join('')}</div></section><section class="receiver-card"><h3>Foci</h3>${receiverThemes.map(theme => `<details ${theme.foci.some(focus => profile.foci.includes(focus)) ? 'open' : ''}><summary>${theme.name}</summary><div class="receiver-focus-list">${theme.foci.map(focus => `<button class="chip ${profile.foci.includes(focus) ? 'active' : ''}" type="button" data-receiver-focus="${escapeHtml(focus)}" aria-pressed="${profile.foci.includes(focus)}">${focus}</button>`).join('')}</div></details>`).join('')}</section><section class="receiver-card"><h3>Topics</h3><div class="receiver-topic-entry"><input id="receiver-topic-input" type="text" value="${escapeHtml(state.receiverTopicDraft)}" placeholder="Add any topic"><button class="primary-button" type="button" data-action="receiver-add-topic">Add topic</button></div><div class="chip-cloud">${profile.topics.map(topic => `<button class="summary-chip removable" type="button" data-receiver-remove-topic="${escapeHtml(topic)}">${escapeHtml(topic)} <span aria-hidden="true">×</span><span class="sr-only">Remove</span></button>`).join('') || '<small>No open-ended topics.</small>'}</div></section></div>`;
+}
+
+function receiverVibesView(profile) {
+  return `<div class="receiver-view" data-receiver-screen="vibes"><div class="receiver-boundary"><b>Vibes are tolerance ranges, not a universal score.</b><p>Each dimension is published by its named Power Map or Realm. Missing, disputed, and stale measurements remain explicit.</p></div>${coherenceDimensions.map(dimension => { const range = profile.vibeRanges[dimension.id] || [0, 100]; return `<section class="vibe-card"><header><div><span>${dimension.map}</span><h3>${dimension.label}</h3></div><strong>${range[0]}–${range[1]}</strong></header><p>${dimension.explanation}</p><div class="vibe-range" style="--vibe-low:${range[0]}%;--vibe-high:${range[1]}%"><i></i><input aria-label="${dimension.label} minimum" data-vibe-min="${dimension.id}" type="range" min="0" max="100" value="${range[0]}"><input aria-label="${dimension.label} maximum" data-vibe-max="${dimension.id}" type="range" min="0" max="100" value="${range[1]}"></div><div class="vibe-poles"><span>${dimension.low}</span><span>${dimension.high}</span></div><footer><span>Visible Valence: ${dimension.valence}</span><b>${dimension.status}</b></footer></section>`; }).join('')}</div>`;
+}
+
+function receiverTimeView(profile) {
+  const presets = ['Right now', 'Last 24 hours', 'Last 7 days', 'Last 30 days', 'Custom range'];
+  const flow = profile.strength === 0 ? 'Trickle — minimal eligible flow; nothing is muted.' : profile.strength === 50 ? 'Steady stream — balanced volume while preserving Source-relative staging.' : profile.strength === 100 ? 'Firehose — the broadest eligible flow; visibility and permission still apply.' : `${profile.strength}% — a custom volume between Trickle and Firehose.`;
+  return `<div class="receiver-view" data-receiver-screen="time"><section class="receiver-card"><h3>Signal strength</h3><p class="receiver-help">Controls volume after eligibility—not truth, worth, relevance, or permission. Use Mute on an individual transmitter to stop it.</p><label class="receiver-strength" for="receiver-strength"><output>${profile.strength}%</output><input id="receiver-strength" type="range" min="0" max="100" value="${profile.strength}"><div><span>Trickle <b>0%</b></span><span>Steady stream <b>50%</b></span><span>Firehose <b>100%</b></span></div></label><div class="receiver-preview-copy">${flow}</div></section><section class="receiver-card"><h3>Date range</h3><div class="receiver-preset-grid">${presets.map(preset => `<button class="receiver-choice ${profile.time.preset === preset ? 'active' : ''}" type="button" data-receiver-time-preset="${preset}" aria-pressed="${profile.time.preset === preset}">${preset}</button>`).join('')}</div>${profile.time.preset === 'Custom range' ? `<div class="receiver-date-grid"><label>Starts<input id="receiver-time-start" type="date" value="${profile.time.start}"></label><label>Ends<input id="receiver-time-end" type="date" value="${profile.time.end}"></label></div>` : ''}<label class="field-label">Timezone<select id="receiver-timezone"><option ${profile.time.timezone === 'America/New_York' ? 'selected' : ''}>America/New_York</option><option ${profile.time.timezone === 'America/Denver' ? 'selected' : ''}>America/Denver</option><option ${profile.time.timezone === 'UTC' ? 'selected' : ''}>UTC</option></select></label><div class="toggle-list"><label><span>Current signals<small>Signals active at the present Locus</small></span><input id="receiver-include-current" type="checkbox" ${profile.time.includeCurrent ? 'checked' : ''}></label><label><span>History<small>Eligible Landings from the selected time window</small></span><input id="receiver-include-history" type="checkbox" ${profile.time.includeHistory ? 'checked' : ''}></label></div></section></div>`;
+}
+
 function receivePanel(state) {
-  const topics = ['Kiduna', 'AI agents', 'Community power', 'Funding', 'Kinship'];
-  return panelShell('receive', 'Receive', 'Dish · tune what reaches me', `
-    <p class="panel-lede">Shape the signals allowed to develop gravity in Moto’s Field.</p>
-    <section class="panel-section"><div class="section-heading"><h3>Receive profile</h3><span class="state-live">Active</span></div><select aria-label="Receive profile"><option>Working horizon</option><option>Quiet research</option><option>People I trust</option></select></section>
-    <section class="panel-section"><h3>Topics</h3><div class="chip-cloud">${topics.map(topic => `<button type="button" class="chip ${state.receiveTopics.includes(topic) ? 'active' : ''}" data-receive-topic="${topic}">${topic}</button>`).join('')}</div></section>
-    <section class="panel-section"><label class="range-label">Signal strength <output>${state.signalStrength}%</output><input type="range" id="signal-strength" min="10" max="100" value="${state.signalStrength}"></label></section>
-    <section class="panel-section"><h3>Sources in range</h3><div class="toggle-list"><label><span>People and Allies<small>Direct relationships first</small></span><input type="checkbox" checked></label><label><span>Realm activity<small>Only Realms with current gravity</small></span><input type="checkbox" checked></label><label><span>Agent findings<small>Evidence and provenance required</small></span><input type="checkbox" checked></label><label><span>General news<small>Currently paused</small></span><input type="checkbox"></label></div></section>
-    ${actionRow('Ask Ki to refine this tuning')}`);
+  const profile = activeReceptionProfile(state);
+  const views = [['summary', 'Summary'], ['profiles', 'Profiles'], ['transmitters', 'Transmitters'], ['topics', 'Topics & Foci'], ['vibes', 'Vibes'], ['time', 'Time & Strength']];
+  const content = state.receiverView === 'profiles' ? receiverProfilesView(state, profile) : state.receiverView === 'transmitters' ? receiverTransmittersView(state, profile) : state.receiverView === 'topics' ? receiverTopicsView(state, profile) : state.receiverView === 'vibes' ? receiverVibesView(profile) : state.receiverView === 'time' ? receiverTimeView(profile) : receiverSummary(state, profile);
+  return `<aside class="expandable-panel receiver-panel" aria-label="Receiver" data-open-panel="receive">
+    <header><div class="receiver-title"><span class="rail-role-icon role-icon-receiver" aria-hidden="true"></span><div><span>Source-relative signal reception</span><h2>Receiver</h2></div></div><button type="button" data-close-panel aria-label="Close Receiver">${icon('close', 18)}</button></header>
+    <div class="receiver-shell"><div class="receiver-sticky"><div class="receiver-profile-bar"><label>Active profile<select id="receiver-profile-select">${state.receiverProfiles.map(item => `<option value="${item.id}" ${item.id === profile.id ? 'selected' : ''}>${escapeHtml(item.name)}</option>`).join('')}</select></label><span class="state-live">Active</span></div>${receiverFreeform(state)}<nav class="receiver-tabs" aria-label="Receiver views">${views.map(([id, label]) => `<button class="${state.receiverView === id ? 'active' : ''}" type="button" data-receiver-view="${id}" aria-current="${state.receiverView === id ? 'page' : 'false'}">${label}</button>`).join('')}</nav></div><div class="receiver-scroll">${content}</div></div>
+  </aside>`;
 }
 
 function transmitPanel(state) {
@@ -255,7 +337,7 @@ function packagesPanel(state) {
     <div class="package-list">${packages.map(item => `<article class="package-card ${state.launchedPackage === item.id ? 'loaded' : ''}">
       <div class="package-art art-${item.accent}">${item.image ? `<img src="${item.image}" alt="${item.title} Sigil">` : `<span>${item.title.split(' ').map(word => word[0]).join('').slice(0, 2)}</span>`}</div>
       <div><span>${item.kind}</span><h3>${item.title}</h3><p>${item.description}</p><small>${item.status}</small></div>
-      <button class="primary-button" type="button" data-launch-package="${item.id}">${state.launchedPackage === item.id ? 'Return to package' : 'Load in Theater'}</button>
+      <div class="package-actions"><button class="secondary-button" type="button" data-add-receiver="${item.id === 'royals-rogues' ? 'package-royals' : item.id === 'systems-oracle' ? 'map-systems' : 'package-build-kiduna'}">Add to Receiver</button><button class="primary-button" type="button" data-launch-package="${item.id}">${state.launchedPackage === item.id ? 'Return to package' : 'Load in Theater'}</button></div>
     </article>`).join('')}</div>
     ${actionRow('Ask Ki to recommend a Package')}`);
 }
@@ -351,7 +433,8 @@ export function panelFor(state) {
 export function selectionBar(state) {
   const object = findObject(state.type, state.selectedObject);
   if (!object) return '';
-  return `<div class="selection-bar" role="toolbar" aria-label="Actions for ${escapeHtml(object.title)}"><span><i class="dot-${object.accent}"></i><small>${object.type}</small><strong>${object.title}</strong></span><button type="button" data-action="inspect-selection">${icon('inspect', 15)} Inspect</button><button type="button" data-action="selection-to-ki">${icon('ki', 15)} Send to Ki</button><button type="button" data-clear-selection aria-label="Clear selection">${icon('close', 15)}</button></div>`;
+  const transmitter = transmitterCatalog.find(item => item.name === object.title || (object.title === 'Layout Kit' && item.id === 'package-layout'));
+  return `<div class="selection-bar" role="toolbar" aria-label="Actions for ${escapeHtml(object.title)}"><span><i class="dot-${object.accent}"></i><small>${object.type}</small><strong>${object.title}</strong></span>${transmitter ? `<button type="button" data-add-receiver="${transmitter.id}">+ Receiver</button>` : ''}<button type="button" data-action="inspect-selection">${icon('inspect', 15)} Inspect</button><button type="button" data-action="selection-to-ki">${icon('ki', 15)} Send to Ki</button><button type="button" data-clear-selection aria-label="Clear selection">${icon('close', 15)}</button></div>`;
 }
 
 export function inspector(state) {
