@@ -1,0 +1,546 @@
+/* ==========================================================================
+   Kiduna AI Design System — Colors + Type
+   Derived from the original Kiduna system: the brown earth family is replaced by violet
+   equivalents at the same lightness roles (deep violet ground, royal violet,
+   lavender). Sky blue and sun gold unchanged.
+   Deep violet ground, sky blue action, sun gold brand voice.
+   Tagline: Change Yourself, Change Your Life, Change The World.
+   Goudy Heavyface (display) + Avenir (body). Deep-violet backgrounds, sky-blue
+   primary action, Kiduna sun-gold + moon-cream from the mark, warm lavender +
+   royal-violet tones, and a touch of mint magic. Dark-UI native.
+   ========================================================================== */
+
+/* ---- Fonts -------------------------------------------------------------- */
+
+/* IBM Plex Sans — callouts */
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap');
+
+@font-face {
+  font-family: "Goudy Heavyface";
+  src: url("./fonts/goudy_heavyface_bt.ttf") format("truetype");
+  font-weight: 400 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Avenir";
+  src: url("./fonts/avenir-light.ttf") format("truetype");
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Avenir";
+  src: url("./fonts/avenir-book.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Avenir";
+  src: url("./fonts/avenir-regular.ttf") format("truetype");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Avenir";
+  src: url("./fonts/avenir-heavy.ttf") format("truetype");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Avenir";
+  src: url("./fonts/avenir-black.ttf") format("truetype");
+  font-weight: 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  /* ---- Brand palette -------------------------------------------------- */
+  /* PRIMARY BRAND TRIAD — deep violet (below) + sky blue + sun gold.
+     Hierarchy = prominence, not permission: no color in this system has a
+     reserved use. See EXTENDING THE PALETTE below. */
+  --kin-skyblue:       #03CCD9;   /* primary CTA + brand */
+  --kin-skyblue-hover: #2FE0EA;
+  --kin-skyblue-soft:  rgba(3, 204, 217, 0.14);
+
+  /* SECONDARY / VIOLET — lavender and royal violet carry warmth.
+     Deep violet is the third primary: the brand ground. */
+  --kin-lavender:      #A98BD6;   /* signature warm neutral */
+  --kin-royal-violet:  #5E3F94;   /* mid violet, pairs with lavender */
+  --kin-dark-violet:   #453069;   /* supporting violet */
+  --kin-deep-violet:   #1A1129;   /* almost-black violet — page ground */
+  --kin-aubergine:     #2A1A2B;   /* deep plum-brown alt ground */
+
+  /* KIDUNA MARK — sun gold is a primary; moon cream is the golden highlight. */
+  --kid-sun-gold:      #EAAA00;   /* Kiduna sun gold — logo + gold moments */
+  --kid-moon-cream:    #FFF6D5;   /* Kiduna moon cream — highlight on dark */
+
+  /* SECONDARY / MAGIC — mint sparks the system. */
+  --kin-mint:          #8FE6C6;
+  --kin-mint-soft:     rgba(143, 230, 198, 0.16);
+
+  /* ---- MASTER COLOR SYSTEM ---------------------------------------------
+     Core: deep violet, deep edge, warm surface, sky current, sun gold,
+     cream white. Secondary: elevated violet, royal violet, lavender, mint,
+     aubergine, moon cream, camel. Tertiary: expressive domain and Power Map
+     identity. The governing test is warm, deep, magical, alive. */
+
+  /* EARTH — material warmth restored from v0.7 without competing with the
+     Violet master ground. */
+  --kid-earth-umber:   #4E3629;
+  --kid-earth-cocoa:   #6F4A2E;
+  --kid-earth-camel:   #C19A6B;
+  --kid-earth-sand:    #E1C49C;
+
+  /* Compatibility aliases for brown-system files retained in this package.
+     Espresso remains Violet; supporting earth aliases now resolve to the
+     approved secondary and extended earth family. */
+  --kin-camel:         var(--kid-earth-camel);
+  --kin-chocolate:     var(--kid-earth-cocoa);
+  --kin-darkumber:     var(--kid-earth-umber);
+  --kin-espresso:      var(--kin-deep-violet);
+
+  /* ---- Extended palette — seven coherent ranges ------------------------
+     Warm, slightly muted, dark-UI native. Each range reads dim→bright so
+     charts, tags, illustrations, and Power Maps can pull a full ramp. */
+
+  /* VIOLETS — grown from the aubergine ground */
+  --kid-violet-deep:   #3F2270;   /* darkest usable violet surface */
+  --kid-violet:        #6536BB;   /* core violet accent */
+  --kid-violet-bright: #9D7BE8;   /* text-safe violet on dark */
+  --kid-lilac:         #D6C7F2;   /* highlight / tint */
+
+  /* GREENS — mint's family, warm-leaning */
+  --kid-forest:        #1F4D38;   /* deep green surface */
+  --kid-green:         #2F8C63;   /* core green */
+  --kid-jade:          #57C08F;   /* bright green, text-safe on dark */
+  --kid-sage:          #BCD3A6;   /* soft warm tint (mint stays the spark) */
+
+  /* FIRE — consequence, heat, invitation */
+  --kid-oxblood:       #672431;
+  --kid-crimson:       #B23A46;
+  --kid-ember:         #A94E1C;   /* burnt / deep orange */
+  --kid-orange:        #D97B2E;   /* core orange — warmer than the old neon */
+  --kid-apricot:       #F0A85C;   /* bright warm accent */
+  --kid-peach:         #F8D6AA;   /* tint / highlight */
+
+  /* NOCTURNE BLUES — sky's violet-undertone relatives */
+  --kid-nocturne:      #100C35;   /* warm deep Power Map ground */
+  --kid-deep-indigo:   #1E1959;   /* consolidated navy / blue identity */
+  --kid-midnight:      var(--kid-nocturne); /* compatibility name */
+  --kid-indigo:        #33478F;   /* core deep blue */
+  --kid-blue:          #2FB4E0;   /* bright blue (from the brand gradient) */
+  --kid-powder:        #ABDCE8;   /* tint / highlight */
+
+  /* LIVING CHARTREUSE + BERRY — vivid without raw neon */
+  --kid-living-lime:   #A8C94B;
+  --kid-mulberry:      #522140;
+  --kid-berry-deep:    #84305F;
+  --kid-raspberry:     #C13F83;
+  --kid-rose:          #DF78AD;
+  --kid-petal:         #F0BED8;
+
+  /* WARM NEUTRALS — structure and text stay inside the Violet atmosphere */
+  --kid-warm-ink:      #17121E;
+  --kid-warm-slate:    #4A414F;
+  --kid-violet-grey:   #958B9E;
+
+  /* Power Map palette v1.3 compatibility aliases. The raw values are retired;
+     old public names resolve to their approved master-system replacements. */
+  --kid-palette-darkest-blue: var(--kid-nocturne);
+  --kid-palette-navy-blue:    var(--kid-deep-indigo);
+  --kid-palette-blue:         var(--kid-deep-indigo);
+  --kid-palette-gold:         var(--kid-sun-gold);
+  --kid-palette-bright-red:   var(--kid-crimson);
+  --kid-palette-dark-red:     var(--kid-oxblood);
+  --kid-palette-orange:       var(--kid-orange);
+  --kid-palette-lime:         var(--kid-living-lime);
+  --kid-palette-magenta:      var(--kid-raspberry);
+
+  /* Neutrals + paper */
+  --kin-cream-white:   #FFFFE6;   /* off-white paper */
+  --kin-cream:         #F9DDB7;   /* warm cream */
+  --kin-black:         var(--kid-warm-ink);
+  --kin-grey:          var(--kid-violet-grey);
+
+  /* ---- EXTENDING THE PALETTE -------------------------------------------
+     CORE: deep violet, deep edge, warm surface, sky current, sun gold, cream
+     white. SECONDARY: elevated violet, royal violet, lavender, mint,
+     aubergine, moon cream, camel. TERTIARY: nocturne, deep indigo, jade,
+     living lime, ember, fired orange, oxblood, crimson, raspberry, cocoa.
+     EXTENDED: Violet, Nocturne Blue, Living Green, Fire, Berry, Earth, and
+     Warm Neutral ramps. Hierarchy is prominence, not permission: any family
+     may lead a scoped Power Map theme. Only Feedback carries fixed meaning.
+     Need a color that isn't here? Derive it, don't invent it:
+       new hue      oklch(from var(--kid-violet) l c 200)   — spin hue, keep l+c
+       deep step    color-mix(in oklch, <hue> 72%, var(--kin-deep-violet))
+       bright step  color-mix(in oklch, <hue> 70%, var(--kin-cream-white))
+       soft fill    color-mix(in srgb, <hue> 14%, transparent)
+     Anchor lightness/chroma to an existing ramp step so new colors sit
+     naturally beside the originals. Recipes: preview/colors-extending.html */
+
+  /* Legacy Kinship colors — DEPRECATED. The old neon values fought the warm
+     Kiduna ground; each now aliases its retuned replacement. */
+  --kin-navyblue:      var(--kid-midnight);
+  --kin-darkblue:      var(--kid-midnight);
+  --kin-orange:        var(--kid-orange);
+  --kin-gold:          var(--kid-sun-gold);
+  --kin-lime:          var(--kid-living-lime);
+  --kin-magenta:       var(--kid-raspberry);
+  --kin-accent-purple:      var(--kid-violet);
+  --kin-accent-purple-scn:  var(--kid-violet-deep);
+  --kin-accent-chocobrown:  #4C3670;
+  --kin-accent-rusticbrown: #6B3FA8;
+  --kin-accent-chestnut:    #55307E;
+
+  /* ---- Studio surface taxonomy ----------------------------------------
+     The Field distinguishes objects by hue + icon. Realm types color the
+     outermost Field; Element hues appear inside a Realm view. Sky stays
+     Ki's color — in the Field it marks only Actions/navigation. */
+  --studio-org:          var(--kid-sun-gold);      /* Organization — radial gold institution */
+  --studio-alliance:     #B99AE8;                  /* Alliance — lilac interlocking centers */
+  --studio-program:      #4FB6D8;                  /* Program — celestial recurring rhythm */
+  --studio-project:      #D97B2E;                  /* Project — fired finite ascent */
+  --studio-relationship: var(--kin-mint);          /* Relationship */
+  --studio-community:    #62C192;                  /* Community — jade gathered difference */
+  --studio-conceptual:   var(--kid-moon-cream);    /* Conceptual (nurtured) — dashed ring */
+  --studio-source:       var(--kin-lavender);      /* Source (person) — cream ring */
+  --studio-actor:        #B99AE8;                  /* Actor (agent) — enamel lilac */
+  --studio-media:        #ABDCE8;                  /* Media (incl. Scenes) — pale celestial blue */
+  --studio-resource:     var(--kid-sun-gold);      /* Resources · $KIDUNA */
+  --studio-action:       var(--kin-skyblue);       /* Actions — sky, like Ki */
+  --studio-ground:       #090512;                  /* Field ground — canonical Studio lacquer */
+  --studio-ground-deep:  #050309;
+  --studio-surface:      #1A1129;
+  --studio-surface-raised: #251938;
+  --studio-enamel-highlight: #FFF6D5;
+  --studio-wire:         #A98BD6;
+  --studio-wire-dark:    #5E3F94;
+  --studio-live:         #8FE6C6;
+  /* Enamel construction (Studio Enamel v0.4 handoff) */
+  --studio-rim-thin: 2px; --studio-rim-regular: 3px; --studio-rim-threshold: 5px;
+  --studio-arc-opacity-max: 0.1; /* @kind other */ --studio-local-halo-opacity-max: 0.25; /* @kind other */
+  /* Semantic connections */
+  --studio-connection-resting-opacity: 0.12; /* @kind other */ --studio-connection-relevant-opacity: 0.32; /* @kind other */
+  --studio-connection-active-opacity: 0.68; /* @kind other */ --studio-connection-historical-opacity: 0.08; /* @kind other */
+  --studio-connection-line-resting: 1px; --studio-connection-line-active: 1.5px;
+  --studio-connection-node-small: 3px; --studio-connection-node-regular: 5px;
+  /* Celestial geometry */
+  --studio-geometry-resting-opacity: 0.08; /* @kind other */ --studio-geometry-relevant-opacity: 0.18; /* @kind other */
+  --studio-orbit-hairline: 1px; --studio-orbit-dash: 3px 7px; /* @kind other */
+  --studio-anchor-small: 6px; --studio-anchor-regular: 12px;
+  --studio-glint-small: 3px; --studio-glint-regular: 7px; --studio-glint-hero: 11px;
+  /* Motion */
+  --studio-breathe-duration: 7s; /* @kind other */ --studio-breathe-scale: 1.035; /* @kind other */
+  --studio-drift-duration: 16s; /* @kind other */ --studio-drift-distance: 8px;
+  --studio-orbit-duration-min: 16s; /* @kind other */
+  --studio-gather-duration: 900ms; /* @kind other */ --studio-gather-stagger: 135ms; /* @kind other */
+  --studio-path-pulse-duration: 4s; /* @kind other */
+  /* Navigation */
+  --studio-zoom-min: 0.7; /* @kind other */ --studio-zoom-max: 2.4; /* @kind other */
+
+  /* Feedback */
+  --kin-error:       #DC525C;
+  --kin-error-tob:   #8D2D3A;
+  --kin-complete:    #4FC08D;
+  --kin-warning:     #F2B84B;
+
+  /* ---- Light & Magic — gradients, auras, bursts ------------------------
+     The system's atmosphere layer. Gradients paint hero moments; auras are
+     soft radial glows placed BEHIND content on dark grounds; bursts are
+     conic sun-rays drawn from the Kiduna mark. All effects sit on espresso/
+     aubergine — never on light surfaces. One effect per composition. */
+
+  /* Gradients — directional washes for heroes, covers, section markers */
+  --kid-gradient-brand:   linear-gradient(120deg, #03CCD9 0%, #2FB4E0 38%, #6536BB 100%); /* @kind other */ /* signature sky → indigo → violet */
+  --kid-gradient-aurora:  linear-gradient(120deg, #6536BB 0%, #03CCD9 52%, #57C08F 100%); /* @kind other */ /* violet → sky → jade */
+  --kid-gradient-meadow:  linear-gradient(120deg, #2F8C63 0%, #EAAA00 55%, #D97B2E 100%); /* @kind other */ /* green → sun gold → orange */
+  --kid-gradient-sunrise: linear-gradient(120deg, #EAAA00 0%, #D97B2E 55%, #A94E1C 100%); /* @kind other */ /* sun gold → ember */
+  --kid-gradient-dusk:    linear-gradient(160deg, #2A1A2B 0%, #3F2270 55%, #33478F 100%); /* @kind other */ /* aubergine → violet → indigo ground */
+  /* deprecated — too subtle; kept as aliases */
+  --kid-gradient-mint:    var(--kid-gradient-aurora); /* @kind other */
+  --kid-gradient-moonrise:var(--kid-gradient-meadow); /* @kind other */
+
+  /* Auras — radial glows behind logos, numbers, CTAs. Never as fills. */
+  --kid-aura-sky:    radial-gradient(closest-side, rgba(3,204,217,0.50), rgba(3,204,217,0.0) 74%); /* @kind other */
+  --kid-aura-gold:   radial-gradient(closest-side, rgba(234,170,0,0.46), rgba(234,170,0,0.0) 74%); /* @kind other */
+  --kid-aura-violet: radial-gradient(closest-side, rgba(122,74,210,0.55), rgba(101,54,187,0.0) 74%); /* @kind other */
+  --kid-aura-mint:   radial-gradient(closest-side, rgba(143,230,198,0.42), rgba(143,230,198,0.0) 74%); /* @kind other */
+
+  /* Bursts — conic sun-rays from the Kiduna mark. Pair with an aura of the
+     same hue; mask or fade the edges. */
+  --kid-burst-sun: repeating-conic-gradient(from 0deg, rgba(234,170,0,0.32) 0deg 6deg, rgba(234,170,0,0.0) 6deg 18deg); /* @kind other */
+  --kid-burst-sky: repeating-conic-gradient(from 0deg, rgba(3,204,217,0.28) 0deg 6deg, rgba(3,204,217,0.0) 6deg 18deg); /* @kind other */
+
+  /* Vignette — darkens edges of full-bleed imagery for text protection */
+  --kid-vignette: radial-gradient(ellipse at center, rgba(15,10,28,0.0) 46%, rgba(15,10,28,0.72) 100%); /* @kind other */
+
+  /* Legacy gradient aliases */
+  --kin-gradient-brand: var(--kid-gradient-brand); /* @kind other */
+  --kin-gradient-mint:  var(--kid-gradient-mint); /* @kind other */
+
+  /* ---- Semantic tokens — dark theme (default) -------------------------- */
+  --bg:             var(--kin-deep-violet);     /* deep-violet page ground */
+  --bg-deep:        #0F0A1C;                    /* deeper edges / behind bg */
+  --surface:        #251938;                    /* warm violet cards */
+  --surface-elev:   #30224A;                    /* elevated cards */
+  --surface-muted:  rgba(250, 248, 255, 0.04);
+
+  --fg:             #FFFFE6;                    /* cream white text — never pure white */
+  --fg-muted:       #DED3EE;                    /* secondary text */
+  --fg-soft:        rgba(255, 255, 230, 0.60);  /* tertiary / captions */
+  --fg-dim:         rgba(255, 251, 245, 0.35);
+
+  --border:         rgba(250, 248, 255, 0.12);
+  --border-strong:  rgba(250, 248, 255, 0.22);
+  --hairline:       rgba(169, 139, 214, 0.30);  /* lavender hairline */
+
+  --accent:         var(--kin-skyblue);         /* primary CTA — sky */
+  --accent-hover:   var(--kin-skyblue-hover);
+  --accent-soft:    var(--kin-skyblue-soft);
+
+  --accent-warm:      var(--kin-lavender);      /* warm secondary action */
+  --accent-warm-soft: rgba(169, 139, 214, 0.16);
+
+  --link:           var(--kin-skyblue);
+  --success:        var(--kin-complete);
+  --danger:         var(--kin-error);
+  --warning:        var(--kin-warning);
+  --info:           var(--kin-skyblue);
+
+  /* ---- Type system ---------------------------------------------------- */
+  --font-display:   "Goudy Heavyface", "Goudy Old Style", Georgia, serif;
+  --font-sans:      "Avenir", "Avenir Next", ui-sans-serif, system-ui, sans-serif;
+  --font-callout:   "IBM Plex Sans", "Avenir", ui-sans-serif, system-ui, sans-serif;
+  --font-mono:      ui-monospace, "SF Mono", Menlo, monospace;
+
+  /* Scale — matches corporate ID body sizes (9/11/13/16px body, 20/24/30/54
+     display) anchored to a 16px base. */
+  --fs-xs:   12px;
+  --fs-sm:   14px;
+  --fs-base: 16px;
+  --fs-lg:   18px;
+  --fs-xl:   20px;
+  --fs-2xl:  24px;
+  --fs-3xl:  30px;
+  --fs-4xl:  40px;
+  --fs-5xl:  54px;
+  --fs-6xl:  72px;
+
+  --lh-tight:  1.05; /* @kind other */
+  --lh-snug:   1.2;  /* @kind other */
+  --lh-body:   1.5;  /* @kind other */
+  --lh-loose:  1.7;  /* @kind other */
+
+  --tracking-caps: 0.16em;   /* eyebrow labels */
+
+  /* ---- Space + radius ------------------------------------------------- */
+  --space-1:  4px;
+  --space-2:  8px;
+  --space-3:  12px;
+  --space-4:  16px;
+  --space-5:  20px;
+  --space-6:  24px;
+  --space-8:  32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+
+  --radius-xs:   4px;
+  --radius-sm:   6px;
+  --radius-md:   10px;
+  --radius-lg:   14px;
+  --radius-xl:   20px;
+  --radius-pill: 9999px;
+
+  /* ---- Elevation — warm, deep shadows on violet ----------------------- */
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.40);
+  --shadow-md: 0 6px 20px rgba(9, 5, 18, 0.50);
+  --shadow-lg: 0 18px 48px rgba(9, 5, 18, 0.60);
+  --shadow-glow-accent: 0 0 0 1px rgba(3,204,217,0.35), 0 8px 28px rgba(3,204,217,0.18);
+  --shadow-glow-sky:    0 0 0 1px rgba(3,204,217,0.35), 0 8px 28px rgba(3,204,217,0.18);
+  --shadow-glow-warm:   0 0 0 1px rgba(169,139,214,0.40), 0 8px 28px rgba(169,139,214,0.16);
+}
+
+/* ---- Semantic element styles -------------------------------------------- */
+
+html, body { background: var(--bg); color: var(--fg); }
+
+body {
+  font-family: var(--font-sans);
+  font-size: var(--fs-base);
+  line-height: var(--lh-body);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+h1, h2, h3, h4, h5, h6,
+.kin-display {
+  font-family: var(--font-display);
+  font-weight: 400;         /* Goudy Heavyface is already heavy */
+  letter-spacing: 0;
+  line-height: var(--lh-tight);
+  color: var(--fg);
+}
+
+h1 { font-size: var(--fs-5xl); }
+h2 { font-size: var(--fs-3xl); line-height: var(--lh-snug); }
+h3 { font-size: var(--fs-2xl); line-height: var(--lh-snug); }
+h4 { font-size: var(--fs-xl);  line-height: var(--lh-snug); }
+h5 { font-size: var(--fs-lg);  line-height: var(--lh-snug); }
+h6 { font-size: var(--fs-base); line-height: var(--lh-snug); }
+
+p  { color: var(--fg-muted); }
+a  { color: var(--link); text-decoration: none; }
+a:hover { color: color-mix(in oklch, var(--link) 80%, white); }
+
+small, .kin-small { font-size: var(--fs-sm); color: var(--fg-soft); }
+
+code, pre, .kin-mono { font-family: var(--font-mono); font-size: 0.92em; }
+
+/* Callout — pull-quotes, asides, highlighted notes. IBM Plex Sans. */
+.kin-callout {
+  font-family: var(--font-callout);
+  font-size: var(--fs-lg);
+  font-weight: 500;
+  line-height: var(--lh-snug);
+  color: var(--fg);
+  padding: var(--space-4) var(--space-5);
+  background: var(--accent-warm-soft);
+  border-radius: var(--radius-md);
+}
+
+/* Signature Kinship move: upright display phrase inside a headline,
+   set in Kiduna sun-gold. Used for emphasis in hero copy. */
+em.kin-emph, .kin-emph {
+  font-family: var(--font-display);
+  font-style: normal;
+  color: var(--kid-sun-gold);
+}
+
+/* ---- Light & Magic utilities -------------------------------------------- */
+
+/* Gradient text — display headlines only, brand gradient by default */
+.kid-text-gradient {
+  background: var(--kid-gradient-brand);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* Aura — apply to a wrapper; the glow paints behind its children.
+   Modifier classes pick the hue. */
+.kid-aura { position: relative; isolation: isolate; }
+.kid-aura::before {
+  content: "";
+  position: absolute;
+  inset: -70%;
+  z-index: -1;
+  background: var(--kid-aura-sky);
+  pointer-events: none;
+}
+.kid-aura--gold::before   { background: var(--kid-aura-gold); }
+.kid-aura--violet::before { background: var(--kid-aura-violet); }
+.kid-aura--mint::before   { background: var(--kid-aura-mint); }
+
+/* Burst — sun-rays behind a centered mark; fades out at the edges */
+.kid-burst { position: relative; isolation: isolate; }
+.kid-burst::before {
+  content: "";
+  position: absolute;
+  inset: -110%;
+  z-index: -1;
+  background: var(--kid-burst-sun);
+  -webkit-mask-image: radial-gradient(closest-side, #000 0%, transparent 78%);
+  mask-image: radial-gradient(closest-side, #000 0%, transparent 78%);
+  pointer-events: none;
+}
+.kid-burst--sky::before { background: var(--kid-burst-sky); }
+
+/* Gradient CTA — single pill button: deep violet → sky. Dark grounds only. */
+.kid-btn-gradient {
+  display: inline-flex; align-items: center; justify-content: center;
+  padding: 12px 28px; border: none; border-radius: var(--radius-pill);
+  font-family: var(--font-sans); font-size: var(--fs-sm); font-weight: 700;
+  letter-spacing: 0.04em; color: #FFFFE6; cursor: pointer;
+  background: linear-gradient(110deg, #3F2270 0%, #6536BB 45%, #03CCD9 100%);
+  box-shadow: 0 6px 20px rgba(63,34,112,0.4);
+  transition: filter 200ms ease, transform 200ms ease, box-shadow 200ms ease;
+}
+.kid-btn-gradient:hover { filter: brightness(1.15); transform: translateY(-1px); box-shadow: 0 10px 28px rgba(3,204,217,0.28); }
+
+/* ---- Orbits — the living Kiduna system ----------------------------------
+   Concentric rings + orbiting dots around a centered mark. From the Studio
+   welcome screen. Compose: .kid-orbit wrapper (square, ~200px), rings,
+   an optional core glow, dots, and your mark centered on top. */
+@keyframes kidOrbitRotate { to { transform: rotate(360deg); } }
+@keyframes kidOrbitBreathe { 0%,100% { transform: scale(1); opacity: 0.7; } 50% { transform: scale(1.06); opacity: 1; } }
+@keyframes kidOrbitCore { 0%,100% { transform: translate(-50%,-50%) scale(1); opacity: 0.5; } 50% { transform: translate(-50%,-50%) scale(1.15); opacity: 1; } }
+@keyframes kidOrbitDot { from { transform: rotate(var(--orbit-from,0deg)) translateX(var(--orbit-r,80px)); } to { transform: rotate(calc(var(--orbit-from,0deg) + 360deg)) translateX(var(--orbit-r,80px)); } }
+@keyframes kidBeamFlash { 0%,100% { opacity: 0; } 30%,70% { opacity: 1; } }
+
+.kid-orbit { position: relative; width: 200px; height: 200px; }
+.kid-orbit > * { pointer-events: none; }
+.kid-orbit-ring { position: absolute; inset: 0; border: 1px solid rgba(3,204,217,0.25); border-radius: 50%; animation: kidOrbitBreathe 6s ease-in-out infinite; }
+.kid-orbit-ring--dashed { border: 1px dashed rgba(169,139,214,0.35); animation: kidOrbitRotate 45s linear infinite; }
+.kid-orbit-ring--mint { border-color: rgba(143,230,198,0.22); animation: kidOrbitRotate 60s linear infinite reverse; }
+.kid-orbit-ring--gold { border-color: rgba(234,170,0,0.30); }
+.kid-orbit-ring--violet { border-color: rgba(157,123,232,0.35); }
+.kid-orbit-core { position: absolute; left: 50%; top: 50%; width: 60%; height: 60%; border-radius: 50%; background: radial-gradient(circle, rgba(3,204,217,0.22) 0%, rgba(234,170,0,0.08) 40%, transparent 70%); animation: kidOrbitCore 4s ease-in-out infinite; }
+.kid-orbit-dot { position: absolute; left: 50%; top: 50%; width: 8px; height: 8px; margin: -4px 0 0 -4px; border-radius: 50%; background: var(--kin-lavender); box-shadow: 0 0 8px rgba(169,139,214,0.5); animation: kidOrbitDot 14s linear infinite; }
+.kid-orbit-dot--sky  { background: var(--kin-skyblue); box-shadow: 0 0 8px rgba(3,204,217,0.5); }
+.kid-orbit-dot--gold { background: var(--kid-sun-gold); box-shadow: 0 0 8px rgba(234,170,0,0.5); }
+.kid-orbit-dot--mint { background: var(--kin-mint); box-shadow: 0 0 8px rgba(143,230,198,0.5); }
+.kid-orbit-dot--violet { background: var(--kid-violet-bright); box-shadow: 0 0 8px rgba(157,123,232,0.5); }
+.kid-orbit-beam { position: absolute; top: 50%; left: 50%; height: 1px; width: 70%; margin-left: -35%; background: linear-gradient(90deg, transparent, rgba(3,204,217,0.35), transparent); animation: kidBeamFlash 4s ease-in-out infinite; }
+.kid-orbit-center { position: absolute; left: 50%; top: 50%; transform: translate(-50%,-50%); z-index: 10; }
+
+/* ---- Studio Field ground & ambient motion --------------------------------
+   The Field ground is crisp near-black. No color washes — light lives on
+   objects. Ambient motion touches objects and relationships only; the
+   viewport, orientation copy, Ki, and Compute never move. */
+@keyframes kidGlint { 0%,100% { opacity: 0.15; } 50% { opacity: 0.8; } }
+@keyframes kidDrift { 0%,100% { transform: translate(0,0); } 33% { transform: translate(7px,-9px); } 66% { transform: translate(-6px,6px); } }
+@keyframes kidBreatheNode { 0%,100% { transform: scale(1); } 50% { transform: scale(1.045); } }
+@keyframes kidGlowBreathe { 0%,100% { opacity: 0.55; } 50% { opacity: 1; } }
+@keyframes kidPathPulse { 0%,100% { opacity: 0.12; } 50% { opacity: 0.55; } }
+@keyframes kidGatherIn { from { transform: scale(1.6); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+@keyframes kidFieldPan { 0%,100% { transform: translate(0,0); } 50% { transform: translate(-46px,-22px); } }
+
+.studio-field { position: relative; overflow: hidden; background: var(--studio-ground); }
+.studio-speck { position: absolute; width: 2px; height: 2px; border-radius: 50%; background: var(--kid-moon-cream); animation: kidGlint 5s ease-in-out infinite; }
+.studio-arc { position: absolute; border: 1px solid rgba(169,139,214,0.10); border-radius: 50%; pointer-events: none; }
+.studio-breathe { animation: kidBreatheNode 6s ease-in-out infinite; }
+.studio-drift { animation: kidDrift 14s ease-in-out infinite; }
+.studio-gather { animation: kidGatherIn 900ms cubic-bezier(0.16,1,0.3,1) both; }
+
+/* ---- Celestial Enamel — Studio object grammar ----------------------------
+   From the Kiduna Ally medallions (allies/): every Studio object is enamel.
+   Recipe: flat tactile fill of the object's hue over violet, a deep-violet
+   cloisonné outline, and a thin gold rim. The gold rim means REAL — a
+   registered, live thing. Nascent/conceptual objects render dashed and
+   rimless until realized. Glow is a quiet halo of the hue, never neon.
+   Set the hue per object: style="--hue: var(--studio-org)". */
+.enamel { --hue: var(--kin-lavender); border-radius: 50%; display: grid; place-items: center; color: var(--hue); background: color-mix(in srgb, var(--hue) 20%, #191026); border: 1.5px solid color-mix(in srgb, var(--hue) 62%, #0F0A1C); box-shadow: 0 0 0 2px #0F0A1C, 0 0 0 3.5px rgba(234,170,0,0.8), 0 0 0 5px #0F0A1C, 0 0 18px color-mix(in srgb, var(--hue) 26%, transparent); }
+.enamel--sm { border-width: 1px; box-shadow: 0 0 0 1px #0F0A1C, 0 0 0 2px rgba(234,170,0,0.7), 0 0 8px color-mix(in srgb, var(--hue) 26%, transparent); }
+.enamel--nascent { border-style: dashed; box-shadow: 0 0 0 2px #0F0A1C, 0 0 14px color-mix(in srgb, var(--hue) 20%, transparent); }
+/* Enamel surface — Panels, cards, capsules. Opaque, flat, gold-rimmed. */
+.enamel-surface { background: #1C1230; border: 1px solid rgba(169,139,214,0.30); box-shadow: 0 0 0 1.5px #0F0A1C, 0 0 0 2.5px rgba(234,170,0,0.30), 0 18px 48px rgba(0,0,0,0.55); }
+
+/* Eyebrow / caps label */
+.kin-eyebrow, .label-caps {
+  font-family: var(--font-sans);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: var(--tracking-caps);
+  text-transform: uppercase;
+  color: var(--fg-soft);
+}
+
+/* Studio Enamel v0.4 — reduced motion collapses all ambient durations */
+@media (prefers-reduced-motion: reduce) { :root { --studio-breathe-duration: 0ms; /* @kind other */ --studio-drift-duration: 0ms; /* @kind other */ --studio-orbit-duration-min: 0ms; /* @kind other */ --studio-gather-duration: 0ms; /* @kind other */ --studio-gather-stagger: 0ms; /* @kind other */ --studio-path-pulse-duration: 0ms; /* @kind other */ } .studio-breathe, .studio-drift, .studio-gather, .kid-orbit-dot, .studio-speck { animation: none !important; } }
