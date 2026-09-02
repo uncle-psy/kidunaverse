@@ -6,9 +6,9 @@ const escapeHtml = (value = '') => String(value).replace(/[&<>'"]/g, character =
 }[character]));
 
 export function railAction(item, active) {
-  return `<button class="rail-action ${active ? 'active' : ''}" type="button" data-panel="${item.id}" aria-label="${item.label} — ${item.metaphor}" aria-pressed="${active}">
-    ${icon(item.id, 22)}
-    <span class="rail-tooltip"><b>${item.label}</b><small>${item.metaphor} · ${item.status}</small></span>
+  return `<button class="rail-action ${active ? 'active' : ''}" type="button" data-panel="${item.id}" aria-label="${item.label}" aria-pressed="${active}">
+    <span class="rail-role-icon role-icon-${item.roleIcon}" aria-hidden="true"></span>
+    <span class="rail-tooltip"><b>${item.label}</b></span>
   </button>`;
 }
 

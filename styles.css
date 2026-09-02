@@ -145,6 +145,25 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
 .rail-primary { display: flex; flex-direction: column; gap: 2px; }
 .rail-spacer { flex: 1; min-height: 8px; }
 
+.rail-role-icon {
+  width: 24px;
+  height: 24px;
+  display: block;
+  background: currentColor;
+  -webkit-mask-position: center;
+  -webkit-mask-repeat: no-repeat;
+  -webkit-mask-size: contain;
+  mask-position: center;
+  mask-repeat: no-repeat;
+  mask-size: contain;
+}
+.role-icon-receiver { -webkit-mask-image: url('assets/role-icons/receiver.svg'); mask-image: url('assets/role-icons/receiver.svg'); }
+.role-icon-transmitter { -webkit-mask-image: url('assets/role-icons/transmitter.svg'); mask-image: url('assets/role-icons/transmitter.svg'); }
+.role-icon-connector { -webkit-mask-image: url('assets/role-icons/connector.svg'); mask-image: url('assets/role-icons/connector.svg'); }
+.role-icon-creator { -webkit-mask-image: url('assets/role-icons/creator.svg'); mask-image: url('assets/role-icons/creator.svg'); }
+.role-icon-inspector { -webkit-mask-image: url('assets/role-icons/inspector.svg'); mask-image: url('assets/role-icons/inspector.svg'); }
+.role-icon-broker { -webkit-mask-image: url('assets/role-icons/broker.svg'); mask-image: url('assets/role-icons/broker.svg'); }
+
 .avatar-entry { margin-top: 5px; border-radius: 50%; }
 .avatar-entry > img { width: 38px; height: 38px; border-radius: 50%; object-fit: cover; border: 1px solid rgba(169,139,214,.52); box-shadow: 0 0 0 2px #0c0713, 0 0 0 3px rgba(234,170,0,.42); }
 .avatar-entry > i { position: absolute; right: 2px; bottom: 3px; width: 9px; height: 9px; border: 2px solid #0c0713; border-radius: 50%; background: var(--layout-mint); }

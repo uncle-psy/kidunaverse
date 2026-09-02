@@ -364,7 +364,7 @@ app.addEventListener('keydown', event => {
 window.__layoutKit = {
   getState: () => ({ ...state }),
   layoutTypes: layoutTypes.map(type => type.id),
-  version: '0.2.0'
+  version: '0.2.1'
 };
 
 render();

@@ -32,12 +32,12 @@ export const layoutTypes = [
 ];
 
 export const railItems = [
-  { id: 'receive', label: 'Receive', metaphor: 'Dish', status: '12 tuned signals' },
-  { id: 'transmit', label: 'Transmit', metaphor: 'Beacon', status: '2 drafts' },
-  { id: 'connect', label: 'Connect', metaphor: 'Dock', status: '3 pending' },
-  { id: 'create', label: 'Create', metaphor: 'Spark', status: 'Ready' },
-  { id: 'packages', label: 'Packages', metaphor: 'Cartridge', status: '6 available' },
-  { id: 'history', label: 'History', metaphor: 'Trail', status: 'Today · 14 events' }
+  { id: 'receive', label: 'Receiver', roleIcon: 'receiver' },
+  { id: 'transmit', label: 'Transmitter', roleIcon: 'transmitter' },
+  { id: 'connect', label: 'Connector', roleIcon: 'connector' },
+  { id: 'create', label: 'Creator', roleIcon: 'creator' },
+  { id: 'packages', label: 'Inspector', roleIcon: 'inspector' },
+  { id: 'history', label: 'Broker', roleIcon: 'broker' }
 ];
 
 export const instruments = [
