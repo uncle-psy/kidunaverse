@@ -1,4 +1,4 @@
-import { defaultReceptionProfiles, initialNotifications, instruments, layoutTypes, railItems, receiverV2Catalog, transmitterCatalog } from './data.js?v=0.4.0';
+import { defaultReceptionProfiles, initialNotifications, instruments, layoutTypes, railItems, receiverV2Catalog, transmitterCatalog } from './data.js?v=0.4.1';
 import {
   fieldStage,
   findObject,
@@ -11,7 +11,7 @@ import {
   selectionBar,
   statusInstrument,
   toast
-} from './components.js?v=0.4.0';
+} from './components.js?v=0.4.1';
 import { icon } from './icons.js';
 
 const storageKey = 'kiduna-layout-kit-v0.2';
@@ -171,7 +171,7 @@ function topInstruments() {
 function render(options = {}) {
   document.documentElement.classList.toggle('calm-motion', state.calmMotion);
   document.documentElement.dataset.currentLayoutType = state.type;
-  const fullscreenReceiver = state.openPanel === 'receive' && state.receiverExperiment === '0.02';
+  const fieldReceiver = state.openPanel === 'receive' && state.receiverExperiment === '0.02';
   app.innerHTML = `<div class="desktop-app">
     ${titlebar()}
     <div class="app-body">
@@ -179,17 +179,18 @@ function render(options = {}) {
       <section class="workspace" aria-label="Moto’s Layout">
         ${topInstruments()}
         <section class="field-shell" id="field-stage" tabindex="-1">
-          ${fieldStage(state)}
-          ${state.ambientMessages && state.type !== 'composed' ? notificationStack(state.notifications) : ''}
-          ${selectionBar(state)}
-          ${kiComposer(state)}
-          ${fullscreenReceiver ? '' : panelFor(state)}
-          ${inspector(state)}
-          ${toast(state.toastMessage)}
+          ${fieldReceiver ? `${panelFor(state)}${toast(state.toastMessage)}` : `
+            ${fieldStage(state)}
+            ${state.ambientMessages && state.type !== 'composed' ? notificationStack(state.notifications) : ''}
+            ${selectionBar(state)}
+            ${kiComposer(state)}
+            ${panelFor(state)}
+            ${inspector(state)}
+            ${toast(state.toastMessage)}
+          `}
         </section>
       </section>
     </div>
-    ${fullscreenReceiver ? panelFor(state) : ''}
   </div>`;
 
   if (options.focus) {
@@ -994,7 +995,7 @@ app.addEventListener('keydown', event => {
 window.__layoutKit = {
   getState: () => ({ ...state }),
   layoutTypes: layoutTypes.map(type => type.id),
-  version: '0.4.0'
+  version: '0.4.1'
 };
 
 render();

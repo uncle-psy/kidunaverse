@@ -1,4 +1,4 @@
-import { coherenceDimensions, fieldObjects, historyEntries, layoutTypes, packages, receiverThemes, receiverV2Catalog, transmitterCatalog } from './data.js?v=0.4.0';
+import { coherenceDimensions, fieldObjects, historyEntries, layoutTypes, packages, receiverThemes, receiverV2Catalog, transmitterCatalog } from './data.js?v=0.4.1';
 import { icon } from './icons.js';
 
 const escapeHtml = (value = '') => String(value).replace(/[&<>'"]/g, character => ({

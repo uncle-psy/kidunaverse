@@ -801,9 +801,9 @@ button.summary-chip { cursor: pointer; }
 .receiver-date-grid label { color: rgba(255,255,230,.4); font-size: 7px; font-weight: 900; text-transform: uppercase; }
 .receiver-date-grid input { width: 100%; margin-top: 5px; color-scheme: dark; }
 
-/* Receiver experiment 0.02 — a full-screen, graphical projection over shared profiles. */
+/* Receiver experiment 0.02 — a full-Field graphical projection that preserves Layout chrome. */
 .receiver-v2 {
-  position: fixed;
+  position: absolute;
   z-index: 120;
   inset: 0;
   min-width: 0;
@@ -1094,7 +1094,7 @@ button.summary-chip { cursor: pointer; }
   .receiver-v2-field-heading { align-items: start; }
   .receiver-v2-field-heading > div:last-child { display: none; }
   .receiver-v2-recommendations > div { grid-template-columns: 1fr; }
-  .receiver-v2-inspector, .receiver-v2-profile-manager { position: fixed; inset: 0; width: 100vw; height: 100vh; border: 0; }
+  .receiver-v2-inspector, .receiver-v2-profile-manager { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
   .receiver-v2-profile-list article { grid-template-columns: 1fr; }
   .receiver-v2-ki { grid-template-columns: 42px minmax(0,1fr) auto; padding: 8px 10px; }
   .ki-word-circle { width: 40px; height: 40px; font-size: 17px; }
