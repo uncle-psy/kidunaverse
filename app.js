@@ -1,4 +1,4 @@
-import { defaultReceptionProfiles, evaluateTransmissionDraft, initialNotifications, layoutTypes, railItems, receiverV2Catalog, transmitterCatalog, transmitterDestinations, transmitterSeedCatalog, transmitterSeedTypes, transmitterSenders } from './data.js?v=0.8.0';
+import { defaultReceptionProfiles, evaluateTransmissionDraft, initialNotifications, layoutTypes, railItems, receiverV2Catalog, transmitterCatalog, transmitterDestinations, transmitterSeedCatalog, transmitterSeedTypes, transmitterSenders } from './data.js?v=0.9.0';
 import {
   fieldStage,
   findObject,
@@ -10,12 +10,26 @@ import {
   railAction,
   selectionBar,
   toast
-} from './components.js?v=0.8.0';
+} from './components.js?v=0.9.0';
 import { icon } from './icons.js';
-import { expressionInspector, expressionOverlay, expressions, fieldExplorer, proposeKiActions, universalKi, workspaceFor } from './workspaces.js?v=0.8.0';
+import { expressionInspector, expressionOverlay, expressions, proposeKiActions, universalKi, workspaceFor } from './workspaces.js?v=0.9.0';
+import {
+  composeField,
+  realms,
+  receiverSortDefaults,
+  renderAbout,
+  renderBuilderNotes,
+  renderPurposefulField,
+  renderPurposefulModal,
+  renderReceiverRealm,
+  representedRealmTypes,
+  sourceOptions,
+  topicHierarchy
+} from './purposeful.js?v=0.9.0';
 
 const storageKey = 'kiduna-layout-kit-v0.2';
 const clone = value => JSON.parse(JSON.stringify(value));
+const escapeHtml = (value = '') => String(value).replace(/[&<>'"]/g, character => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[character]));
 const receiverV2FilterOptions = ['Transmitter', 'Realm', 'Power Map', 'Package', 'Node', 'Sponsored'];
 const transmitterV2FilterOptions = [...transmitterSeedTypes];
 
@@ -35,7 +49,7 @@ function normalizeReceiverV2Profile(profile) {
 }
 
 const defaults = {
-  uiRevision: '0.8.0',
+  uiRevision: '0.9.0',
   type: 'composed',
   defaultType: 'composed',
   openPanel: null,
@@ -50,7 +64,6 @@ const defaults = {
   receiverCommand: '',
   receiverProposal: null,
   receiverProfileDraft: '',
-  receiverTopicDraft: '',
   receiverTransmitterQuery: '',
   receiverTransmitterFilter: 'All',
   receiverTransmitterSort: 'Name',
@@ -118,6 +131,32 @@ const defaults = {
   inspectorWorkspaceQuery: '',
   brokerTab: 'Overview',
   metricsScope: 'network',
+  selectedSource: 'moto',
+  joinedRealmIds: realms.filter(realm => realm.joined).map(realm => realm.id),
+  mutedRealmIds: realms.filter(realm => realm.muted).map(realm => realm.id),
+  receiverRealmQuery: '',
+  receiverRealmTypes: [...representedRealmTypes],
+  receiverOnlySponsored: false,
+  receiverOnlyJoined: false,
+  receiverShowMuted: false,
+  receiverRealmSort: 'Formation Date',
+  receiverSortDirection: 'desc',
+  receiverTopicSelection: { topics: [], foci: [], tags: [] },
+  receiverTopicDraft: null,
+  receiverTopicOpen: false,
+  receiverTopicQuery: '',
+  realmDetailId: null,
+  fieldForce: 'Gravity',
+  fieldViewMode: 'spatial',
+  fieldRealmType: 'All types',
+  fieldRealm: 'All joined Realms',
+  fieldProject: 'All Projects',
+  fieldTopic: 'All Topics',
+  fieldActivity: 'All Activity',
+  fieldWhyIds: [],
+  fieldOpenClusters: [],
+  fieldDetailId: null,
+  kiPlusOpen: false,
   sentinelPreset: 'Balanced',
   sentinelBoundaries: { participation: 72, stewardship: 66, belonging: 64, legibility: 76 },
   kiDraft: '',
@@ -162,7 +201,23 @@ function loadState() {
       next.receiverV2Filters = [...defaults.receiverV2Filters];
       next.transmitterV2Sort = defaults.transmitterV2Sort;
       next.transmitterV2Filters = [...defaults.transmitterV2Filters];
+      next.selectedSource = defaults.selectedSource;
+      next.joinedRealmIds = [...defaults.joinedRealmIds];
+      next.mutedRealmIds = [...defaults.mutedRealmIds];
+      next.receiverRealmTypes = [...defaults.receiverRealmTypes];
+      next.receiverTopicSelection = clone(defaults.receiverTopicSelection);
     }
+    next.selectedSource = sourceOptions.some(source => source.id === next.selectedSource && source.allowed) ? next.selectedSource : defaults.selectedSource;
+    next.joinedRealmIds = Array.isArray(next.joinedRealmIds) ? next.joinedRealmIds.filter(id => realms.some(realm => realm.id === id)) : [...defaults.joinedRealmIds];
+    next.mutedRealmIds = Array.isArray(next.mutedRealmIds) ? next.mutedRealmIds.filter(id => realms.some(realm => realm.id === id)) : [...defaults.mutedRealmIds];
+    next.receiverRealmTypes = Array.isArray(next.receiverRealmTypes) ? next.receiverRealmTypes.filter(type => representedRealmTypes.includes(type)) : [...defaults.receiverRealmTypes];
+    next.receiverTopicSelection = next.receiverTopicSelection && typeof next.receiverTopicSelection === 'object' ? {
+      topics: Array.isArray(next.receiverTopicSelection.topics) ? next.receiverTopicSelection.topics : [],
+      foci: Array.isArray(next.receiverTopicSelection.foci) ? next.receiverTopicSelection.foci : [],
+      tags: Array.isArray(next.receiverTopicSelection.tags) ? next.receiverTopicSelection.tags : []
+    } : clone(defaults.receiverTopicSelection);
+    next.fieldWhyIds = Array.isArray(next.fieldWhyIds) ? next.fieldWhyIds : [];
+    next.fieldOpenClusters = Array.isArray(next.fieldOpenClusters) ? next.fieldOpenClusters : [];
     if (!next.receiverProfiles.some(profile => profile.id === next.activeReceiverProfileId)) next.activeReceiverProfileId = next.receiverProfiles[0].id;
     next.type = layoutTypes.some(type => type.id === next.type) ? next.type : defaults.type;
     next.defaultType = layoutTypes.some(type => type.id === next.defaultType) ? next.defaultType : defaults.defaultType;
@@ -175,11 +230,12 @@ function loadState() {
 let state = loadState();
 let toastTimer;
 let receiverV2SearchTimer;
+let purposefulReturnSelector = '';
 const app = document.getElementById('app');
-const routePanels = { field: null, receiver: 'receive', transmitter: 'transmit', connector: 'connector', creator: 'creator', inspector: 'inspector-workspace', broker: 'broker', envoy: 'envoy', sentinel: 'sentinel', metrics: 'metrics' };
+const routePanels = { about: 'about', field: null, receiver: 'receive', transmitter: 'transmit', connector: 'connector', creator: 'creator', inspector: 'inspector-workspace', broker: 'broker', envoy: 'envoy', sentinel: 'sentinel', metrics: 'metrics', 'builder-notes': 'builder-notes' };
 const panelRoutes = Object.fromEntries(Object.entries(routePanels).map(([route, panel]) => [panel || 'field', route]));
-const routeLabels = { field: 'Field', receive: 'Receiver', transmit: 'Transmitter', connector: 'Connector', creator: 'Creator', 'inspector-workspace': 'Inspector', broker: 'Broker', envoy: 'Envoy', sentinel: 'Sentinel', metrics: 'Metrics' };
-const fullFieldPanels = new Set(['receive', 'transmit', 'connector', 'creator', 'inspector-workspace', 'broker', 'envoy', 'sentinel', 'metrics']);
+const routeLabels = { about: 'About', field: 'Field', receive: 'Receiver', transmit: 'Transmitter', connector: 'Connector', creator: 'Creator', 'inspector-workspace': 'Inspector', broker: 'Broker', envoy: 'Envoy', sentinel: 'Sentinel', metrics: 'Metrics', 'builder-notes': 'Builder Notes' };
+const fullFieldPanels = new Set(['about', 'receive', 'transmit', 'connector', 'creator', 'inspector-workspace', 'broker', 'envoy', 'sentinel', 'metrics', 'builder-notes']);
 
 function routeFromLocation() {
   const parts = location.pathname.split('/').filter(Boolean);
@@ -195,13 +251,22 @@ function routePath(panel = null, versioned = false) {
 state.openPanel = routeFromLocation();
 state.routeLabel = routeLabels[state.openPanel || 'field'];
 
+function fragmentPatch(panel = state.openPanel) {
+  const fragment = location.hash.slice(1);
+  if (panel === 'receive' && fragment === 'topic-tuner') return { receiverTopicOpen: true, receiverTopicDraft: clone(state.receiverTopicSelection), receiverTopicQuery: '', realmDetailId: null };
+  if (panel === 'receive' && fragment === 'realm-details') return { realmDetailId: 'build-kiduna', receiverTopicOpen: false };
+  return {};
+}
+
+state = { ...state, ...fragmentPatch(state.openPanel) };
+
 function setRoute(panel, { replace = false } = {}) {
   const path = routePath(panel);
-  if (location.pathname !== path) history[replace ? 'replaceState' : 'pushState']({ panel }, '', path);
+  if (`${location.pathname}${location.search}${location.hash}` !== path) history[replace ? 'replaceState' : 'pushState']({ panel }, '', path);
 }
 
 function persistentState() {
-  const { toastMessage, composerDraft, receiverProposal, receiverCommand, receiverConfirmDelete, receiverRenameId, receiverUndo, receiverV2Proposal, receiverV2KiDraft, receiverV2ConfirmRemove, receiverV2SliderBefore, receiverV2InspectorId, receiverV2ProfileManagerOpen, receiverV2CompareId, receiverReturnScroll, transmitterV2InspectorId, transmitterV2DestinationInspectorId, transmitterV2KiDraft, transmitterV2Proposal, transmitterReturnScroll, ...saved } = state;
+  const { toastMessage, composerDraft, receiverProposal, receiverCommand, receiverConfirmDelete, receiverRenameId, receiverUndo, receiverV2Proposal, receiverV2KiDraft, receiverV2ConfirmRemove, receiverV2SliderBefore, receiverV2InspectorId, receiverV2ProfileManagerOpen, receiverV2CompareId, receiverReturnScroll, transmitterV2InspectorId, transmitterV2DestinationInspectorId, transmitterV2KiDraft, transmitterV2Proposal, transmitterReturnScroll, receiverTopicDraft, receiverTopicOpen, receiverTopicQuery, realmDetailId, fieldDetailId, kiPlusOpen, ...saved } = state;
   return saved;
 }
 
@@ -231,19 +296,21 @@ function announce(message) {
 
 function titlebar() {
   const layoutType = layoutTypes.find(item => item.id === state.type)?.name;
+  const activeSource = sourceOptions.find(source => source.id === state.selectedSource) || sourceOptions[0];
   return `<header class="titlebar">
-    <div class="title-left"><div class="window-controls" aria-label="Window controls"><i></i><i></i><i></i><span>Kiduna</span></div><a class="release-stamp" href="${routePath(state.openPanel, true)}">Version 0.02 · Published Sep 3, 2026 at 1:24 AM EDT</a><button class="reset-to-default" type="button" data-action="reset-layout">Reset to default</button></div>
-    <div class="title-identity"><img src="assets/design-system/assets/kiduna-mark.svg" alt=""><span>Layout Kit</span><i>/</i><strong>Moto’s Field</strong><i>/</i><b>${state.routeLabel}${state.routeLabel === 'Field' ? ` · ${layoutType}` : ''}</b></div>
+    <div class="title-left"><div class="window-controls" aria-label="Window controls"><i></i><i></i><i></i><span>Kiduna</span></div><a class="release-stamp" href="${routePath(state.openPanel, true)}">Version 0.02 · Purposeful Field</a><button class="reset-to-default" type="button" data-action="reset-layout">Reset to default</button><label class="source-switcher" for="source-selector-top"><span>Source</span><select id="source-selector-top" aria-describedby="source-access-top">${sourceOptions.map(source => `<option value="${source.id}" ${source.id === state.selectedSource ? 'selected' : ''} ${source.allowed ? '' : 'disabled'}>${source.name} — ${source.role}${source.allowed ? '' : ' · Permission required'}</option>`).join('')}</select><small id="source-access-top">${escapeHtml(activeSource.access)}</small></label></div>
+    <div class="title-identity"><img src="assets/design-system/assets/kiduna-mark.svg" alt=""><span>Layout Kit</span><i>/</i><strong>${activeSource.name}’s Field</strong><i>/</i><b>${state.routeLabel}${state.routeLabel === 'Field' ? ` · ${layoutType}` : ''}</b></div>
     <div class="title-state"><span><i></i>Development</span><button type="button" data-action="open-ki">Ki is present</button></div>
   </header>`;
 }
 
 function toolRail() {
   return `<nav class="toolrail" aria-label="Layout Kit tools">
-    <button class="vault-entry ${state.openPanel === 'vault' ? 'active' : ''}" type="button" data-action="go-home" aria-label="Go Home">
-      <img src="assets/design-system/assets/kiduna-mark.svg" alt="Sun / Moon"><span>HOME</span>
+    <button class="vault-entry ${state.openPanel === 'about' ? 'active' : ''}" type="button" data-action="go-about" aria-label="About">
+      <img src="assets/design-system/assets/kiduna-mark.svg" alt=""><span>ABOUT</span><span class="rail-tooltip"><b>About</b><small>What Kiduna is and how this prototype works</small></span>
     </button>
     <div class="rail-divider" aria-hidden="true"></div>
+    <button class="rail-action field-rail-action ${state.openPanel === null ? 'active' : ''}" type="button" data-action="go-field" aria-label="Field"><span class="field-icon-mask" aria-hidden="true"></span><span class="rail-tooltip"><b>Field</b><small>Purposeful work from joined Realms</small></span></button>
     <div class="rail-primary">${railItems.map(item => railAction(item, state.openPanel === item.id)).join('')}</div>
     <div class="rail-spacer"></div>
     <button class="rail-action ${state.openPanel === 'settings' ? 'active' : ''}" type="button" data-panel="settings" aria-label="Settings">${icon('settings', 21)}<span class="rail-tooltip"><b>Settings</b><small>Preferences, teams, privacy, connections</small></span></button>
@@ -257,7 +324,13 @@ function render(options = {}) {
   document.documentElement.classList.toggle('calm-motion', state.calmMotion);
   document.documentElement.dataset.currentLayoutType = state.type;
   const fieldTool = fullFieldPanels.has(state.openPanel);
-  const mainContent = state.activeExpressionId ? `${fieldStage(state)}${expressionOverlay(state)}` : fieldTool ? (workspaceFor(state) || panelFor(state)) : `${fieldExplorer(state)}${panelFor(state)}${inspector(state)}`;
+  let mainContent;
+  if (state.activeExpressionId) mainContent = `${fieldStage(state)}${expressionOverlay(state)}`;
+  else if (state.openPanel === 'about') mainContent = renderAbout(state);
+  else if (state.openPanel === 'receive') mainContent = renderReceiverRealm(state);
+  else if (state.openPanel === 'builder-notes') mainContent = renderBuilderNotes(state);
+  else if (!state.openPanel) mainContent = renderPurposefulField(state);
+  else mainContent = fieldTool ? (workspaceFor(state) || panelFor(state)) : `${panelFor(state)}${inspector(state)}`;
   app.innerHTML = `<div class="desktop-app">
     ${titlebar()}
     <div class="app-body">
@@ -265,6 +338,7 @@ function render(options = {}) {
       <section class="workspace" aria-label="Moto’s Layout">
         <section class="field-shell" id="field-stage" tabindex="-1">
           ${mainContent}
+          ${renderPurposefulModal(state)}
           ${expressionInspector(state)}
           ${universalKi(state)}
           ${toast(state.toastMessage)}
@@ -273,18 +347,31 @@ function render(options = {}) {
     </div>
   </div>`;
 
+  const modal = document.querySelector('.purposeful-dialog');
+  if (modal) {
+    document.querySelectorAll('.titlebar, .toolrail, .field-shell > :not(.purposeful-dialog-backdrop)').forEach(element => {
+      element.inert = true;
+      element.setAttribute('aria-hidden', 'true');
+    });
+  }
+
   if (options.focus) {
     requestAnimationFrame(() => {
       const target = document.querySelector(options.focus);
       target?.focus();
       if (target && 'selectionStart' in target) target.selectionStart = target.selectionEnd = target.value.length;
     });
+  } else if (modal) {
+    requestAnimationFrame(() => modal.focus());
   }
   if (options.restoreFieldScroll !== undefined) {
     requestAnimationFrame(() => {
       const world = document.querySelector('.mode-world');
       if (world) world.scrollTop = options.restoreFieldScroll;
     });
+  }
+  if (options.scrollHash || (!modal && location.hash)) {
+    requestAnimationFrame(() => document.getElementById(location.hash.slice(1))?.scrollIntoView({ block: 'start' }));
   }
 }
 
@@ -310,7 +397,7 @@ function openPanel(id) {
     receiverEyebrowIndex: openingReceiver ? (state.receiverEyebrowIndex + 1) % 6 : state.receiverEyebrowIndex,
     transmitterReturnScroll: openingTransmitter ? worldScroll : state.transmitterReturnScroll,
     transmitterV2EyebrowIndex: openingTransmitter ? (state.transmitterV2EyebrowIndex + 1) % 3 : state.transmitterV2EyebrowIndex
-  }, { focus: openingReceiver ? '.receiver-v2-close' : openingTransmitter ? '.transmitter-v2-close' : !closing && fullFieldPanels.has(id) ? '.tool-close' : undefined, restoreFieldScroll: closing && id === 'receive' ? state.receiverReturnScroll : closing && id === 'transmit' ? state.transmitterReturnScroll : undefined });
+  }, { focus: openingReceiver ? '.realm-receiver .tool-close' : openingTransmitter ? '.transmitter-v2-close' : !closing && fullFieldPanels.has(id) ? '.tool-close' : undefined, restoreFieldScroll: closing && id === 'receive' ? state.receiverReturnScroll : closing && id === 'transmit' ? state.transmitterReturnScroll : undefined });
 }
 
 function activeReceiverProfile() {
@@ -554,6 +641,166 @@ app.addEventListener('click', event => {
   if (metricsScope) { update({ metricsScope: metricsScope.dataset.metricsScope }); return; }
   const prototypeAction = event.target.closest('[data-prototype-action]');
   if (prototypeAction) { announce(`${prototypeAction.dataset.prototypeAction} is ready to explore in this preview. Nothing outside this page changed.`); return; }
+
+  if (event.target.matches('[data-modal-backdrop]')) {
+    if (state.receiverTopicOpen) {
+      setRoute('receive', { replace: true });
+      update({ receiverTopicOpen: false, receiverTopicDraft: null, receiverTopicQuery: '' }, { focus: purposefulReturnSelector || '[data-action="open-topic-tuner"]' });
+    } else if (state.realmDetailId) {
+      setRoute('receive', { replace: true });
+      update({ realmDetailId: null }, { focus: purposefulReturnSelector || '[data-realm-details]' });
+    } else if (state.fieldDetailId) update({ fieldDetailId: null }, { focus: purposefulReturnSelector || '[data-work-details]' });
+    return;
+  }
+
+  const receiverClear = event.target.closest('[data-receiver-clear]');
+  if (receiverClear) {
+    update({ receiverRealmQuery: '', receiverRealmTypes: [...representedRealmTypes], receiverOnlySponsored: false, receiverOnlyJoined: false, receiverShowMuted: false, receiverTopicSelection: { topics: [], foci: [], tags: [] }, receiverRealmSort: 'Formation Date', receiverSortDirection: 'desc' });
+    announce('Receiver filters returned to the Realm-library baseline. Joined and muted Realm state was preserved.');
+    return;
+  }
+
+  const realmType = event.target.closest('[data-realm-type]');
+  if (realmType) {
+    const type = realmType.dataset.realmType;
+    const allSelected = representedRealmTypes.every(item => state.receiverRealmTypes.includes(item));
+    const receiverRealmTypes = type === 'All Realms'
+      ? (allSelected ? [] : [...representedRealmTypes])
+      : state.receiverRealmTypes.includes(type)
+        ? state.receiverRealmTypes.filter(item => item !== type)
+        : [...state.receiverRealmTypes, type];
+    update({ receiverRealmTypes });
+    return;
+  }
+
+  const realmFacet = event.target.closest('[data-realm-facet]');
+  if (realmFacet) {
+    const facet = realmFacet.dataset.realmFacet;
+    if (facet === 'Sponsored') update({ receiverOnlySponsored: !state.receiverOnlySponsored });
+    if (facet === 'Joined') update({ receiverOnlyJoined: !state.receiverOnlyJoined });
+    if (facet === 'Muted') update({ receiverShowMuted: !state.receiverShowMuted });
+    return;
+  }
+
+  const realmMute = event.target.closest('[data-realm-mute]');
+  if (realmMute) {
+    const id = realmMute.dataset.realmMute;
+    const realm = realms.find(item => item.id === id);
+    const isMuted = state.mutedRealmIds.includes(id);
+    const mutedRealmIds = isMuted ? state.mutedRealmIds.filter(item => item !== id) : [...new Set([...state.mutedRealmIds, id])];
+    update({ mutedRealmIds }, state.realmDetailId ? { focus: '.realm-detail-dialog [data-realm-mute]' } : {});
+    announce(`${realm?.name || 'Realm'} is ${isMuted ? 'receiving again' : 'muted; prior authorized history remains preserved'}.`);
+    return;
+  }
+
+  const realmJoin = event.target.closest('[data-realm-join]');
+  if (realmJoin) {
+    const id = realmJoin.dataset.realmJoin;
+    const realm = realms.find(item => item.id === id);
+    if (state.joinedRealmIds.includes(id)) {
+      announce(`${realm?.name || 'This Realm'} is already included in this Source’s Field. Membership and Roles remain separate.`);
+      return;
+    }
+    update({ joinedRealmIds: [...new Set([...state.joinedRealmIds, id])] }, state.realmDetailId ? { focus: '.realm-detail-dialog [data-realm-join]' } : {});
+    announce(`${realm?.name || 'Realm'} was added to this personal Field. No membership, Role, Permission, Consent, or Authority changed.`);
+    return;
+  }
+
+  const realmDetails = event.target.closest('[data-realm-details]');
+  if (realmDetails) {
+    purposefulReturnSelector = `[data-realm-details="${realmDetails.dataset.realmDetails}"]`;
+    history.pushState({ panel: 'receive', modal: 'realm-details' }, '', '/receiver#realm-details');
+    update({ realmDetailId: realmDetails.dataset.realmDetails, receiverTopicOpen: false }, { focus: '.realm-detail-dialog' });
+    return;
+  }
+
+  const topicChoice = event.target.closest('[data-topic-choice]');
+  if (topicChoice) {
+    const value = topicChoice.dataset.topicChoice;
+    const draft = clone(state.receiverTopicDraft || state.receiverTopicSelection);
+    const removing = draft.topics.includes(value);
+    draft.topics = removing ? draft.topics.filter(item => item !== value) : [...draft.topics, value];
+    if (removing) {
+      const focusNames = topicHierarchy.find(topic => topic.name === value)?.foci.map(focus => focus.name) || [];
+      const tagNames = topicHierarchy.find(topic => topic.name === value)?.foci.flatMap(focus => focus.tags) || [];
+      draft.foci = draft.foci.filter(item => !focusNames.includes(item));
+      draft.tags = draft.tags.filter(item => !tagNames.includes(item));
+    }
+    update({ receiverTopicDraft: draft }, { focus: `[data-topic-choice="${CSS.escape(value)}"]` });
+    return;
+  }
+
+  const focusChoice = event.target.closest('[data-focus-choice]');
+  if (focusChoice) {
+    const value = focusChoice.dataset.focusChoice;
+    const draft = clone(state.receiverTopicDraft || state.receiverTopicSelection);
+    const removing = draft.foci.includes(value);
+    draft.foci = removing ? draft.foci.filter(item => item !== value) : [...draft.foci, value];
+    if (removing) {
+      const tagNames = topicHierarchy.flatMap(topic => topic.foci).find(focus => focus.name === value)?.tags || [];
+      draft.tags = draft.tags.filter(item => !tagNames.includes(item));
+    }
+    update({ receiverTopicDraft: draft }, { focus: `[data-focus-choice="${CSS.escape(value)}"]` });
+    return;
+  }
+
+  const tagChoice = event.target.closest('[data-tag-choice]');
+  if (tagChoice) {
+    const value = tagChoice.dataset.tagChoice;
+    const draft = clone(state.receiverTopicDraft || state.receiverTopicSelection);
+    draft.tags = draft.tags.includes(value) ? draft.tags.filter(item => item !== value) : [...draft.tags, value];
+    update({ receiverTopicDraft: draft }, { focus: `[data-tag-choice="${CSS.escape(value)}"]` });
+    return;
+  }
+
+  const topicRemove = event.target.closest('[data-topic-remove]');
+  if (topicRemove) {
+    const draft = clone(state.receiverTopicDraft || state.receiverTopicSelection);
+    const kind = topicRemove.dataset.topicRemove;
+    const value = topicRemove.dataset.topicValue;
+    const key = `${kind}s`;
+    draft[key] = (draft[key] || []).filter(item => item !== value);
+    if (kind === 'topic') {
+      const removed = topicHierarchy.find(topic => topic.name === value)?.foci || [];
+      const removedFoci = removed.map(focus => focus.name);
+      const removedTags = removed.flatMap(focus => focus.tags);
+      draft.foci = draft.foci.filter(item => !removedFoci.includes(item));
+      draft.tags = draft.tags.filter(item => !removedTags.includes(item));
+    }
+    if (kind === 'focus') {
+      const removedTags = topicHierarchy.flatMap(topic => topic.foci).find(focus => focus.name === value)?.tags || [];
+      draft.tags = draft.tags.filter(item => !removedTags.includes(item));
+    }
+    update({ receiverTopicDraft: draft }, { focus: '.topic-dialog' });
+    return;
+  }
+
+  const fieldView = event.target.closest('[data-field-view]');
+  if (fieldView) { update({ fieldViewMode: fieldView.dataset.fieldView }); return; }
+
+  const fieldWhy = event.target.closest('[data-work-why]');
+  if (fieldWhy) {
+    const id = fieldWhy.dataset.workWhy;
+    const fieldWhyIds = state.fieldWhyIds.includes(id) ? state.fieldWhyIds.filter(item => item !== id) : [...state.fieldWhyIds, id];
+    update({ fieldWhyIds }, { focus: `[data-work-why="${CSS.escape(id)}"]` });
+    return;
+  }
+
+  const fieldCluster = event.target.closest('[data-field-cluster]');
+  if (fieldCluster) {
+    const id = fieldCluster.dataset.fieldCluster;
+    const fieldOpenClusters = state.fieldOpenClusters.includes(id) ? state.fieldOpenClusters.filter(item => item !== id) : [...state.fieldOpenClusters, id];
+    update({ fieldOpenClusters }, { focus: `[data-field-cluster="${CSS.escape(id)}"]` });
+    return;
+  }
+
+  const workDetails = event.target.closest('[data-work-details], [data-work-action]');
+  if (workDetails) {
+    const id = workDetails.dataset.workDetails || workDetails.dataset.workAction;
+    purposefulReturnSelector = workDetails.dataset.workAction ? `[data-work-action="${CSS.escape(id)}"]` : `[data-work-details="${CSS.escape(id)}"]`;
+    update({ fieldDetailId: id }, { focus: '.work-detail-dialog' });
+    return;
+  }
 
   const txFilter = event.target.closest('[data-tx-filter]');
   if (txFilter) {
@@ -844,7 +1091,7 @@ app.addEventListener('click', event => {
     const wasReceiver = state.openPanel === 'receive';
     const wasTransmitter = state.openPanel === 'transmit';
     setRoute(null);
-    update({ openPanel: null, routeLabel: 'Field', receiverProposal: null, receiverV2Proposal: null, receiverV2InspectorId: null, receiverV2ProfileManagerOpen: false, transmitterV2InspectorId: null, transmitterV2DestinationInspectorId: null, transmitterV2ReviewOpen: false, transmitterV2Proposal: null }, { focus: wasReceiver ? '[data-panel="receive"]' : wasTransmitter ? '[data-panel="transmit"]' : '[data-action="go-home"]', restoreFieldScroll: wasReceiver ? state.receiverReturnScroll : wasTransmitter ? state.transmitterReturnScroll : undefined });
+    update({ openPanel: null, routeLabel: 'Field', receiverProposal: null, receiverV2Proposal: null, receiverV2InspectorId: null, receiverV2ProfileManagerOpen: false, receiverTopicOpen: false, receiverTopicDraft: null, realmDetailId: null, fieldDetailId: null, transmitterV2InspectorId: null, transmitterV2DestinationInspectorId: null, transmitterV2ReviewOpen: false, transmitterV2Proposal: null }, { focus: wasReceiver ? '[data-panel="receive"]' : wasTransmitter ? '[data-panel="transmit"]' : '[data-action="go-field"]', restoreFieldScroll: wasReceiver ? state.receiverReturnScroll : wasTransmitter ? state.transmitterReturnScroll : undefined });
     return;
   }
   if (event.target.closest('[data-close-inspector]')) {
@@ -858,6 +1105,51 @@ app.addEventListener('click', event => {
 
   const action = event.target.closest('[data-action]')?.dataset.action;
   if (!action) return;
+
+  if (action === 'go-about') { setRoute('about'); update({ openPanel: 'about', routeLabel: 'About', activeExpressionId: null, receiverTopicOpen: false, realmDetailId: null, fieldDetailId: null }); return; }
+  if (action === 'go-field') { setRoute(null); update({ openPanel: null, routeLabel: 'Field', activeExpressionId: null, receiverTopicOpen: false, realmDetailId: null, fieldDetailId: null }, { focus: '#field-stage' }); return; }
+  if (action === 'open-topic-tuner') {
+    purposefulReturnSelector = '[data-action="open-topic-tuner"]';
+    history.pushState({ panel: 'receive', modal: 'topic-tuner' }, '', '/receiver#topic-tuner');
+    update({ receiverTopicOpen: true, receiverTopicDraft: clone(state.receiverTopicSelection), receiverTopicQuery: '', realmDetailId: null }, { focus: '.topic-dialog' });
+    return;
+  }
+  if (action === 'cancel-topic-tuner') {
+    setRoute('receive', { replace: true });
+    update({ receiverTopicOpen: false, receiverTopicDraft: null, receiverTopicQuery: '' }, { focus: purposefulReturnSelector || '[data-action="open-topic-tuner"]' });
+    announce('Topics closed without changing your applied interests.');
+    return;
+  }
+  if (action === 'clear-topic-draft') { update({ receiverTopicDraft: { topics: [], foci: [], tags: [] } }, { focus: '[data-action="clear-topic-draft"]' }); return; }
+  if (action === 'apply-topic-tuner') {
+    const applied = clone(state.receiverTopicDraft || { topics: [], foci: [], tags: [] });
+    setRoute('receive', { replace: true });
+    update({ receiverTopicSelection: applied, receiverTopicOpen: false, receiverTopicDraft: null, receiverTopicQuery: '' }, { focus: purposefulReturnSelector || '[data-action="open-topic-tuner"]' });
+    announce(`${applied.topics.length + applied.foci.length + applied.tags.length} interest selections applied to this Realm library.`);
+    return;
+  }
+  if (action === 'toggle-realm-sort') { update({ receiverSortDirection: state.receiverSortDirection === 'asc' ? 'desc' : 'asc' }); return; }
+  if (action === 'close-realm-details') {
+    setRoute('receive', { replace: true });
+    update({ realmDetailId: null }, { focus: purposefulReturnSelector || '[data-realm-details]' });
+    return;
+  }
+  if (action === 'close-work-details') { update({ fieldDetailId: null }, { focus: purposefulReturnSelector || '[data-work-details]' }); return; }
+  if (action === 'purposeful-action-preview') { announce(`“${event.target.closest('[data-preview-label]')?.dataset.previewLabel || 'This action'}” is prepared for review only. No external Action occurred.`); return; }
+  if (action === 'reset-field') {
+    update({ fieldForce: 'Gravity', fieldViewMode: 'spatial', fieldRealmType: 'All types', fieldRealm: 'All joined Realms', fieldProject: 'All Projects', fieldTopic: 'All Topics', fieldActivity: 'All Activity', fieldWhyIds: [], fieldOpenClusters: [] });
+    announce('Field controls returned to Gravity and the Source-relative baseline. Joined Realms were preserved.');
+    return;
+  }
+  if (action === 'open-ki-plus') { update({ kiPlusOpen: !state.kiPlusOpen }, { focus: state.kiPlusOpen ? '#universal-ki-input' : '.ki-plus-menu button' }); return; }
+  if (action === 'close-ki-plus') { update({ kiPlusOpen: false }, { focus: '.ki-plus-button' }); return; }
+  if (action === 'ki-plus-option') {
+    const option = event.target.closest('[data-ki-plus-value]');
+    const text = option?.dataset.kiPlusValue || '';
+    update({ kiDraft: text, kiPlusOpen: false }, { focus: '#universal-ki-input' });
+    announce(`${text} is staged in Ki. Nothing has been attached or shared.`);
+    return;
+  }
 
   if (action === 'close-expression') { update({ activeExpressionId: null, type: 'composed' }, { focus: '.field-home h1' }); return; }
   if (action === 'close-expression-inspector') { update({ expressionInspectId: null }, { focus: '[data-expression-inspect]' }); return; }
@@ -1103,6 +1395,19 @@ app.addEventListener('click', event => {
 });
 
 app.addEventListener('input', event => {
+  if (event.target.id === 'realm-search') {
+    state.receiverRealmQuery = event.target.value;
+    persist();
+    window.clearTimeout(receiverV2SearchTimer);
+    receiverV2SearchTimer = window.setTimeout(() => render({ focus: '#realm-search' }), 120);
+    return;
+  }
+  if (event.target.id === 'topic-search') {
+    state.receiverTopicQuery = event.target.value;
+    window.clearTimeout(receiverV2SearchTimer);
+    receiverV2SearchTimer = window.setTimeout(() => render({ focus: '#topic-search' }), 120);
+    return;
+  }
   if (event.target.id === 'universal-ki-input') { state.kiDraft = event.target.value; persist(); }
   if (event.target.id === 'ki-revision-input') state.kiRevisionDraft = event.target.value;
   if (event.target.id === 'creator-name') { state.creatorDraftName = event.target.value; persist(); }
@@ -1192,6 +1497,35 @@ app.addEventListener('input', event => {
 });
 
 app.addEventListener('change', event => {
+  if (event.target.id === 'source-selector-top') {
+    const source = sourceOptions.find(item => item.id === event.target.value);
+    if (!source?.allowed) {
+      event.target.value = state.selectedSource;
+      announce('That Source view requires an explicit Permission. No work or counts were revealed.');
+      return;
+    }
+    update({ selectedSource: source.id, fieldWhyIds: [], fieldOpenClusters: [] });
+    announce(`${source.name}’s permitted Source-relative Field is now selected. This prototype Permission grants viewing only.`);
+    return;
+  }
+  if (event.target.id === 'realm-sort') {
+    const sort = event.target.value;
+    update({ receiverRealmSort: sort, receiverSortDirection: receiverSortDefaults[sort] || 'desc' });
+    return;
+  }
+  if (event.target.id === 'field-realm-type') { update({ fieldRealmType: event.target.value }); return; }
+  if (event.target.id === 'field-realm') { update({ fieldRealm: event.target.value }); return; }
+  if (event.target.id === 'field-project') { update({ fieldProject: event.target.value }); return; }
+  if (event.target.id === 'field-topic') { update({ fieldTopic: event.target.value }); return; }
+  if (event.target.id === 'field-activity') { update({ fieldActivity: event.target.value }); return; }
+  if (event.target.id === 'field-force') {
+    const before = composeField(state).eligible.map(item => item.id).sort().join('|');
+    const afterState = { ...state, fieldForce: event.target.value };
+    const after = composeField(afterState).eligible.map(item => item.id).sort().join('|');
+    update({ fieldForce: event.target.value, fieldWhyIds: [] });
+    announce(`${event.target.value} recomposed ${composeField(afterState).eligible.length} eligible items. ${before === after ? 'The candidate set stayed the same.' : 'The visible filters changed the candidate set.'}`);
+    return;
+  }
   if (event.target.dataset.kiActionCheck) {
     const id = event.target.dataset.kiActionCheck;
     update({ kiSelectedActions: event.target.checked ? [...new Set([...state.kiSelectedActions, id])] : state.kiSelectedActions.filter(item => item !== id) }); return;
@@ -1267,7 +1601,28 @@ app.addEventListener('change', event => {
 });
 
 app.addEventListener('keydown', event => {
+  const purposefulDialog = document.querySelector('.purposeful-dialog');
+  if (purposefulDialog && event.key === 'Tab') {
+    const focusable = [...purposefulDialog.querySelectorAll('a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])')].filter(element => !element.hidden && element.offsetParent !== null);
+    if (!focusable.length) { event.preventDefault(); purposefulDialog.focus(); return; }
+    const first = focusable[0];
+    const last = focusable[focusable.length - 1];
+    if (event.shiftKey && (document.activeElement === first || document.activeElement === purposefulDialog)) { event.preventDefault(); last.focus(); return; }
+    if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); return; }
+  }
   if (event.key === 'Escape') {
+    if (state.receiverTopicOpen) {
+      setRoute('receive', { replace: true });
+      update({ receiverTopicOpen: false, receiverTopicDraft: null, receiverTopicQuery: '' }, { focus: purposefulReturnSelector || '[data-action="open-topic-tuner"]' });
+      return;
+    }
+    if (state.realmDetailId) {
+      setRoute('receive', { replace: true });
+      update({ realmDetailId: null }, { focus: purposefulReturnSelector || '[data-realm-details]' });
+      return;
+    }
+    if (state.fieldDetailId) { update({ fieldDetailId: null }, { focus: purposefulReturnSelector || '[data-work-details]' }); return; }
+    if (state.kiPlusOpen) { update({ kiPlusOpen: false }, { focus: '.ki-plus-button' }); return; }
     if (state.kiProposal) update({ kiProposal: null, kiSelectedActions: [], kiRevisionMode: false }, { focus: '#universal-ki-input' });
     else if (state.transmitterV2ReviewOpen) update({ transmitterV2ReviewOpen: false }, { focus: '.tx-review-button' });
     else if (state.transmitterV2InspectorId || state.transmitterV2DestinationInspectorId) update({ transmitterV2InspectorId: null, transmitterV2DestinationInspectorId: null }, { focus: state.transmitterV2InspectorId ? `[data-tx-inspect="${state.transmitterV2InspectorId}"]` : `[data-tx-inspect-destination="${state.transmitterV2DestinationInspectorId}"]` });
@@ -1282,7 +1637,7 @@ app.addEventListener('keydown', event => {
       const wasReceiver = state.openPanel === 'receive';
       const wasTransmitter = state.openPanel === 'transmit';
       setRoute(null);
-      update({ openPanel: null, routeLabel: 'Field', receiverProposal: null, receiverV2Proposal: null, receiverV2ConfirmRemove: null, transmitterV2Proposal: null }, { focus: wasReceiver ? '[data-panel="receive"]' : wasTransmitter ? '[data-panel="transmit"]' : undefined, restoreFieldScroll: wasReceiver ? state.receiverReturnScroll : wasTransmitter ? state.transmitterReturnScroll : undefined });
+      update({ openPanel: null, routeLabel: 'Field', receiverProposal: null, receiverV2Proposal: null, receiverV2ConfirmRemove: null, receiverTopicOpen: false, realmDetailId: null, transmitterV2Proposal: null }, { focus: wasReceiver ? '[data-panel="receive"]' : wasTransmitter ? '[data-panel="transmit"]' : '[data-action="go-field"]', restoreFieldScroll: wasReceiver ? state.receiverReturnScroll : wasTransmitter ? state.transmitterReturnScroll : undefined });
     }
     else if (state.selectedObject) update({ selectedObject: null });
     return;
@@ -1325,13 +1680,17 @@ app.addEventListener('keydown', event => {
 window.__layoutKit = {
   getState: () => ({ ...state }),
   layoutTypes: layoutTypes.map(type => type.id),
-  version: '0.8.0'
+  composeField: () => composeField(state),
+  version: '0.9.0'
 };
 
-window.addEventListener('popstate', () => {
+function applyLocation() {
   const panel = routeFromLocation();
-  update({ openPanel: panel, routeLabel: routeLabels[panel || 'field'], activeExpressionId: null, kiProposal: null });
-});
+  update({ openPanel: panel, routeLabel: routeLabels[panel || 'field'], activeExpressionId: null, kiProposal: null, receiverTopicOpen: false, receiverTopicDraft: null, realmDetailId: null, fieldDetailId: null, ...fragmentPatch(panel) }, { scrollHash: true });
+}
+
+window.addEventListener('popstate', applyLocation);
+window.addEventListener('hashchange', applyLocation);
 
 if (location.pathname === '/' || !location.pathname.split('/').filter(Boolean).length) setRoute(state.openPanel, { replace: true });
 render();

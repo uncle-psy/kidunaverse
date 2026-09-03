@@ -1,4 +1,4 @@
-import { layoutTypes } from './data.js?v=0.8.0';
+import { layoutTypes } from './data.js?v=0.9.0';
 import { icon } from './icons.js';
 
 const escapeHtml = (value = '') => String(value).replace(/[&<>'"]/g, character => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[character]));
@@ -34,7 +34,8 @@ const workspaceMeta = {
 
 function workspaceShell(id, eyebrow, content, tabs = '') {
   const [title, description] = workspaceMeta[id];
-  return `<section class="tool-workspace tool-${id}" data-open-panel="${id}" aria-label="${title}"><div class="tool-atmosphere" aria-hidden="true"></div><header class="tool-workspace-header"><div><span>${escapeHtml(eyebrow)}</span><h1>${title}</h1><p>${escapeHtml(description)}</p></div><button class="tool-close" type="button" data-close-panel aria-label="Close ${title}">${icon('close', 20)}</button></header>${tabs}<div class="tool-workspace-scroll">${content}</div></section>`;
+  const stableAnchor = id === 'metrics' ? ' id="network-overview"' : '';
+  return `<section class="tool-workspace tool-${id}"${stableAnchor} data-open-panel="${id}" aria-label="${title}"><div class="tool-atmosphere" aria-hidden="true"></div><header class="tool-workspace-header"><div><span>${escapeHtml(eyebrow)}</span><h1>${title}</h1><p>${escapeHtml(description)}</p></div><button class="tool-close" type="button" data-close-panel aria-label="Close ${title}">${icon('close', 20)}</button></header>${tabs}<div class="tool-workspace-scroll">${content}</div></section>`;
 }
 
 function legacyFieldExplorer(state) {
@@ -282,9 +283,29 @@ function actionDetail(action) {
   return `<small><b>Target:</b> ${escapeHtml(action.target)} · <b>Scope:</b> ${escapeHtml(action.scope)} · <b>Authority:</b> ${escapeHtml(action.authority)} · <b>Privacy:</b> ${escapeHtml(action.privacy)} · <b>Reversibility:</b> ${escapeHtml(action.reversibility)}</small>`;
 }
 
-export function universalKi(state) {
+function legacyUniversalKi(state) {
   const proposal = state.kiProposal;
   return `<section class="receiver-v2-ki universal-ki" aria-label="Work with Ki"><div class="ki-word-circle" aria-hidden="true">Ki</div><label><span>Ki · ${state.routeLabel}</span><input id="universal-ki-input" value="${escapeHtml(state.kiDraft)}" placeholder="Ask Ki to find something, explain it, or help you take the next step…"></label><div class="receiver-v2-voice-actions"><button type="button" data-action="universal-dictate"><span class="interface-icon icon-microphone" aria-hidden="true"></span><span>Dictate</span></button><button type="button" data-action="universal-voice"><span class="interface-icon icon-voice-live" aria-hidden="true"></span><span>Voice</span></button><button class="receiver-v2-preview universal-preview" type="button" data-action="ki-preview">Preview actions</button></div>${proposal ? `<aside class="ki-action-review" role="dialog" aria-label="Review Ki’s proposed actions"><header><div><span>Review Ki’s proposed actions</span><h2>Nothing happens until you approve.</h2></div><button type="button" data-action="ki-cancel" aria-label="Close action review">${icon('close',18)}</button></header>${state.kiRevisionMode ? `<section class="ki-revise"><p>Tell Ki what to keep, remove, narrow, or change. The revised proposal will return for review and will not be applied.</p><textarea id="ki-revision-input" rows="3" placeholder="Revise the proposal…">${escapeHtml(state.kiRevisionDraft)}</textarea><div><button type="button" data-action="ki-revision-cancel">Back</button><button class="primary" type="button" data-action="ki-revision-preview">Preview revision</button></div></section>` : `<div class="ki-review-toolbar"><button type="button" data-action="ki-select-all">Select all</button><button type="button" data-action="ki-clear-all">Clear all</button><span>${state.kiSelectedActions.length} of ${proposal.actions.length} selected</span></div><div class="ki-action-list">${proposal.actions.map(action => `<label><input type="checkbox" data-ki-action-check="${action.id}" ${state.kiSelectedActions.includes(action.id) ? 'checked' : ''}><span><b>${escapeHtml(action.title)}</b><em>${escapeHtml(action.effect)}</em>${actionDetail(action)}<i>${action.classification}</i></span></label>`).join('')}</div><footer><button type="button" data-action="ki-revise">Revise</button><button type="button" data-action="ki-cancel">Cancel</button><button type="button" data-action="ki-approve-selected" ${state.kiSelectedActions.length ? '' : 'disabled'}>Approve selected</button><button class="primary" type="button" data-action="ki-approve-all">Approve all</button></footer>`}</aside>` : ''}</section>`;
+}
+
+export function universalKi(state) {
+  const proposal = state.kiProposal;
+  const additions = [
+    ['Attach a file', 'Attach a file to this Ki request'],
+    ['Add a link', 'Add a link to this Ki request'],
+    ['Bring in something from Receiver', 'Bring in something from Receiver'],
+    ['Reference a Field item', 'Reference a Field item']
+  ];
+  return `<section class="receiver-v2-ki universal-ki" id="ki" aria-label="Work with Ki">
+    <div class="ki-plus-wrap">
+      <button class="ki-plus-button" type="button" data-action="open-ki-plus" aria-label="Add context to Ki" aria-expanded="${state.kiPlusOpen ? 'true' : 'false'}" aria-controls="ki-plus-menu">+</button>
+      ${state.kiPlusOpen ? `<div class="ki-plus-menu" id="ki-plus-menu" role="menu"><header><strong>Add context</strong><button type="button" data-action="close-ki-plus" aria-label="Close add-context menu">${icon('close', 15)}</button></header>${additions.map(([label, value]) => `<button type="button" role="menuitem" data-action="ki-plus-option" data-ki-plus-value="${escapeHtml(value)}">${escapeHtml(label)}</button>`).join('')}<small>Prototype only. Choosing an option stages a request; it does not attach or share anything.</small></div>` : ''}
+    </div>
+    <div class="ki-word-circle" aria-hidden="true">Ki</div>
+    <label><span>Ki · ${escapeHtml(state.routeLabel)}</span><input id="universal-ki-input" value="${escapeHtml(state.kiDraft)}" placeholder="Ask Ki to find something, explain it, or help you take the next step…"></label>
+    <div class="receiver-v2-voice-actions"><button type="button" data-action="universal-dictate"><span class="interface-icon icon-microphone" aria-hidden="true"></span><span>Dictate</span></button><button type="button" data-action="universal-voice"><span class="interface-icon icon-voice-live" aria-hidden="true"></span><span>Voice</span></button><button class="receiver-v2-preview universal-preview" type="button" data-action="ki-preview">Preview actions</button></div>
+    ${proposal ? `<aside class="ki-action-review" role="dialog" aria-label="Review Ki’s proposed actions"><header><div><span>Review Ki’s proposed actions</span><h2>Nothing happens until you approve.</h2></div><button type="button" data-action="ki-cancel" aria-label="Close action review">${icon('close',18)}</button></header>${state.kiRevisionMode ? `<section class="ki-revise"><p>Tell Ki what to keep, remove, narrow, or change. The revised proposal will return for review and will not be applied.</p><textarea id="ki-revision-input" rows="3" placeholder="Revise the proposal…">${escapeHtml(state.kiRevisionDraft)}</textarea><div><button type="button" data-action="ki-revision-cancel">Back</button><button class="primary" type="button" data-action="ki-revision-preview">Preview revision</button></div></section>` : `<div class="ki-review-toolbar"><button type="button" data-action="ki-select-all">Select all</button><button type="button" data-action="ki-clear-all">Clear all</button><span>${state.kiSelectedActions.length} of ${proposal.actions.length} selected</span></div><div class="ki-action-list">${proposal.actions.map(action => `<label><input type="checkbox" data-ki-action-check="${action.id}" ${state.kiSelectedActions.includes(action.id) ? 'checked' : ''}><span><b>${escapeHtml(action.title)}</b><em>${escapeHtml(action.effect)}</em>${actionDetail(action)}<i>${action.classification}</i></span></label>`).join('')}</div><footer><button type="button" data-action="ki-revise">Revise</button><button type="button" data-action="ki-cancel">Cancel</button><button type="button" data-action="ki-approve-selected" ${state.kiSelectedActions.length ? '' : 'disabled'}>Approve selected</button><button class="primary" type="button" data-action="ki-approve-all">Approve all</button></footer>`}</aside>` : ''}
+  </section>`;
 }
 
 export function proposeKiActions(state, revision = '') {

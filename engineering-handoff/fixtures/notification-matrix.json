@@ -1,0 +1,121 @@
+{
+  "statusNotice": "Draft product implementation handoff. Not a canonical Kit release. Not published through Builder Kit.",
+  "fixtureVersion": "1.0.0-draft",
+  "contract": "Prototype notification decisions. No provider is connected and no notification is sent by this fixture.",
+  "decisions": [
+    {
+      "eventType": "work.assignment_changed",
+      "recipientRule": "new assignee after recipient-specific visibility check",
+      "why": "Responsibility changed and the assignee may need to orient.",
+      "presentation": "Near and notification center",
+      "interruption": "interrupt_when_available",
+      "immediateInterruptAllowed": false,
+      "acknowledgement": "optional",
+      "expiresOrReconsiders": "assignment changes or work completes"
+    },
+    {
+      "eventType": "work.review_requested",
+      "recipientRule": "explicitly requested reviewer",
+      "why": "Another participant directly requested this person's review.",
+      "presentation": "Near or Focus",
+      "interruption": "interrupt_when_available",
+      "immediateInterruptAllowed": false,
+      "acknowledgement": "seen, defer, investigate, or review",
+      "expiresOrReconsiders": "request resolved, withdrawn, or superseded"
+    },
+    {
+      "eventType": "work.blocked",
+      "recipientRule": "assignee and verified responsible dependency owner",
+      "why": "Work cannot proceed and the recipients have current responsibility.",
+      "presentation": "Constraint cue plus notification center",
+      "interruption": "policy-dependent",
+      "immediateInterruptAllowed": false,
+      "acknowledgement": "investigate or defer",
+      "expiresOrReconsiders": "unblocked, ownership changes, or evidence becomes stale"
+    },
+    {
+      "eventType": "test.completed.pass",
+      "recipientRule": "none by default",
+      "why": "Passing evidence can update the work item without demanding human attention.",
+      "presentation": "ambient evidence update",
+      "interruption": "prohibited",
+      "immediateInterruptAllowed": false,
+      "acknowledgement": "none",
+      "expiresOrReconsiders": "new revision or newer test result"
+    },
+    {
+      "eventType": "test.completed.fail",
+      "recipientRule": "verified responsible builder or release owner",
+      "why": "A failed check may constrain current work.",
+      "presentation": "Constraint cue plus notification when policy allows",
+      "interruption": "interrupt_when_available",
+      "immediateInterruptAllowed": false,
+      "acknowledgement": "investigate",
+      "expiresOrReconsiders": "new revision, passing result, or ownership change"
+    },
+    {
+      "eventType": "deployment.failed",
+      "recipientRule": "current responsible release owner under an explicit deployment policy",
+      "why": "An exact deployment failed and may affect an authorized environment.",
+      "presentation": "Interrupt overlay only if governed threshold and visibility permit",
+      "interruption": "interrupt_now_when_policy_allows",
+      "immediateInterruptAllowed": true,
+      "acknowledgement": "required under production-risk policy",
+      "expiresOrReconsiders": "rollback, recovery, superseding deployment, or policy expiry"
+    },
+    {
+      "eventType": "result.completed",
+      "recipientRule": "eligible contributors and responsible owners",
+      "why": "Acknowledge attributable contribution and make the Result inspectable.",
+      "presentation": "History/completion context",
+      "interruption": "do_not_interrupt",
+      "immediateInterruptAllowed": false,
+      "acknowledgement": "optional",
+      "expiresOrReconsiders": "supersession or correction",
+      "boundary": "No automatic public broadcast."
+    },
+    {
+      "eventType": "purpose.risk_detected",
+      "recipientRule": "appropriate Catalyst or Steward with an explicit view grant",
+      "why": "A material risk may require legitimate Purpose-level responsibility.",
+      "presentation": "minimized risk summary",
+      "interruption": "policy-dependent",
+      "immediateInterruptAllowed": false,
+      "acknowledgement": "policy-defined",
+      "expiresOrReconsiders": "risk resolved, evidence changes, or policy expires",
+      "boundary": "Do not expose private details, hidden counts, or unsupported inference."
+    },
+    {
+      "eventType": "field.realm_joined",
+      "recipientRule": "current Source only",
+      "why": "A personal Field preference changed.",
+      "presentation": "local status announcement",
+      "interruption": "prohibited",
+      "immediateInterruptAllowed": false,
+      "acknowledgement": "none",
+      "expiresOrReconsiders": "Realm removed from personal Field",
+      "boundary": "Do not notify the Realm; no membership was created."
+    },
+    {
+      "eventType": "field.force_changed",
+      "recipientRule": "current Source only",
+      "why": "The current projection was recomposed.",
+      "presentation": "local status announcement and changed Why-here explanations",
+      "interruption": "prohibited",
+      "immediateInterruptAllowed": false,
+      "acknowledgement": "none",
+      "expiresOrReconsiders": "next Force/context change"
+    },
+    {
+      "eventType": "ki.recommendation_prepared",
+      "recipientRule": "current Source who requested it or whose current policy permits ambient recommendation",
+      "why": "A reviewable suggestion may help the Source choose.",
+      "presentation": "inline proposal",
+      "interruption": "do_not_interrupt",
+      "immediateInterruptAllowed": false,
+      "acknowledgement": "accept, revise, dismiss, or defer",
+      "expiresOrReconsiders": "context or candidate set changes",
+      "boundary": "Recommendation creates no Authority and executes no Action."
+    }
+  ]
+}

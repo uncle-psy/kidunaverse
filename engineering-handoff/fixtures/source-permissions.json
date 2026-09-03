@@ -1,0 +1,96 @@
+{
+  "statusNotice": "Draft product implementation handoff. Not a canonical Kit release. Not published through Builder Kit.",
+  "fixtureVersion": "1.1.0-draft",
+  "signedInSource": { "id": "source:moto", "displayName": "Moto", "roleLabel": "Catalyst" },
+  "contract": "Prototype view grants only. A visible name or Role label is not Permission or Authority.",
+  "implementationBoundary": "purposeful.js sourceOptions hardcodes allowed=true for runtime IDs moto, jeya, and vijay and false for aashik, sri, elias, and muthu. app.js checks that boolean before changing selectedSource. The detailed scopes and expiries below are a required future ViewGrant shape, not a connected or enforced policy service.",
+  "selectorOptions": [
+    {
+      "sourceId": "source:moto",
+      "displayName": "Moto",
+      "roleLabel": "Catalyst",
+      "decision": "allow",
+      "scope": ["own-visible-work", "own-personal-field-preferences"],
+      "basis": "signed-in Source self-view",
+      "mode": "own",
+      "default": true
+    },
+    {
+      "sourceId": "source:jeya",
+      "displayName": "Jeya",
+      "roleLabel": "Mage",
+      "decision": "allow",
+      "scope": ["Build Kiduna assignment summary", "visible work title", "workflow state"],
+      "basis": "explicit read-only prototype demonstration grant",
+      "mode": "read-only-prototype",
+      "expiresAt": null,
+      "expiryState": "browser prototype only; no production expiry or grant service configured",
+      "nonEffects": ["no right to act as Jeya", "no access to private content outside this fixture", "no Action authority"]
+    },
+    {
+      "sourceId": "source:aashik",
+      "displayName": "Aashik",
+      "roleLabel": "Mage",
+      "decision": "deny",
+      "scope": [],
+      "basis": "no prototype ViewGrant configured",
+      "safeMessage": "This assignment view is not available in the prototype."
+    },
+    {
+      "sourceId": "source:sri",
+      "displayName": "Sri",
+      "roleLabel": "Mage",
+      "decision": "deny",
+      "scope": [],
+      "basis": "no prototype ViewGrant configured",
+      "safeMessage": "This assignment view is not available in the prototype."
+    },
+    {
+      "sourceId": "source:elias",
+      "displayName": "Elias",
+      "roleLabel": "Builder",
+      "decision": "deny",
+      "scope": [],
+      "basis": "no prototype ViewGrant configured",
+      "safeMessage": "This assignment view is not available in the prototype."
+    },
+    {
+      "sourceId": "source:vijay",
+      "displayName": "Vijay",
+      "roleLabel": "Builder",
+      "decision": "allow",
+      "scope": ["Build Kiduna assignment summary", "visible work title", "workflow state"],
+      "basis": "explicit read-only prototype demonstration grant",
+      "mode": "read-only-prototype",
+      "expiresAt": null,
+      "expiryState": "browser prototype only; no production expiry or grant service configured",
+      "nonEffects": ["no right to act as Vijay", "no access to comments or attachments by default", "no Action authority"]
+    },
+    {
+      "sourceId": "source:muthu",
+      "displayName": "Muthu",
+      "roleLabel": "Builder",
+      "decision": "deny",
+      "scope": [],
+      "basis": "no prototype ViewGrant configured",
+      "safeMessage": "This assignment view is not available in the prototype."
+    },
+    {
+      "sourceId": "view:build-kiduna:all",
+      "displayName": "Everyone in Build Kiduna",
+      "roleLabel": "Project view",
+      "decision": "deny",
+      "scope": [],
+      "basis": "whole-project view was not granted for this prototype",
+      "safeMessage": "The whole-project assignment view needs an explicit permission."
+    }
+  ],
+  "denyBehavior": {
+    "fetchForbiddenData": false,
+    "changeCurrentView": false,
+    "showForbiddenCounts": false,
+    "showForbiddenGeometry": false,
+    "announce": "safeMessage",
+    "focus": "return to the Source selector"
+  }
+}

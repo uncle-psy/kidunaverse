@@ -1,4 +1,4 @@
-import { coherenceDimensions, evaluateTransmissionDraft, fieldObjects, historyEntries, layoutTypes, packages, receiverThemes, receiverV2Catalog, receiverV2ReceivedAt, transmitterCatalog, transmitterDestinations, transmitterSeedCatalog, transmitterSeedTypes, transmitterSenders } from './data.js?v=0.8.0';
+import { coherenceDimensions, evaluateTransmissionDraft, fieldObjects, historyEntries, layoutTypes, packages, receiverThemes, receiverV2Catalog, receiverV2ReceivedAt, transmitterCatalog, transmitterDestinations, transmitterSeedCatalog, transmitterSeedTypes, transmitterSenders } from './data.js?v=0.9.0';
 import { icon } from './icons.js';
 
 const escapeHtml = (value = '') => String(value).replace(/[&<>'"]/g, character => ({

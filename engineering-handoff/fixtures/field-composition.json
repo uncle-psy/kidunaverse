@@ -1,0 +1,184 @@
+{
+  "statusNotice": "Draft product implementation handoff. Not a canonical Kit release. Not published through Builder Kit.",
+  "fixtureVersion": "1.1.0-draft",
+  "composition": {
+    "id": "composition:source:moto:realm:build-kiduna:gravity:2026-09-03T13:38:23.016Z",
+    "sourceId": "source:moto",
+    "displaySource": { "name": "Moto", "role": "Catalyst" },
+    "provenanceActor": { "system": "trello", "id": "6a85ca2102ee05edc7f15ac1", "name": "David Levine", "username": "davidlevine7" },
+    "realmId": "realm:build-kiduna",
+    "parentDuna": "Kinship Duna",
+    "purpose": { "id": "purpose:build-kiduna", "statement": "Software made from Truth, Beauty, and Love", "dataState": "product-owner-supplied" },
+    "force": "Gravity",
+    "layoutType": "composed",
+    "implementedBy": "purposeful.js composeField(state)",
+    "appliedRuntimeState": {
+      "selectedSource": "moto",
+      "joinedRealmIds": ["build-kiduna", "inner-clinic", "nature-of-work"],
+      "mutedRealmIds": ["repair-cell"],
+      "fieldRealm": "build-kiduna",
+      "fieldRealmType": "All types",
+      "fieldProject": "All Projects",
+      "fieldTopic": "All Topics",
+      "fieldActivity": "All Activity"
+    },
+    "dataState": "private read-only Trello snapshot plus editorial prototype mappings",
+    "titleFieldRule": "The fixture title preserves the Trello source title where recorded; purposeful.js may render a friendlier editorial display title for the same cardId. Stable cardId/work ID, provenance, and the editorial distinction must remain visible.",
+    "snapshotWatermark": "2026-09-03T13:38:23.016Z",
+    "snapshotDisplayEastern": "Board snapshot · activity through Sep 3, 2026 at 9:38 AM EDT",
+    "capacityPolicy": { "focus": 3, "near": 5, "activeHorizon": 7, "contextField": 12, "farHorizon": "safe clusters only" },
+    "candidateCountBeforeSourceEligibility": 29,
+    "countComputedAfterEligibility": true,
+    "forceSwitchInvariant": "eligible item IDs remain identical unless Source, filter, time, join, mute, or visibility context changes",
+    "mutedJoinInvariant": "A Realm present in joinedRealmIds is still excluded from eligible work while the same Realm is present in mutedRealmIds.",
+    "commonEditorialThroughline": {
+      "purposeId": "purpose:build-kiduna",
+      "resultTypes": ["Feature complete", "Bug Fix complete", "Chore complete"],
+      "activities": ["development", "testing", "review", "documentation", "deployment"],
+      "warning": "Result and Activity mapping require governed project confirmation."
+    }
+  },
+  "layers": {
+    "focus": [
+      {
+        "id": "work:trello:6a85d5268ecba8e3a6ded588",
+        "cardId": "6a85d5268ecba8e3a6ded588",
+        "title": "Acquiring free Chips",
+        "sourceList": "Review",
+        "lastActivityAt": "2026-09-03T09:51:33.905Z",
+        "assigneeSourceIds": ["source:muthu", "source:aashik"],
+        "nextAction": { "label": "Review the chip flow", "effect": "Open three submitted attachments and prepare feedback; do not approve or publish." },
+        "whyHere": "Muthu directly asked David/Moto for feedback after this moved to Review.",
+        "evidenceState": "submitted evidence; not independently verified",
+        "editorialFields": ["layer", "nextAction", "whyHere", "throughline"]
+      },
+      {
+        "id": "work:trello:6a85d507c50249d21f7ace05",
+        "cardId": "6a85d507c50249d21f7ace05",
+        "title": "Create Cell",
+        "sourceList": "Review",
+        "lastActivityAt": "2026-09-03T05:40:16.085Z",
+        "assigneeSourceIds": ["source:vijay"],
+        "nextAction": { "label": "Review the Cell flow", "effect": "Open the submitted flow evidence and prepare review notes; do not create or approve a Cell." },
+        "whyHere": "The review comments ask for feedback on the flow.",
+        "evidenceState": "submitted evidence; not independently verified",
+        "editorialFields": ["layer", "nextAction", "whyHere", "throughline"]
+      },
+      {
+        "id": "work:trello:6a85d50d184b5b5776f061a6",
+        "cardId": "6a85d50d184b5b5776f061a6",
+        "title": "Create Alliance",
+        "sourceList": "Review",
+        "lastActivityAt": "2026-09-02T11:55:19.152Z",
+        "assigneeSourceIds": ["source:muthu"],
+        "nextAction": { "label": "Review the Alliance flow", "effect": "Open the submitted evidence and prepare feedback; do not create, approve, or publish an Alliance." },
+        "whyHere": "Muthu directly requested David/Moto’s review.",
+        "evidenceState": "submitted evidence; not independently verified",
+        "editorialFields": ["layer", "nextAction", "whyHere", "throughline"]
+      }
+    ],
+    "near": [
+      {
+        "id": "work:trello:6a982410f9357bc785d37f7d",
+        "cardId": "6a982410f9357bc785d37f7d",
+        "title": "Mapping -- creation Engine",
+        "sourceList": "In Progress",
+        "lastActivityAt": "2026-09-03T09:47:31.169Z",
+        "assigneeSourceIds": ["source:muthu", "source:jeya"],
+        "nextAction": { "label": "See what is moving", "effect": "Open the board-backed work summary; make no source-system change." },
+        "whyHere": "This is currently In Progress and moved from Ready on the snapshot date."
+      },
+      {
+        "id": "work:trello:6a9831ed67591cc4e8c6982a",
+        "cardId": "6a9831ed67591cc4e8c6982a",
+        "title": "Maintain Websites",
+        "sourceList": "In Progress",
+        "lastActivityAt": "2026-09-03T09:42:12.621Z",
+        "assigneeSourceIds": ["source:vijay"],
+        "nextAction": { "label": "Review the website work", "effect": "Open the current snapshot summary; do not deploy or message." },
+        "whyHere": "This is currently In Progress and moved from Ready on the snapshot date."
+      },
+      {
+        "id": "work:trello:6a9589998b706ea72a1c08b4",
+        "cardId": "6a9589998b706ea72a1c08b4",
+        "title": "Video Streaming and YouTube integration into Theater",
+        "sourceList": "In Progress",
+        "lastActivityAt": "2026-09-03T13:38:23.016Z",
+        "assigneeSourceIds": ["source:elias"],
+        "nextAction": { "label": "Read the current exploration", "effect": "Open notes from the snapshot; do not claim implementation or completion." },
+        "whyHere": "This active item has the latest board activity, but no due date, checklist, or completion percentage."
+      },
+      {
+        "id": "work:trello:6a9821dcc1c2e6ac28daec1a",
+        "cardId": "6a9821dcc1c2e6ac28daec1a",
+        "title": "Transceiver",
+        "sourceList": "In Progress",
+        "lastActivityAt": "2026-09-02T14:16:11.370Z",
+        "assigneeSourceIds": ["source:jeya"],
+        "nextAction": { "label": "Review the current direction", "effect": "Open the board-backed summary; do not authorize or publish specification changes." },
+        "whyHere": "This is active foundational work in the current Realm."
+      },
+      {
+        "id": "work:trello:6a85d502683e61492d01b90b",
+        "cardId": "6a85d502683e61492d01b90b",
+        "title": "Realm Management -- Roles",
+        "sourceList": "In Progress",
+        "lastActivityAt": "2026-09-02T14:16:15.950Z",
+        "assigneeSourceIds": ["source:aashik"],
+        "nextAction": { "label": "Review the roles work", "effect": "Open the current snapshot; do not grant or change any Role." },
+        "whyHere": "This is active Realm-boundary work with direct relevance to the product."
+      }
+    ],
+    "activeHorizon": [
+      { "id": "work:trello:6a85d539163a1df562c22127", "cardId": "6a85d539163a1df562c22127", "title": "Voice chat directly between players", "sourceList": "Review", "lastActivityAt": "2026-09-01T13:42:29.790Z", "assigneeSourceIds": ["source:aashik"], "nextAction": { "label": "Review the voice flow", "effect": "Open submitted review material; do not enable or record voice." }, "whyHere": "Eligible Review work without a direct Moto request in this snapshot." },
+      { "id": "work:trello:6a85d52f0766f0fab091af18", "cardId": "6a85d52f0766f0fab091af18", "title": "Create tournaments and leaderboard", "sourceList": "Review", "lastActivityAt": "2026-09-01T13:49:47.201Z", "assigneeSourceIds": ["source:jeya"], "nextAction": { "label": "Review the proposal", "effect": "Open submitted material; do not create a tournament or rank people." }, "whyHere": "Eligible Review work without a direct Moto request in this snapshot." },
+      { "id": "work:trello:6a95876209dd714c27b1cddd", "cardId": "6a95876209dd714c27b1cddd", "title": "Launchpad", "sourceList": "Review", "lastActivityAt": "2026-09-02T14:14:47.183Z", "assigneeSourceIds": ["source:aashik"], "nextAction": { "label": "Review Launchpad", "effect": "Open submitted material; do not publish or launch." }, "whyHere": "Eligible Review work in the active project." },
+      { "id": "work:trello:6a96de7403eb6134a7a0bb83", "cardId": "6a96de7403eb6134a7a0bb83", "title": "Create Proposals -- Agents", "sourceList": "Review", "lastActivityAt": "2026-09-02T14:50:23.511Z", "assigneeSourceIds": ["source:vijay"], "nextAction": { "label": "Review the proposal flow", "effect": "Open submitted material; do not create an Agent or proposal." }, "whyHere": "Eligible Review work in the active project." },
+      { "id": "work:trello:6a9587b4f4b28ba4f88a56b6", "cardId": "6a9587b4f4b28ba4f88a56b6", "title": "Set Policy -- Decision Markets", "sourceList": "Review", "lastActivityAt": "2026-09-02T14:15:34.759Z", "assigneeSourceIds": ["source:aashik"], "nextAction": { "label": "Review the policy flow", "effect": "Open submitted material; do not set or enact policy." }, "whyHere": "Eligible Review work in the active project." },
+      { "id": "work:trello:6a9589748301faf5c6cbcd10", "cardId": "6a9589748301faf5c6cbcd10", "title": "Elector -- Call it Envoy", "sourceList": "Review", "lastActivityAt": "2026-09-02T14:15:57.870Z", "assigneeSourceIds": ["source:vijay"], "nextAction": { "label": "Review the Envoy flow", "effect": "Open submitted material; do not delegate a vote or mandate." }, "whyHere": "Eligible Review work in the active project." },
+      { "id": "work:trello:6a9976fa0c7cd97a8ce6983c", "cardId": "6a9976fa0c7cd97a8ce6983c", "title": "Use of Coins for Compute", "sourceList": "Backlog", "assigneeSourceIds": [], "nextAction": { "label": "Bring the question closer", "effect": "Open the local work context; do not spend or allocate Capacity." }, "whyHere": "Gravity rank 15 places this first eligible Backlog item at the end of Active Horizon in the implemented composition." }
+    ],
+    "contextField": [
+      { "id": "work:trello:6a9833529ddfbba4df5b3560", "cardId": "6a9833529ddfbba4df5b3560", "title": "Define purposes of realms and create realm-specific agents" },
+      { "id": "work:trello:6a98231c7b4e51b571211703", "cardId": "6a98231c7b4e51b571211703", "title": "Port lineage and pools to Monad" },
+      { "id": "work:trello:6a96e41f5a1d442203220d02", "cardId": "6a96e41f5a1d442203220d02", "title": "Create sprites for scenes" },
+      { "id": "work:trello:6a96daad82c329d458ea3387", "cardId": "6a96daad82c329d458ea3387", "title": "Upgrading an Organization to DUNA" },
+      { "id": "work:trello:6a86fce6ca481391a9f5aacf", "cardId": "6a86fce6ca481391a9f5aacf", "title": "Mage in the world" },
+      { "id": "work:trello:6a85d4f6d5fe335cae5fa3b6", "cardId": "6a85d4f6d5fe335cae5fa3b6", "title": "Set up matching system" },
+      { "id": "work:trello:6a85d54152be976c547c2666", "cardId": "6a85d54152be976c547c2666", "title": "Coherence/alignment" },
+      { "id": "work:trello:6a85d4f0fb0899e22d0997bd", "cardId": "6a85d4f0fb0899e22d0997bd", "title": "Integrate automations" },
+      { "id": "work:trello:6a89998eec2c0b943e549fdc", "cardId": "6a89998eec2c0b943e549fdc", "title": "world outside the game" },
+      { "id": "work:trello:6a8999818437af966af2ad61", "cardId": "6a8999818437af966af2ad61", "title": "It chooses which type of player you are based on character creation" },
+      { "id": "work:trello:6a89995d54d9ee22180acebb", "cardId": "6a89995d54d9ee22180acebb", "title": "Chatting with other players and Actors -- help using Ki so I know how to play" },
+      { "id": "work:trello:6a8da7183be0e3fe85d50543", "cardId": "6a8da7183be0e3fe85d50543", "title": "As a \"Creator\" I want to be able to create a new \"System\" in Kiduna" }
+    ],
+    "farHorizon": [
+      {
+        "id": "cluster:build-kiduna:later-explorations",
+        "label": "Two later explorations",
+        "eligibleVisibleCount": 2,
+        "countComputedAfterEligibility": true,
+        "groupingBasis": "remaining eligible Backlog cards in source board order",
+        "memberCardIds": ["6a8da7d2c1542f24132b5cff", "6a8daa07c6115dcafe9e8b44"],
+        "members": [
+          "As a fantasy football league I want to use the Sports System",
+          "Create Scenes with 7 layers"
+        ]
+      }
+    ]
+  },
+  "excludedFromActiveComposition": {
+    "done": { "count": 5, "treatment": "History only" },
+    "resources": { "openCount": 9, "treatment": "Supporting material drawer/details only" },
+    "closedArchivedWorkflowExamples": [
+      "Implement the highest-priority feature",
+      "Fix the most visible bug",
+      "Update tests and clean up edge cases",
+      "Review pull request",
+      "Verify in staging",
+      "Ship and archive",
+      "Download Archives"
+    ],
+    "warning": "These may inform editorial action patterns but cannot appear as current work."
+  }
+}
