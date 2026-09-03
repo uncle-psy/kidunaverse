@@ -1,4 +1,4 @@
-import { defaultReceptionProfiles, evaluateTransmissionDraft, initialNotifications, layoutTypes, railItems, receiverV2Catalog, transmitterCatalog, transmitterDestinations, transmitterSeedCatalog, transmitterSeedTypes, transmitterSenders } from './data.js?v=0.6.0';
+import { defaultReceptionProfiles, evaluateTransmissionDraft, initialNotifications, layoutTypes, railItems, receiverV2Catalog, transmitterCatalog, transmitterDestinations, transmitterSeedCatalog, transmitterSeedTypes, transmitterSenders } from './data.js?v=0.7.0';
 import {
   fieldStage,
   findObject,
@@ -10,8 +10,9 @@ import {
   railAction,
   selectionBar,
   toast
-} from './components.js?v=0.6.0';
+} from './components.js?v=0.7.0';
 import { icon } from './icons.js';
+import { expressionInspector, expressionOverlay, expressions, fieldExplorer, proposeKiActions, universalKi, workspaceFor } from './workspaces.js?v=0.7.0';
 
 const storageKey = 'kiduna-layout-kit-v0.2';
 const clone = value => JSON.parse(JSON.stringify(value));
@@ -34,7 +35,7 @@ function normalizeReceiverV2Profile(profile) {
 }
 
 const defaults = {
-  uiRevision: '0.6.0',
+  uiRevision: '0.7.0',
   type: 'composed',
   defaultType: 'composed',
   openPanel: null,
@@ -43,7 +44,7 @@ const defaults = {
   avatarState: 'open',
   notifications: initialNotifications,
   receiverProfiles: clone(defaultReceptionProfiles).map(normalizeReceiverV2Profile),
-  receiverExperiment: '0.01',
+  receiverExperiment: '0.02',
   activeReceiverProfileId: 'working-horizon',
   receiverView: 'summary',
   receiverCommand: '',
@@ -99,6 +100,31 @@ const defaults = {
   transmitterV2Proposal: null,
   transmitterV2Step: 'Seeds',
   transmitterReturnScroll: 0,
+  expressionQuery: '',
+  expressionLayout: 'All',
+  expressionRealm: 'All',
+  expressionSource: 'All',
+  expressionSeed: 'All',
+  expressionSort: 'Most recent',
+  expressionSavedOnly: false,
+  expressionFavorites: expressions.filter(item => item.saved).map(item => item.id),
+  activeExpressionId: null,
+  expressionInspectId: null,
+  connectorWorkspaceTab: 'Agents',
+  connectorConnections: {},
+  creatorDraftName: '',
+  creatorDraftPurpose: '',
+  creatorLayout: 'composed',
+  inspectorWorkspaceQuery: '',
+  brokerTab: 'Overview',
+  sentinelPreset: 'Balanced',
+  sentinelBoundaries: { participation: 72, stewardship: 66, belonging: 64, legibility: 76 },
+  kiDraft: '',
+  kiProposal: null,
+  kiSelectedActions: [],
+  kiRevisionMode: false,
+  kiRevisionDraft: '',
+  routeLabel: 'Field',
   launchedPackage: null,
   calmMotion: false,
   ambientMessages: true,
@@ -118,7 +144,7 @@ function loadState() {
       vibeRanges: { ...(profile.vibeRanges || {}) },
       time: { ...(profile.time || {}) }
     }));
-    next.receiverExperiment = ['0.01', '0.02'].includes(next.receiverExperiment) ? next.receiverExperiment : '0.01';
+    next.receiverExperiment = '0.02';
     const legacyFilter = typeof saved.receiverV2Filter === 'string' ? saved.receiverV2Filter : 'All';
     next.receiverV2Filters = Array.isArray(saved.receiverV2Filters)
       ? saved.receiverV2Filters.filter(filter => receiverV2FilterOptions.includes(filter))
@@ -127,6 +153,8 @@ function loadState() {
     next.transmitterV2SeedIds = Array.isArray(saved.transmitterV2SeedIds) ? saved.transmitterV2SeedIds.filter(id => transmitterSeedCatalog.some(seed => seed.id === id)) : [];
     next.transmitterV2DestinationIds = Array.isArray(saved.transmitterV2DestinationIds) ? saved.transmitterV2DestinationIds.filter(id => transmitterDestinations.some(destination => destination.id === id)) : [];
     next.transmitterV2SenderId = transmitterSenders.some(sender => sender.id === saved.transmitterV2SenderId) ? saved.transmitterV2SenderId : defaults.transmitterV2SenderId;
+    next.expressionFavorites = Array.isArray(saved.expressionFavorites) ? saved.expressionFavorites.filter(id => expressions.some(item => item.id === id)) : [...defaults.expressionFavorites];
+    expressions.forEach(item => { item.saved = next.expressionFavorites.includes(item.id); });
     if (saved.uiRevision !== defaults.uiRevision) {
       next.uiRevision = defaults.uiRevision;
       next.receiverV2Sort = defaults.receiverV2Sort;
@@ -147,6 +175,29 @@ let state = loadState();
 let toastTimer;
 let receiverV2SearchTimer;
 const app = document.getElementById('app');
+const routePanels = { field: null, receiver: 'receive', transmitter: 'transmit', connector: 'connector', creator: 'creator', inspector: 'inspector-workspace', broker: 'broker', envoy: 'envoy', sentinel: 'sentinel' };
+const panelRoutes = Object.fromEntries(Object.entries(routePanels).map(([route, panel]) => [panel || 'field', route]));
+const routeLabels = { field: 'Field', receive: 'Receiver', transmit: 'Transmitter', connector: 'Connector', creator: 'Creator', 'inspector-workspace': 'Inspector', broker: 'Broker', envoy: 'Envoy', sentinel: 'Sentinel' };
+const fullFieldPanels = new Set(['receive', 'transmit', 'connector', 'creator', 'inspector-workspace', 'broker', 'envoy', 'sentinel']);
+
+function routeFromLocation() {
+  const parts = location.pathname.split('/').filter(Boolean);
+  const route = parts[0] === 'v' ? parts[2] : parts[0];
+  return Object.prototype.hasOwnProperty.call(routePanels, route) ? routePanels[route] : null;
+}
+
+function routePath(panel = null, versioned = false) {
+  const route = panelRoutes[panel || 'field'] || 'field';
+  return versioned ? `/v/0.02/${route}` : `/${route}`;
+}
+
+state.openPanel = routeFromLocation();
+state.routeLabel = routeLabels[state.openPanel || 'field'];
+
+function setRoute(panel, { replace = false } = {}) {
+  const path = routePath(panel);
+  if (location.pathname !== path) history[replace ? 'replaceState' : 'pushState']({ panel }, '', path);
+}
 
 function persistentState() {
   const { toastMessage, composerDraft, receiverProposal, receiverCommand, receiverConfirmDelete, receiverRenameId, receiverUndo, receiverV2Proposal, receiverV2KiDraft, receiverV2ConfirmRemove, receiverV2SliderBefore, receiverV2InspectorId, receiverV2ProfileManagerOpen, receiverV2CompareId, receiverReturnScroll, transmitterV2InspectorId, transmitterV2DestinationInspectorId, transmitterV2KiDraft, transmitterV2Proposal, transmitterReturnScroll, ...saved } = state;
@@ -180,8 +231,8 @@ function announce(message) {
 function titlebar() {
   const layoutType = layoutTypes.find(item => item.id === state.type)?.name;
   return `<header class="titlebar">
-    <div class="title-left"><div class="window-controls" aria-label="Window controls"><i></i><i></i><i></i><span>Kiduna</span></div><label class="global-receiver-version"><span class="sr-only">Receiver experiment version</span><select data-receiver-experiment aria-label="Receiver experiment version"><option value="0.01" ${state.receiverExperiment === '0.01' ? 'selected' : ''}>Version 0.01</option><option value="0.02" ${state.receiverExperiment === '0.02' ? 'selected' : ''}>Version 0.02</option></select></label><button class="reset-to-default" type="button" data-action="reset-layout">Reset to default</button></div>
-    <div class="title-identity"><img src="assets/design-system/assets/kiduna-mark.svg" alt=""><span>Layout Kit</span><i>/</i><strong>Moto’s Field</strong><i>/</i><b>${layoutType}</b></div>
+    <div class="title-left"><div class="window-controls" aria-label="Window controls"><i></i><i></i><i></i><span>Kiduna</span></div><a class="release-stamp" href="${routePath(state.openPanel, true)}">Version 0.02 · Published Sep 3, 2026 at 12:42 AM EDT</a><button class="reset-to-default" type="button" data-action="reset-layout">Reset to default</button></div>
+    <div class="title-identity"><img src="assets/design-system/assets/kiduna-mark.svg" alt=""><span>Layout Kit</span><i>/</i><strong>Moto’s Field</strong><i>/</i><b>${state.routeLabel}${state.routeLabel === 'Field' ? ` · ${layoutType}` : ''}</b></div>
     <div class="title-state"><span><i></i>Development</span><button type="button" data-action="open-ki">Ki is present</button></div>
   </header>`;
 }
@@ -204,22 +255,18 @@ function toolRail() {
 function render(options = {}) {
   document.documentElement.classList.toggle('calm-motion', state.calmMotion);
   document.documentElement.dataset.currentLayoutType = state.type;
-  const fieldReceiver = ['receive', 'transmit'].includes(state.openPanel) && state.receiverExperiment === '0.02';
+  const fieldTool = fullFieldPanels.has(state.openPanel);
+  const mainContent = state.activeExpressionId ? `${fieldStage(state)}${expressionOverlay(state)}` : fieldTool ? (workspaceFor(state) || panelFor(state)) : `${fieldExplorer(state)}${panelFor(state)}${inspector(state)}`;
   app.innerHTML = `<div class="desktop-app">
     ${titlebar()}
     <div class="app-body">
       ${toolRail()}
       <section class="workspace" aria-label="Moto’s Layout">
         <section class="field-shell" id="field-stage" tabindex="-1">
-          ${fieldReceiver ? `${panelFor(state)}${toast(state.toastMessage)}` : `
-            ${fieldStage(state)}
-            ${state.ambientMessages && state.type !== 'composed' ? notificationStack(state.notifications) : ''}
-            ${selectionBar(state)}
-            ${kiComposer(state)}
-            ${panelFor(state)}
-            ${inspector(state)}
-            ${toast(state.toastMessage)}
-          `}
+          ${mainContent}
+          ${expressionInspector(state)}
+          ${universalKi(state)}
+          ${toast(state.toastMessage)}
         </section>
       </section>
     </div>
@@ -242,7 +289,8 @@ function render(options = {}) {
 
 function selectLayoutType(type) {
   if (!layoutTypes.some(item => item.id === type)) return;
-  update({ type, selectedObject: null, inspector: null, openPanel: null });
+  setRoute(null);
+  update({ type, selectedObject: null, inspector: null, openPanel: null, routeLabel: 'Field' });
   announce(`${layoutTypes.find(item => item.id === type).name} is now arranging the Field.`);
 }
 
@@ -251,13 +299,17 @@ function openPanel(id) {
   const worldScroll = document.querySelector('.mode-world')?.scrollTop || 0;
   const openingReceiver = !closing && id === 'receive';
   const openingTransmitter = !closing && id === 'transmit';
+  const panel = closing ? null : id;
+  setRoute(panel);
   update({
-    openPanel: closing ? null : id,
+    openPanel: panel,
+    routeLabel: routeLabels[panel || 'field'],
+    activeExpressionId: null,
     receiverReturnScroll: openingReceiver ? worldScroll : state.receiverReturnScroll,
     receiverEyebrowIndex: openingReceiver ? (state.receiverEyebrowIndex + 1) % 6 : state.receiverEyebrowIndex,
     transmitterReturnScroll: openingTransmitter ? worldScroll : state.transmitterReturnScroll,
     transmitterV2EyebrowIndex: openingTransmitter ? (state.transmitterV2EyebrowIndex + 1) % 3 : state.transmitterV2EyebrowIndex
-  }, { focus: openingReceiver ? (state.receiverExperiment === '0.02' ? '.receiver-v2-close' : '.receiver-panel [data-close-panel]') : openingTransmitter && state.receiverExperiment === '0.02' ? '.transmitter-v2-close' : undefined, restoreFieldScroll: closing && id === 'receive' ? state.receiverReturnScroll : closing && id === 'transmit' ? state.transmitterReturnScroll : undefined });
+  }, { focus: openingReceiver ? '.receiver-v2-close' : openingTransmitter ? '.transmitter-v2-close' : !closing && fullFieldPanels.has(id) ? '.tool-close' : undefined, restoreFieldScroll: closing && id === 'receive' ? state.receiverReturnScroll : closing && id === 'transmit' ? state.transmitterReturnScroll : undefined });
 }
 
 function activeReceiverProfile() {
@@ -453,6 +505,52 @@ app.addEventListener('click', event => {
     update({ notifications: state.notifications.filter(item => item.id !== dismiss.dataset.dismissNotification) });
     return;
   }
+
+  const expressionOpen = event.target.closest('[data-expression-open]');
+  if (expressionOpen) {
+    const expression = expressions.find(item => item.id === expressionOpen.dataset.expressionOpen);
+    if (!expression) return;
+    update({ activeExpressionId: expression.id, type: expression.layout, selectedObject: null, expressionInspectId: null });
+    announce(`${expression.title} opened in its ${layoutTypes.find(type => type.id === expression.layout)?.name} Layout.`);
+    return;
+  }
+  const expressionInspect = event.target.closest('[data-expression-inspect]');
+  if (expressionInspect) { update({ expressionInspectId: expressionInspect.dataset.expressionInspect }); announce('Expression detail staged locally with provenance and access context.'); return; }
+  const expressionFavorite = event.target.closest('[data-expression-favorite]');
+  if (expressionFavorite) {
+    const id = expressionFavorite.dataset.expressionFavorite;
+    const favorites = state.expressionFavorites.includes(id) ? state.expressionFavorites.filter(item => item !== id) : [...state.expressionFavorites, id];
+    const expression = expressions.find(item => item.id === id); if (expression) expression.saved = favorites.includes(id);
+    update({ expressionFavorites: favorites }); return;
+  }
+  const toolTab = event.target.closest('[data-tool-tab]');
+  if (toolTab) { update({ [toolTab.dataset.toolTab]: toolTab.dataset.toolTabValue }); return; }
+  const connectionAction = event.target.closest('[data-connection-action]');
+  if (connectionAction) {
+    const id = connectionAction.dataset.connectionId; const action = connectionAction.dataset.connectionAction;
+    const current = state.connectorConnections[id] || { connected: false, active: false, muted: false };
+    const next = { ...current };
+    if (action === 'connect') next.connected = true;
+    if (action === 'disconnect') { next.connected = false; next.active = false; }
+    if (action === 'activate' && next.connected) next.active = true;
+    if (action === 'deactivate') next.active = false;
+    if (action === 'mute') next.muted = !next.muted;
+    update({ connectorConnections: { ...state.connectorConnections, [id]: next } });
+    announce(`Connection state updated locally for this prototype. No external service or relationship changed.`);
+    return;
+  }
+  const creatorLayout = event.target.closest('[data-creator-layout]');
+  if (creatorLayout) { update({ creatorLayout: creatorLayout.dataset.creatorLayout }); return; }
+  const creatorKind = event.target.closest('[data-create-kind]');
+  if (creatorKind) { update({ kiDraft: `Help me create ${creatorKind.dataset.createKind} in this Creator.` }, { focus: '#universal-ki-input' }); return; }
+  const sentinelPreset = event.target.closest('[data-sentinel-preset]');
+  if (sentinelPreset) {
+    const preset = sentinelPreset.dataset.sentinelPreset;
+    const values = preset === 'Open' ? { participation: 100, stewardship: 100, belonging: 100, legibility: 100 } : preset === 'Guided' ? { participation: 45, stewardship: 65, belonging: 55, legibility: 80 } : { participation: 72, stewardship: 66, belonging: 64, legibility: 76 };
+    update({ sentinelPreset: preset, sentinelBoundaries: values }); return;
+  }
+  const prototypeAction = event.target.closest('[data-prototype-action]');
+  if (prototypeAction) { announce(`${prototypeAction.dataset.prototypeAction} is staged as a local proposal. No external Action occurred.`); return; }
 
   const txFilter = event.target.closest('[data-tx-filter]');
   if (txFilter) {
@@ -742,7 +840,8 @@ app.addEventListener('click', event => {
   if (event.target.closest('[data-close-panel]')) {
     const wasReceiver = state.openPanel === 'receive';
     const wasTransmitter = state.openPanel === 'transmit';
-    update({ openPanel: null, receiverProposal: null, receiverV2Proposal: null, receiverV2InspectorId: null, receiverV2ProfileManagerOpen: false, transmitterV2InspectorId: null, transmitterV2DestinationInspectorId: null, transmitterV2ReviewOpen: false, transmitterV2Proposal: null }, { focus: wasReceiver ? '[data-panel="receive"]' : wasTransmitter ? '[data-panel="transmit"]' : undefined, restoreFieldScroll: wasReceiver ? state.receiverReturnScroll : wasTransmitter ? state.transmitterReturnScroll : undefined });
+    setRoute(null);
+    update({ openPanel: null, routeLabel: 'Field', receiverProposal: null, receiverV2Proposal: null, receiverV2InspectorId: null, receiverV2ProfileManagerOpen: false, transmitterV2InspectorId: null, transmitterV2DestinationInspectorId: null, transmitterV2ReviewOpen: false, transmitterV2Proposal: null }, { focus: wasReceiver ? '[data-panel="receive"]' : wasTransmitter ? '[data-panel="transmit"]' : '[data-action="go-home"]', restoreFieldScroll: wasReceiver ? state.receiverReturnScroll : wasTransmitter ? state.transmitterReturnScroll : undefined });
     return;
   }
   if (event.target.closest('[data-close-inspector]')) {
@@ -756,6 +855,31 @@ app.addEventListener('click', event => {
 
   const action = event.target.closest('[data-action]')?.dataset.action;
   if (!action) return;
+
+  if (action === 'close-expression') { update({ activeExpressionId: null, type: 'composed' }, { focus: '.expression-explorer h1' }); return; }
+  if (action === 'close-expression-inspector') { update({ expressionInspectId: null }, { focus: '[data-expression-inspect]' }); return; }
+  if (action === 'expression-saved') { update({ expressionSavedOnly: !state.expressionSavedOnly }); return; }
+  if (action === 'universal-dictate') { announce('Dictate is visible for a future voice connection; this prototype is not recording.'); return; }
+  if (action === 'universal-voice') { announce('Voice is visible for a future real-time connection; this prototype is not listening.'); return; }
+  if (action === 'ki-preview') {
+    const proposal = proposeKiActions(state);
+    update({ kiProposal: proposal, kiSelectedActions: proposal.actions.map(item => item.id), kiRevisionMode: false }); return;
+  }
+  if (action === 'ki-select-all') { update({ kiSelectedActions: state.kiProposal?.actions.map(item => item.id) || [] }); return; }
+  if (action === 'ki-clear-all') { update({ kiSelectedActions: [] }); return; }
+  if (action === 'ki-cancel') { update({ kiProposal: null, kiSelectedActions: [], kiRevisionMode: false, kiRevisionDraft: '' }); return; }
+  if (action === 'ki-revise') { update({ kiRevisionMode: true, kiRevisionDraft: state.kiDraft }, { focus: '#ki-revision-input' }); return; }
+  if (action === 'ki-revision-cancel') { update({ kiRevisionMode: false }, { focus: '.ki-action-review footer button' }); return; }
+  if (action === 'ki-revision-preview') {
+    const proposal = proposeKiActions(state, state.kiRevisionDraft);
+    update({ kiProposal: proposal, kiDraft: state.kiRevisionDraft, kiSelectedActions: proposal.actions.map(item => item.id), kiRevisionMode: false }); return;
+  }
+  if (action === 'ki-approve-selected' || action === 'ki-approve-all') {
+    const selected = action === 'ki-approve-all' ? state.kiProposal?.actions || [] : (state.kiProposal?.actions || []).filter(item => state.kiSelectedActions.includes(item.id));
+    update({ kiProposal: null, kiSelectedActions: [], kiRevisionMode: false });
+    announce(`${selected.length} local Ki action${selected.length === 1 ? '' : 's'} approved. No external or consequential Action occurred.`);
+    return;
+  }
 
   if (action === 'tx-clear-payload') { update({ transmitterV2SeedIds: [], transmitterV2Prepared: false }); return; }
   if (action === 'tx-save-draft') { persist(); announce('Transmitter draft saved locally. Nothing has been sent.'); return; }
@@ -930,7 +1054,7 @@ app.addEventListener('click', event => {
   if (action === 'receiver-review-held') { update({ receiverView: 'transmitters', receiverTransmitterSort: 'Priority' }); return; }
 
   if (action === 'send-ki') sendToKi();
-  if (action === 'open-ki' || action === 'focus-composer') update({ openPanel: null }, { focus: '#ki-input' });
+  if (action === 'open-ki' || action === 'focus-composer') update({}, { focus: '#universal-ki-input' });
   if (action === 'composer-context') update({ composerDraft: draftForCurrentContext('Work with') }, { focus: '#ki-input' });
   if (action === 'selection-to-ki') update({ composerDraft: draftForCurrentContext('Help me work with') }, { focus: '#ki-input' });
   if (action === 'panel-to-ki') update({ openPanel: null, composerDraft: draftForCurrentContext('Help me work with') }, { focus: '#ki-input' });
@@ -956,7 +1080,7 @@ app.addEventListener('click', event => {
   if (action === 'configure-connection') announce('Connection configuration is staged locally; no account or permission was changed.');
   if (action === 'review-connection') announce('Permission review opened locally; no connection was authorized.');
   if (action === 'composed-service' || action === 'composed-look') update({ selectedObject: 'service-alliance', composerDraft: 'Show me what’s already moving in Service Alliance.' }, { focus: '#ki-input' });
-  if (action === 'go-home') update({ type: 'composed', openPanel: null, selectedObject: null, inspector: null }, { focus: '#field-stage' });
+  if (action === 'go-home') { setRoute(null); update({ type: 'composed', openPanel: null, routeLabel: 'Field', activeExpressionId: null, selectedObject: null, inspector: null }, { focus: '#field-stage' }); }
   if (action === 'receiver-v2-dictate') announce('Dictate is placed for the next voice connection; this prototype is not recording.');
   if (action === 'receiver-v2-voice') announce('Voice is placed for a future real-time connection; this prototype is not listening.');
   if (action === 'composed-enter') {
@@ -964,17 +1088,28 @@ app.addEventListener('click', event => {
     announce('Alice’s invitation is open · nothing committed yet.');
   }
   if (action === 'map-home') selectLayoutType('composed');
-  if (action === 'show-build-kiduna') update({ type: 'setting', openPanel: null, selectedObject: 'build-kiduna' });
-  if (action === 'show-service-alliance') update({ type: 'composed', openPanel: null, selectedObject: 'service-alliance' });
+  if (action === 'show-build-kiduna') { setRoute(null); update({ type: 'setting', openPanel: null, routeLabel: 'Field', selectedObject: 'build-kiduna' }); }
+  if (action === 'show-service-alliance') { setRoute(null); update({ type: 'composed', openPanel: null, routeLabel: 'Field', selectedObject: 'service-alliance' }); }
   if (action === 'reset-layout') {
     localStorage.removeItem(storageKey);
     state = { ...defaults, notifications: clone(initialNotifications), receiverProfiles: clone(defaultReceptionProfiles).map(normalizeReceiverV2Profile) };
+    setRoute(null, { replace: true });
     render();
     announce('Local Layout state reset to Composed.');
   }
 });
 
 app.addEventListener('input', event => {
+  if (event.target.id === 'universal-ki-input') { state.kiDraft = event.target.value; persist(); }
+  if (event.target.id === 'ki-revision-input') state.kiRevisionDraft = event.target.value;
+  if (event.target.id === 'creator-name') { state.creatorDraftName = event.target.value; persist(); }
+  if (event.target.id === 'creator-purpose') { state.creatorDraftPurpose = event.target.value; persist(); }
+  if (event.target.id === 'expression-search') { state.expressionQuery = event.target.value; persist(); window.clearTimeout(receiverV2SearchTimer); receiverV2SearchTimer = window.setTimeout(() => render({ focus: '#expression-search' }), 120); return; }
+  if (event.target.id === 'inspector-workspace-search') { state.inspectorWorkspaceQuery = event.target.value; persist(); render({ focus: '#inspector-workspace-search' }); return; }
+  if (event.target.dataset.sentinelRange) {
+    const id = event.target.dataset.sentinelRange; state.sentinelBoundaries = { ...state.sentinelBoundaries, [id]: Number(event.target.value) }; state.sentinelPreset = 'Custom';
+    event.target.closest('label')?.querySelector('output')?.replaceChildren(event.target.value); persist(); return;
+  }
   if (event.target.id === 'ki-input') state.composerDraft = event.target.value;
   if (event.target.id === 'transmit-message') state.transmitDraft = event.target.value;
   if (event.target.id === 'tx-message') { state.transmitterV2Message = event.target.value; state.transmitterV2Prepared = false; persist(); }
@@ -1054,12 +1189,15 @@ app.addEventListener('input', event => {
 });
 
 app.addEventListener('change', event => {
-  if (event.target.matches('[data-receiver-experiment]')) {
-    const version = event.target.value;
-    if (!['0.01', '0.02'].includes(version)) return;
-    update({ receiverExperiment: version, receiverV2InspectorId: null, receiverV2ProfileManagerOpen: false, receiverV2Proposal: null, receiverV2ConfirmRemove: null, transmitterV2InspectorId: null, transmitterV2DestinationInspectorId: null, transmitterV2ReviewOpen: false, transmitterV2Proposal: null }, { focus: state.openPanel === 'receive' ? (version === '0.02' ? '.receiver-v2-close' : '.receiver-panel [data-close-panel]') : state.openPanel === 'transmit' && version === '0.02' ? '.transmitter-v2-close' : undefined });
-    return;
+  if (event.target.dataset.kiActionCheck) {
+    const id = event.target.dataset.kiActionCheck;
+    update({ kiSelectedActions: event.target.checked ? [...new Set([...state.kiSelectedActions, id])] : state.kiSelectedActions.filter(item => item !== id) }); return;
   }
+  if (event.target.id === 'expression-layout') { update({ expressionLayout: event.target.value }); return; }
+  if (event.target.id === 'expression-realm') { update({ expressionRealm: event.target.value }); return; }
+  if (event.target.id === 'expression-source') { update({ expressionSource: event.target.value }); return; }
+  if (event.target.id === 'expression-seed') { update({ expressionSeed: event.target.value }); return; }
+  if (event.target.id === 'expression-sort') { update({ expressionSort: event.target.value }); return; }
   if (event.target.id === 'tx-sort') { update({ transmitterV2Sort: event.target.value }); return; }
   if (event.target.id === 'tx-message-privacy') { update({ transmitterV2MessagePrivacy: event.target.value, transmitterV2Prepared: false }); return; }
   if (event.target.id === 'tx-sender') { update({ transmitterV2SenderId: event.target.value, transmitterV2Prepared: false }); return; }
@@ -1126,18 +1264,21 @@ app.addEventListener('change', event => {
 
 app.addEventListener('keydown', event => {
   if (event.key === 'Escape') {
-    if (state.transmitterV2ReviewOpen) update({ transmitterV2ReviewOpen: false }, { focus: '.tx-review-button' });
+    if (state.kiProposal) update({ kiProposal: null, kiSelectedActions: [], kiRevisionMode: false }, { focus: '#universal-ki-input' });
+    else if (state.transmitterV2ReviewOpen) update({ transmitterV2ReviewOpen: false }, { focus: '.tx-review-button' });
     else if (state.transmitterV2InspectorId || state.transmitterV2DestinationInspectorId) update({ transmitterV2InspectorId: null, transmitterV2DestinationInspectorId: null }, { focus: state.transmitterV2InspectorId ? `[data-tx-inspect="${state.transmitterV2InspectorId}"]` : `[data-tx-inspect-destination="${state.transmitterV2DestinationInspectorId}"]` });
     else if (state.receiverV2ProfileManagerOpen) update({ receiverV2ProfileManagerOpen: false, receiverConfirmDelete: null, receiverRenameId: null }, { focus: '.receiver-v2-manage' });
     else if (state.receiverV2InspectorId) {
       const id = state.receiverV2InspectorId;
       update({ receiverV2InspectorId: null }, { focus: `[data-v2-inspect="${id}"]` });
     }
+    else if (state.expressionInspectId) update({ expressionInspectId: null }, { focus: '[data-expression-inspect]' });
     else if (state.inspector) update({ inspector: null });
     else if (state.openPanel) {
       const wasReceiver = state.openPanel === 'receive';
       const wasTransmitter = state.openPanel === 'transmit';
-      update({ openPanel: null, receiverProposal: null, receiverV2Proposal: null, receiverV2ConfirmRemove: null, transmitterV2Proposal: null }, { focus: wasReceiver ? '[data-panel="receive"]' : wasTransmitter ? '[data-panel="transmit"]' : undefined, restoreFieldScroll: wasReceiver ? state.receiverReturnScroll : wasTransmitter ? state.transmitterReturnScroll : undefined });
+      setRoute(null);
+      update({ openPanel: null, routeLabel: 'Field', receiverProposal: null, receiverV2Proposal: null, receiverV2ConfirmRemove: null, transmitterV2Proposal: null }, { focus: wasReceiver ? '[data-panel="receive"]' : wasTransmitter ? '[data-panel="transmit"]' : undefined, restoreFieldScroll: wasReceiver ? state.receiverReturnScroll : wasTransmitter ? state.transmitterReturnScroll : undefined });
     }
     else if (state.selectedObject) update({ selectedObject: null });
     return;
@@ -1162,6 +1303,9 @@ app.addEventListener('keydown', event => {
     update({ transmitterV2KiDraft: event.target.value, transmitterV2Proposal: interpretTransmitterCommand(event.target.value) });
     return;
   }
+  if (event.target.id === 'universal-ki-input' && event.key === 'Enter') {
+    event.preventDefault(); const proposal = proposeKiActions(state); update({ kiProposal: proposal, kiSelectedActions: proposal.actions.map(item => item.id), kiRevisionMode: false }); return;
+  }
   if ((event.target.id === 'receiver-profile-name' || event.target.id === 'receiver-topic-input') && event.key === 'Enter') {
     event.preventDefault();
     document.querySelector(`[data-action="${event.target.id === 'receiver-profile-name' ? 'receiver-create-profile' : 'receiver-add-topic'}"]`)?.click();
@@ -1177,7 +1321,13 @@ app.addEventListener('keydown', event => {
 window.__layoutKit = {
   getState: () => ({ ...state }),
   layoutTypes: layoutTypes.map(type => type.id),
-  version: '0.6.0'
+  version: '0.7.0'
 };
 
+window.addEventListener('popstate', () => {
+  const panel = routeFromLocation();
+  update({ openPanel: panel, routeLabel: routeLabels[panel || 'field'], activeExpressionId: null, kiProposal: null });
+});
+
+if (location.pathname === '/' || !location.pathname.split('/').filter(Boolean).length) setRoute(state.openPanel, { replace: true });
 render();

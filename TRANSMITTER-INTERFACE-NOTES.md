@@ -1,5 +1,7 @@
 # Transmitter Interface Notes
 
+> Superseded interface note: the published Layout Site now has one current Version 0.02 interface. The version selector and Version 0.01 product surface described below are historical implementation context, not current behavior. This is a Layout Kit/product proposal and does not update the Kiduna Canon.
+
 ## Scope
 
 Transmitter Version 0.02 is the outward-facing complement to Receiver Version 0.02. It replaces only the Field when the Transmitter rail icon is selected; the titlebar, version selector, reset control, left rail, active Source context, and surrounding Layout remain intact. Version 0.01 remains unchanged.

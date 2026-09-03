@@ -26,21 +26,38 @@ export const layoutTypes = [
   {
     id: 'theater',
     name: 'Theater',
-    meta: 'Focused · 1 scene',
-    description: 'A quiet stage for one conversation, presentation, simulation, or package.'
+    meta: 'Focused · media stage',
+    description: 'A quiet stage for watching, listening to, or experiencing one work.'
+  },
+  {
+    id: 'world',
+    name: 'World',
+    meta: '3D · embodied environment',
+    description: 'A full spatial environment for movement, presence, simulation, and action.'
+  },
+  {
+    id: 'reader',
+    name: 'Reader',
+    meta: 'Editorial · documents and books',
+    description: 'A reading-led layout for documents, magazines, books, essays, audio, and video.'
+  },
+  {
+    id: 'game',
+    name: 'Game',
+    meta: 'Playable · rules and feedback',
+    description: 'An interactive layout for bounded play, choices, challenges, scoring, and shared or solo game states.'
   }
 ];
 
 export const railItems = [
+  { id: 'broker', label: 'Broker', roleIcon: 'broker' },
+  { id: 'connector', label: 'Connector', roleIcon: 'connector' },
+  { id: 'creator', label: 'Creator', roleIcon: 'creator' },
+  { id: 'inspector-workspace', label: 'Inspector', roleIcon: 'inspector' },
   { id: 'receive', label: 'Receiver', roleIcon: 'receiver' },
   { id: 'transmit', label: 'Transmitter', roleIcon: 'transmitter' },
-  { id: 'connect', label: 'Connector', roleIcon: 'connector' },
-  { id: 'create', label: 'Creator', roleIcon: 'creator' },
-  { id: 'packages', label: 'Inspector', roleIcon: 'inspector' },
-  { id: 'history', label: 'Broker', roleIcon: 'broker' },
-  { id: 'envoy', label: 'Envoy', roleIcon: 'envoy', placeholder: true },
-  { id: 'sentinel', label: 'Sentinel', roleIcon: 'sentinel', placeholder: true },
-  { id: 'sponsor', label: 'Sponsor', roleIcon: 'sponsor', placeholder: true }
+  { id: 'envoy', label: 'Envoy', roleIcon: 'envoy', extension: true },
+  { id: 'sentinel', label: 'Sentinel', roleIcon: 'sentinel', extension: true }
 ];
 
 export const instruments = [

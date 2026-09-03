@@ -1,5 +1,7 @@
 # Receiver interface notes
 
+> Current status: Receiver 0.02 is the sole published Receiver interface inside the unified Layout Site. Historical experiment language below does not create an in-product version archive. This is a Layout Kit/product proposal and does not update the Kiduna Canon.
+
 ## Dynamic eyebrow
 
 The Receiver eyebrow is a short, playful, context-aware line that changes each time the Source opens Receiver. “Got your ears on?” is the baseline first-open line.
