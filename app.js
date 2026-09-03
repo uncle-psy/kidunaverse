@@ -1,4 +1,4 @@
-import { defaultReceptionProfiles, initialNotifications, instruments, layoutTypes, railItems, receiverV2Catalog, transmitterCatalog } from './data.js?v=0.4.1';
+import { defaultReceptionProfiles, initialNotifications, layoutTypes, railItems, receiverV2Catalog, transmitterCatalog } from './data.js?v=0.5.0';
 import {
   fieldStage,
   findObject,
@@ -9,13 +9,13 @@ import {
   panelTitle,
   railAction,
   selectionBar,
-  statusInstrument,
   toast
-} from './components.js?v=0.4.1';
+} from './components.js?v=0.5.0';
 import { icon } from './icons.js';
 
 const storageKey = 'kiduna-layout-kit-v0.2';
 const clone = value => JSON.parse(JSON.stringify(value));
+const receiverV2FilterOptions = ['Transmitter', 'Realm', 'Power Map', 'Package', 'Node', 'Sponsored'];
 
 function normalizeReceiverV2Profile(profile) {
   const tuning = { ...(profile.receiverV2Tuning || {}) };
@@ -33,6 +33,7 @@ function normalizeReceiverV2Profile(profile) {
 }
 
 const defaults = {
+  uiRevision: '0.5.0',
   type: 'composed',
   defaultType: 'composed',
   openPanel: null,
@@ -58,8 +59,9 @@ const defaults = {
   receiverUndo: null,
   recentReceiverChanges: [],
   receiverV2Query: '',
-  receiverV2Filter: 'All',
-  receiverV2Sort: 'Intensity',
+  receiverV2Filters: [...receiverV2FilterOptions],
+  receiverV2Sort: 'Most recent',
+  receiverEyebrowIndex: -1,
   receiverV2Limit: 9,
   receiverV2InspectorId: null,
   receiverV2ProfileManagerOpen: false,
@@ -97,6 +99,15 @@ function loadState() {
       time: { ...(profile.time || {}) }
     }));
     next.receiverExperiment = ['0.01', '0.02'].includes(next.receiverExperiment) ? next.receiverExperiment : '0.01';
+    const legacyFilter = typeof saved.receiverV2Filter === 'string' ? saved.receiverV2Filter : 'All';
+    next.receiverV2Filters = Array.isArray(saved.receiverV2Filters)
+      ? saved.receiverV2Filters.filter(filter => receiverV2FilterOptions.includes(filter))
+      : legacyFilter === 'All' ? [...receiverV2FilterOptions] : [legacyFilter].filter(filter => receiverV2FilterOptions.includes(filter));
+    if (saved.uiRevision !== defaults.uiRevision) {
+      next.uiRevision = defaults.uiRevision;
+      next.receiverV2Sort = defaults.receiverV2Sort;
+      next.receiverV2Filters = [...defaults.receiverV2Filters];
+    }
     if (!next.receiverProfiles.some(profile => profile.id === next.activeReceiverProfileId)) next.activeReceiverProfileId = next.receiverProfiles[0].id;
     next.type = layoutTypes.some(type => type.id === next.type) ? next.type : defaults.type;
     next.defaultType = layoutTypes.some(type => type.id === next.defaultType) ? next.defaultType : defaults.defaultType;
@@ -143,7 +154,7 @@ function announce(message) {
 function titlebar() {
   const layoutType = layoutTypes.find(item => item.id === state.type)?.name;
   return `<header class="titlebar">
-    <div class="title-left"><div class="window-controls" aria-label="Window controls"><i></i><i></i><i></i><span>Kiduna</span></div><label class="global-receiver-version"><span class="sr-only">Receiver experiment version</span><select data-receiver-experiment aria-label="Receiver experiment version"><option value="0.01" ${state.receiverExperiment === '0.01' ? 'selected' : ''}>Version 0.01</option><option value="0.02" ${state.receiverExperiment === '0.02' ? 'selected' : ''}>Version 0.02</option></select></label></div>
+    <div class="title-left"><div class="window-controls" aria-label="Window controls"><i></i><i></i><i></i><span>Kiduna</span></div><label class="global-receiver-version"><span class="sr-only">Receiver experiment version</span><select data-receiver-experiment aria-label="Receiver experiment version"><option value="0.01" ${state.receiverExperiment === '0.01' ? 'selected' : ''}>Version 0.01</option><option value="0.02" ${state.receiverExperiment === '0.02' ? 'selected' : ''}>Version 0.02</option></select></label><button class="reset-to-default" type="button" data-action="reset-layout">Reset to default</button></div>
     <div class="title-identity"><img src="assets/design-system/assets/kiduna-mark.svg" alt=""><span>Layout Kit</span><i>/</i><strong>Moto’s Field</strong><i>/</i><b>${layoutType}</b></div>
     <div class="title-state"><span><i></i>Development</span><button type="button" data-action="open-ki">Ki is present</button></div>
   </header>`;
@@ -151,8 +162,8 @@ function titlebar() {
 
 function toolRail() {
   return `<nav class="toolrail" aria-label="Layout Kit tools">
-    <button class="vault-entry ${state.openPanel === 'vault' ? 'active' : ''}" type="button" data-panel="vault" aria-label="Open Moto’s Vault">
-      <img src="assets/design-system/assets/kiduna-mark.svg" alt="Sun / Moon — Moto’s Vault"><span>Vault</span>
+    <button class="vault-entry ${state.openPanel === 'vault' ? 'active' : ''}" type="button" data-action="go-home" aria-label="Go Home">
+      <img src="assets/design-system/assets/kiduna-mark.svg" alt="Sun / Moon"><span>HOME</span>
     </button>
     <div class="rail-divider" aria-hidden="true"></div>
     <div class="rail-primary">${railItems.map(item => railAction(item, state.openPanel === item.id)).join('')}</div>
@@ -164,10 +175,6 @@ function toolRail() {
   </nav>`;
 }
 
-function topInstruments() {
-  return `<header class="instrument-bar"><div class="field-orientation"><span>Layout</span><strong>Moto’s Field</strong></div><nav aria-label="Field instruments">${instruments.map(item => statusInstrument(item, state)).join('')}</nav><div class="system-presence"><span><i></i>Ki</span><small>context continuous</small></div></header>`;
-}
-
 function render(options = {}) {
   document.documentElement.classList.toggle('calm-motion', state.calmMotion);
   document.documentElement.dataset.currentLayoutType = state.type;
@@ -177,7 +184,6 @@ function render(options = {}) {
     <div class="app-body">
       ${toolRail()}
       <section class="workspace" aria-label="Moto’s Layout">
-        ${topInstruments()}
         <section class="field-shell" id="field-stage" tabindex="-1">
           ${fieldReceiver ? `${panelFor(state)}${toast(state.toastMessage)}` : `
             ${fieldStage(state)}
@@ -217,7 +223,12 @@ function selectLayoutType(type) {
 function openPanel(id) {
   const closing = state.openPanel === id;
   const worldScroll = document.querySelector('.mode-world')?.scrollTop || 0;
-  update({ openPanel: closing ? null : id, receiverReturnScroll: !closing && id === 'receive' ? worldScroll : state.receiverReturnScroll }, { focus: !closing && id === 'receive' ? (state.receiverExperiment === '0.02' ? '.receiver-v2-close' : '.receiver-panel [data-close-panel]') : undefined, restoreFieldScroll: closing && id === 'receive' ? state.receiverReturnScroll : undefined });
+  const openingReceiver = !closing && id === 'receive';
+  update({
+    openPanel: closing ? null : id,
+    receiverReturnScroll: openingReceiver ? worldScroll : state.receiverReturnScroll,
+    receiverEyebrowIndex: openingReceiver ? (state.receiverEyebrowIndex + 1) % 6 : state.receiverEyebrowIndex
+  }, { focus: openingReceiver ? (state.receiverExperiment === '0.02' ? '.receiver-v2-close' : '.receiver-panel [data-close-panel]') : undefined, restoreFieldScroll: closing && id === 'receive' ? state.receiverReturnScroll : undefined });
 }
 
 function activeReceiverProfile() {
@@ -308,8 +319,8 @@ function interpretReceiverV2Command(command) {
     const range = nearby.match(/range\D{0,12}(100|[1-9]?[0-9])/);
     if (range) { operations.push({ type: 'range', id: item.id, value: Number(range[1]) }); summary.push(`Set ${item.title} Range to ${range[1]}.`); }
   });
-  const sort = lower.match(/sort(?:\s+by)?\s+(intensity|range|topic|transmitter)/);
-  if (sort) { const value = sort[1][0].toUpperCase() + sort[1].slice(1); operations.push({ type: 'sort', value }); summary.push(`Sort the reception field by ${value}.`); }
+  const sort = lower.match(/sort(?:\s+by)?\s+(most recent|recent|oldest|intensity|range|topic|transmitter)/);
+  if (sort) { const value = sort[1] === 'recent' ? 'Most recent' : sort[1][0].toUpperCase() + sort[1].slice(1); operations.push({ type: 'sort', value }); summary.push(`Sort the reception field by ${value}.`); }
   const filterKinds = [['power maps', 'Power Map'], ['maps', 'Power Map'], ['transmitters', 'Transmitter'], ['realms', 'Realm'], ['packages', 'Package'], ['nodes', 'Node']];
   const filter = filterKinds.find(([phrase]) => lower.includes(`show ${phrase}`) || lower.includes(`filter ${phrase}`));
   if (filter) { operations.push({ type: 'filter', value: filter[1] }); summary.push(`Show ${filter[0]}.`); }
@@ -379,7 +390,17 @@ app.addEventListener('click', event => {
   }
 
   const v2Filter = event.target.closest('[data-v2-filter]');
-  if (v2Filter) { update({ receiverV2Filter: v2Filter.dataset.v2Filter, receiverV2Limit: 9 }); return; }
+  if (v2Filter) {
+    const filter = v2Filter.dataset.v2Filter;
+    const allSelected = state.receiverV2Filters.length === receiverV2FilterOptions.length;
+    const nextFilters = filter === 'All'
+      ? (allSelected ? [] : [...receiverV2FilterOptions])
+      : state.receiverV2Filters.includes(filter)
+        ? state.receiverV2Filters.filter(item => item !== filter)
+        : [...state.receiverV2Filters, filter];
+    update({ receiverV2Filters: nextFilters, receiverV2Limit: 9 });
+    return;
+  }
 
   const v2Compare = event.target.closest('[data-v2-compare]');
   if (v2Compare) { update({ receiverV2CompareId: v2Compare.dataset.v2Compare }); return; }
@@ -668,7 +689,7 @@ app.addEventListener('click', event => {
         if (operation.type === 'intensity' && item) active.receiverV2Tuning[item.id].intensity = operation.value;
         if (operation.type === 'range' && item) active.receiverV2Tuning[item.id].range = operation.value;
         if (operation.type === 'sort') extra.receiverV2Sort = operation.value;
-        if (operation.type === 'filter') extra.receiverV2Filter = operation.value;
+        if (operation.type === 'filter') extra.receiverV2Filters = [operation.value];
         if (operation.type === 'search') extra.receiverV2Query = operation.value;
         if (operation.type === 'recommend') extra.receiverV2RecommendationsOpen = true;
         if (operation.type === 'inspect') extra.receiverV2InspectorId = operation.id;
@@ -799,6 +820,9 @@ app.addEventListener('click', event => {
   if (action === 'configure-connection') announce('Connection configuration is staged locally; no account or permission was changed.');
   if (action === 'review-connection') announce('Permission review opened locally; no connection was authorized.');
   if (action === 'composed-service' || action === 'composed-look') update({ selectedObject: 'service-alliance', composerDraft: 'Show me what’s already moving in Service Alliance.' }, { focus: '#ki-input' });
+  if (action === 'go-home') update({ type: 'composed', openPanel: null, selectedObject: null, inspector: null }, { focus: '#field-stage' });
+  if (action === 'receiver-v2-dictate') announce('Dictate is placed for the next voice connection; this prototype is not recording.');
+  if (action === 'receiver-v2-voice') announce('Voice is placed for a future real-time connection; this prototype is not listening.');
   if (action === 'composed-enter') {
     update({ selectedObject: 'service-alliance' });
     announce('Alice’s invitation is open · nothing committed yet.');
@@ -995,7 +1019,7 @@ app.addEventListener('keydown', event => {
 window.__layoutKit = {
   getState: () => ({ ...state }),
   layoutTypes: layoutTypes.map(type => type.id),
-  version: '0.4.1'
+  version: '0.5.0'
 };
 
 render();
