@@ -122,6 +122,75 @@ export const receiverV2ReceivedAt = {
   'package-royals': '2026-08-18T19:20:00-04:00'
 };
 
+export const transmitterSeedTypes = ['Package', 'Map', 'Node', 'Scene', 'Media', 'Resource', 'Record', 'Other'];
+
+export const transmitterSeedCatalog = [
+  { id: 'seed-layout-kit', type: 'Package', title: 'Layout Kit', eyebrow: 'Development package · current interface lineage', description: 'The portable interface system for composing and inspecting one persistent Field.', creator: 'Moto · Build Kiduna', context: 'Build Kiduna Realm', privacy: 'Public', status: 'Development', version: '0.6.0', createdAt: '2026-09-02T22:25:00-04:00', eligibility: 'Ready for review', provenance: 'Moto + Ki → local implementation → GitHub release', rights: 'Moto may transmit this public implementation', image: 'assets/sigils/actions.png', visualStatus: 'Approved Actions Sigil used as interface graphic', tags: ['interface', 'layout', 'kit'] },
+  { id: 'seed-build-map', type: 'Map', title: 'Build Kiduna', eyebrow: 'Living Power Map projection', description: 'Purpose, contribution, governance, value, and learning relationships from the working Realm.', creator: 'Build Kiduna contributors', context: 'Build Kiduna Power Map', privacy: 'Private', status: 'Active', version: 'current projection', createdAt: '2026-09-02T19:40:00-04:00', eligibility: 'Private destinations only', provenance: 'Versioned map records → Source-authorized projection', rights: 'Realm-scoped transmission permission', image: 'assets/sigils/alliance.png', visualStatus: 'Approved Alliance Sigil used as interface graphic', tags: ['map', 'governance', 'contribution'] },
+  { id: 'seed-contribution-node', type: 'Node', title: 'Contribution', eyebrow: 'Work and learning node', description: 'A graph-native meaning about stewardship, attribution, participation, and learning.', creator: 'Moto · Build Kiduna', context: 'Build Kiduna Power Map', privacy: 'Public', status: 'Published', version: 'node 1.4', createdAt: '2026-09-02T18:55:00-04:00', eligibility: 'Ready for review', provenance: 'Build Kiduna graph record + typed edges', rights: 'Public node expression permitted', image: 'assets/sigils/organizer.png', visualStatus: 'Approved Organizer Sigil used as interface graphic', tags: ['node', 'work', 'learning'] },
+  { id: 'seed-welcome-scene', type: 'Scene', title: 'Welcome Path', eyebrow: 'Composed invitation Scene', description: 'A situated Scene that helps a new participant see living work before choosing where to stand.', creator: 'Moto + Alice', context: 'Service Alliance Realm', privacy: 'Private', status: 'Draft', version: 'scene 0.7', createdAt: '2026-09-01T17:20:00-04:00', eligibility: 'Consent and private destination required', provenance: 'Alice invitation → Moto composition → Scene draft', rights: 'Shared draft; bounded review allowed', image: 'assets/sigils/invitation.png', visualStatus: 'Approved Invitation Sigil used as interface graphic', tags: ['scene', 'welcome', 'invitation'] },
+  { id: 'seed-transceiver-media', type: 'Media', title: 'How Signals Move', eyebrow: 'Two-minute visual explainer', description: 'A public visual explanation of reception, landing, staging, and authorized transmission.', creator: 'Moto', context: 'Layout Kit documentation', privacy: 'Public', status: 'Draft', version: 'media 0.2', createdAt: '2026-09-01T13:10:00-04:00', eligibility: 'Ready for review', provenance: 'Moto outline → local Media draft', rights: 'Moto-created Media', visualStatus: 'Provisional typographic tile', tags: ['media', 'signals', 'transceiver'] },
+  { id: 'seed-compute-capacity', type: 'Resource', title: 'Design Compute Gift', eyebrow: 'Bounded Capacity Resource', description: 'A transferable compute allocation prepared for one approved design collaboration.', creator: 'Moto', context: 'Build Kiduna Exchange', privacy: 'Private', status: 'Prepared', version: 'resource 8814', createdAt: '2026-08-31T11:35:00-04:00', eligibility: 'Recipient and amount review required', provenance: 'Vault balance → bounded Resource proposal', rights: 'Moto controls this prepared allocation', visualStatus: 'Provisional typographic tile', tags: ['resource', 'compute', 'gift'] },
+  { id: 'seed-budget-record', type: 'Record', title: 'Compute Allocation Receipt', eyebrow: 'Restricted economic Record', description: 'A receipt containing exact internal allocation and account-control details.', creator: 'Budget Actor', context: 'Moto’s personal Vault', privacy: 'Secret', status: 'Verified', version: 'record 8814', createdAt: '2026-08-30T19:26:00-04:00', eligibility: 'Secret-handling destination required', provenance: 'Authorized Action → provider receipt → Vault Record', rights: 'Moto may disclose only to an explicitly authorized reviewer', visualStatus: 'Provisional typographic tile', tags: ['record', 'budget', 'receipt'] },
+  { id: 'seed-personal-notes', type: 'Record', title: 'Invitation Notes', eyebrow: 'Personal working notes', description: 'Private reflections that belong to Moto’s personal context and are not externally transmissible by default.', creator: 'Moto', context: 'Moto’s personal Locus', privacy: 'Personal', status: 'Working', version: 'notes 3', createdAt: '2026-08-29T21:05:00-04:00', eligibility: 'Personal destination only', provenance: 'Moto-authored personal Record', rights: 'Source-only unless explicitly reclassified', visualStatus: 'Provisional typographic tile', tags: ['personal', 'notes', 'invitation'] },
+  { id: 'seed-systems-map', type: 'Map', title: 'Systems Oracle', eyebrow: 'Technology Power Map release', description: 'Institutions, technologies, incentives, and relationships shaping Big Tech.', creator: 'Moto + Mapshifting', context: 'Knowledge & Frontier', privacy: 'Public', status: 'Published', version: 'map 1.3.2', createdAt: '2026-08-28T15:30:00-04:00', eligibility: 'Ready for review', provenance: 'Source archive → Mapshifting lineage → published map release', rights: 'Public map release', visualStatus: 'Provisional interface tile; not a Card', tags: ['map', 'technology', 'systems'] },
+  { id: 'seed-authority-node', type: 'Node', title: 'Authority Legibility', eyebrow: 'Governance relationship node', description: 'Make the basis, scope, limits, and review path of authority visible.', creator: 'Moto · Build Kiduna', context: 'Build Kiduna Power Map', privacy: 'Public', status: 'Published', version: 'node 1.1', createdAt: '2026-08-27T12:15:00-04:00', eligibility: 'Ready for review', provenance: 'Graph record + current Canon context', rights: 'Public node expression permitted', visualStatus: 'Provisional typographic tile', tags: ['node', 'authority', 'governance'] },
+  { id: 'seed-receiver-wireframe', type: 'Media', title: 'Receiver 0.02 Walkthrough', eyebrow: 'Interface capture', description: 'A short visual walkthrough of the graphical Receiver experiment.', creator: 'Moto + Ki', context: 'Layout Kit', privacy: 'Public', status: 'Development', version: 'media 0.3', createdAt: '2026-08-26T16:45:00-04:00', eligibility: 'Ready for review', provenance: 'Local prototype → captured explanatory Media', rights: 'Moto-created interface Media', visualStatus: 'Provisional typographic tile', tags: ['media', 'receiver', 'walkthrough'] },
+  { id: 'seed-field-notebook', type: 'Other', title: 'Field Notebook', eyebrow: 'Structured working artifact', description: 'A compact bundle of questions, observations, and next moves from the current Locus.', creator: 'Moto', context: 'Moto’s Field', privacy: 'Private', status: 'Draft', version: 'artifact 0.4', createdAt: '2026-08-25T09:00:00-04:00', eligibility: 'Private destinations only', provenance: 'Moto working session → attributed artifact', rights: 'Moto-created artifact', visualStatus: 'Provisional typographic tile', tags: ['artifact', 'field', 'notes'] }
+];
+
+export const transmitterSenders = [
+  { id: 'moto-source', name: 'Moto', type: 'Source', detail: 'Directly from Moto', recipientView: 'Moto', authority: 'Source authority · current' },
+  { id: 'moto-build-avatar', name: 'Moto · Build Kiduna', type: 'Avatar', detail: 'Represents Moto in Build Kiduna', recipientView: 'Moto · Build Kiduna', authority: 'Catalyst Role · Realm-scoped' },
+  { id: 'research-ally', name: 'Research Ally', type: 'Ally', detail: 'Acts on Moto’s behalf for research communication', recipientView: 'Research Ally for Moto', authority: 'Draft and communicate · revocable' },
+  { id: 'budget-actor', name: 'Budget Actor', type: 'Actor', detail: 'Bounded Build Kiduna operator', recipientView: 'Build Kiduna Budget Actor', authority: 'Receipts only · threshold-bound' },
+  { id: 'anonymous', name: 'Anonymous', type: 'Presentation', detail: 'Anonymous to recipients; Moto remains in restricted audit', recipientView: 'Anonymous participant', authority: 'Only where destination policy permits' }
+];
+
+export const transmitterDestinations = [
+  { id: 'dest-kiduna-commons', name: 'Kiduna Commons', type: 'Realm', context: 'Public Ecosystem gathering place', privacy: 'Public', retention: 'Public Realm record', anonymousAllowed: true, secretHandling: false, allowedSenders: ['moto-source', 'moto-build-avatar', 'research-ally', 'anonymous'] },
+  { id: 'dest-build-kiduna', name: 'Build Kiduna', type: 'Realm', context: 'Private working Realm', privacy: 'Private', retention: 'Governed Realm history', anonymousAllowed: false, secretHandling: false, allowedSenders: ['moto-source', 'moto-build-avatar', 'research-ally', 'budget-actor'] },
+  { id: 'dest-alice-receiver', name: 'Alice · Working Receiver', type: 'Receiver', context: 'Private relationship endpoint', privacy: 'Private', retention: 'Alice’s reception policy', anonymousAllowed: false, secretHandling: false, allowedSenders: ['moto-source', 'moto-build-avatar', 'research-ally'] },
+  { id: 'dest-service-alliance', name: 'Service Alliance', type: 'Realm', context: 'Invitation-scoped private Realm', privacy: 'Private', retention: 'Alliance-governed history', anonymousAllowed: false, secretHandling: false, allowedSenders: ['moto-source', 'moto-build-avatar'] },
+  { id: 'dest-release-council', name: 'Release Council', type: 'Governed queue', context: 'Named reviewers with secret handling', privacy: 'Secret', retention: 'Restricted review Record', anonymousAllowed: false, secretHandling: true, allowedSenders: ['moto-source', 'moto-build-avatar', 'budget-actor'] },
+  { id: 'dest-research-ally', name: 'Research Ally Queue', type: 'Ally', context: 'Registered personal Ally work queue', privacy: 'Private', retention: 'Personal research boundary', anonymousAllowed: false, secretHandling: false, allowedSenders: ['moto-source', 'research-ally'] },
+  { id: 'dest-governance-actor', name: 'Governance Review Actor', type: 'Actor', context: 'Registered Build Kiduna review queue', privacy: 'Private', retention: 'Realm decision record', anonymousAllowed: false, secretHandling: false, allowedSenders: ['moto-source', 'moto-build-avatar'] },
+  { id: 'dest-moto-personal', name: 'Moto’s Personal Receiver', type: 'Receiver', context: 'Source-only personal endpoint', privacy: 'Personal', retention: 'Personal context', anonymousAllowed: false, secretHandling: false, allowedSenders: ['moto-source'] }
+];
+
+export function evaluateTransmissionDraft(draft) {
+  const seeds = transmitterSeedCatalog.filter(item => (draft.seedIds || []).includes(item.id));
+  const destinations = transmitterDestinations.filter(item => (draft.destinationIds || []).includes(item.id));
+  const sender = transmitterSenders.find(item => item.id === draft.senderId) || transmitterSenders[0];
+  const messagePrivacy = draft.messagePrivacy || 'Public';
+  const issues = [];
+  const privacyIssue = (label, privacy, destination) => {
+    if (privacy === 'Public') return null;
+    if (privacy === 'Private' && destination.privacy === 'Public') return `${label} is Private and cannot enter the public ${destination.name} destination.`;
+    if (privacy === 'Secret' && !destination.secretHandling) return `${label} is Secret and ${destination.name} does not declare secret handling.`;
+    if (privacy === 'Personal' && destination.privacy !== 'Personal') return `${label} is Personal and cannot leave Moto’s personal boundary.`;
+    return null;
+  };
+  if (!draft.message?.trim()) issues.push({ kind: 'incomplete', detail: 'Write a Message before review.' });
+  if (!seeds.length) issues.push({ kind: 'incomplete', detail: 'Add at least one Seed to the Payload.' });
+  if (!destinations.length) issues.push({ kind: 'incomplete', detail: 'Choose at least one destination.' });
+  destinations.forEach(destination => {
+    if (!destination.allowedSenders.includes(sender.id)) issues.push({ kind: 'sender', destinationId: destination.id, detail: `${sender.name} is not authorized to transmit to ${destination.name}.` });
+    if (sender.id === 'anonymous' && !destination.anonymousAllowed) issues.push({ kind: 'sender', destinationId: destination.id, detail: `${destination.name} does not allow anonymous presentation.` });
+    const messageMismatch = privacyIssue('The Message', messagePrivacy, destination);
+    if (messageMismatch) issues.push({ kind: 'privacy', destinationId: destination.id, detail: messageMismatch });
+    seeds.forEach(seed => {
+      const mismatch = privacyIssue(seed.title, seed.privacy, destination);
+      if (mismatch) issues.push({ kind: 'privacy', seedId: seed.id, destinationId: destination.id, detail: mismatch });
+    });
+  });
+  const destinationResults = destinations.map(destination => ({ destination, issues: issues.filter(issue => issue.destinationId === destination.id) }));
+  const status = issues.some(issue => issue.kind === 'privacy') ? 'Privacy mismatch'
+    : issues.some(issue => issue.kind === 'sender') ? 'Sender not authorized'
+      : issues.length ? 'Incomplete Signal' : 'Ready for review';
+  return { seeds, destinations, sender, issues, destinationResults, status, ready: issues.length === 0 };
+}
+
 export const coherenceDimensions = [
   { id: 'participation', label: 'Participation', low: 'Closed', high: 'Open', map: 'Build Kiduna Power Map', status: 'Published · measured', valence: '64–78', explanation: 'How available the current work is to meaningful participation. This is contextual, not a measure of people.' },
   { id: 'stewardship', label: 'Stewardship', low: 'Extractive', high: 'Regenerative', map: 'Build Kiduna Power Map', status: 'Published · measured', valence: '58–82', explanation: 'How responsibility, maintenance, and renewal are carried in this map context.' },

@@ -1,4 +1,4 @@
-import { defaultReceptionProfiles, initialNotifications, layoutTypes, railItems, receiverV2Catalog, transmitterCatalog } from './data.js?v=0.5.0';
+import { defaultReceptionProfiles, evaluateTransmissionDraft, initialNotifications, layoutTypes, railItems, receiverV2Catalog, transmitterCatalog, transmitterDestinations, transmitterSeedCatalog, transmitterSeedTypes, transmitterSenders } from './data.js?v=0.6.0';
 import {
   fieldStage,
   findObject,
@@ -10,12 +10,13 @@ import {
   railAction,
   selectionBar,
   toast
-} from './components.js?v=0.5.0';
+} from './components.js?v=0.6.0';
 import { icon } from './icons.js';
 
 const storageKey = 'kiduna-layout-kit-v0.2';
 const clone = value => JSON.parse(JSON.stringify(value));
 const receiverV2FilterOptions = ['Transmitter', 'Realm', 'Power Map', 'Package', 'Node', 'Sponsored'];
+const transmitterV2FilterOptions = [...transmitterSeedTypes];
 
 function normalizeReceiverV2Profile(profile) {
   const tuning = { ...(profile.receiverV2Tuning || {}) };
@@ -33,7 +34,7 @@ function normalizeReceiverV2Profile(profile) {
 }
 
 const defaults = {
-  uiRevision: '0.5.0',
+  uiRevision: '0.6.0',
   type: 'composed',
   defaultType: 'composed',
   openPanel: null,
@@ -79,6 +80,25 @@ const defaults = {
   historyFilter: 'All',
   composerDraft: '',
   transmitDraft: '',
+  transmitterV2Query: '',
+  transmitterV2Filters: [...transmitterV2FilterOptions],
+  transmitterV2Sort: 'Most recent',
+  transmitterV2SeedIds: [],
+  transmitterV2PayloadName: 'Untitled Payload',
+  transmitterV2Message: '',
+  transmitterV2MessagePrivacy: 'Public',
+  transmitterV2SenderId: 'moto-source',
+  transmitterV2DestinationIds: [],
+  transmitterV2DestinationQuery: '',
+  transmitterV2InspectorId: null,
+  transmitterV2DestinationInspectorId: null,
+  transmitterV2ReviewOpen: false,
+  transmitterV2Prepared: false,
+  transmitterV2EyebrowIndex: -1,
+  transmitterV2KiDraft: '',
+  transmitterV2Proposal: null,
+  transmitterV2Step: 'Seeds',
+  transmitterReturnScroll: 0,
   launchedPackage: null,
   calmMotion: false,
   ambientMessages: true,
@@ -103,10 +123,16 @@ function loadState() {
     next.receiverV2Filters = Array.isArray(saved.receiverV2Filters)
       ? saved.receiverV2Filters.filter(filter => receiverV2FilterOptions.includes(filter))
       : legacyFilter === 'All' ? [...receiverV2FilterOptions] : [legacyFilter].filter(filter => receiverV2FilterOptions.includes(filter));
+    next.transmitterV2Filters = Array.isArray(saved.transmitterV2Filters) ? saved.transmitterV2Filters.filter(type => transmitterV2FilterOptions.includes(type)) : [...transmitterV2FilterOptions];
+    next.transmitterV2SeedIds = Array.isArray(saved.transmitterV2SeedIds) ? saved.transmitterV2SeedIds.filter(id => transmitterSeedCatalog.some(seed => seed.id === id)) : [];
+    next.transmitterV2DestinationIds = Array.isArray(saved.transmitterV2DestinationIds) ? saved.transmitterV2DestinationIds.filter(id => transmitterDestinations.some(destination => destination.id === id)) : [];
+    next.transmitterV2SenderId = transmitterSenders.some(sender => sender.id === saved.transmitterV2SenderId) ? saved.transmitterV2SenderId : defaults.transmitterV2SenderId;
     if (saved.uiRevision !== defaults.uiRevision) {
       next.uiRevision = defaults.uiRevision;
       next.receiverV2Sort = defaults.receiverV2Sort;
       next.receiverV2Filters = [...defaults.receiverV2Filters];
+      next.transmitterV2Sort = defaults.transmitterV2Sort;
+      next.transmitterV2Filters = [...defaults.transmitterV2Filters];
     }
     if (!next.receiverProfiles.some(profile => profile.id === next.activeReceiverProfileId)) next.activeReceiverProfileId = next.receiverProfiles[0].id;
     next.type = layoutTypes.some(type => type.id === next.type) ? next.type : defaults.type;
@@ -123,7 +149,7 @@ let receiverV2SearchTimer;
 const app = document.getElementById('app');
 
 function persistentState() {
-  const { toastMessage, composerDraft, receiverProposal, receiverCommand, receiverConfirmDelete, receiverRenameId, receiverUndo, receiverV2Proposal, receiverV2KiDraft, receiverV2ConfirmRemove, receiverV2SliderBefore, receiverV2InspectorId, receiverV2ProfileManagerOpen, receiverV2CompareId, receiverReturnScroll, ...saved } = state;
+  const { toastMessage, composerDraft, receiverProposal, receiverCommand, receiverConfirmDelete, receiverRenameId, receiverUndo, receiverV2Proposal, receiverV2KiDraft, receiverV2ConfirmRemove, receiverV2SliderBefore, receiverV2InspectorId, receiverV2ProfileManagerOpen, receiverV2CompareId, receiverReturnScroll, transmitterV2InspectorId, transmitterV2DestinationInspectorId, transmitterV2KiDraft, transmitterV2Proposal, transmitterReturnScroll, ...saved } = state;
   return saved;
 }
 
@@ -178,7 +204,7 @@ function toolRail() {
 function render(options = {}) {
   document.documentElement.classList.toggle('calm-motion', state.calmMotion);
   document.documentElement.dataset.currentLayoutType = state.type;
-  const fieldReceiver = state.openPanel === 'receive' && state.receiverExperiment === '0.02';
+  const fieldReceiver = ['receive', 'transmit'].includes(state.openPanel) && state.receiverExperiment === '0.02';
   app.innerHTML = `<div class="desktop-app">
     ${titlebar()}
     <div class="app-body">
@@ -224,11 +250,14 @@ function openPanel(id) {
   const closing = state.openPanel === id;
   const worldScroll = document.querySelector('.mode-world')?.scrollTop || 0;
   const openingReceiver = !closing && id === 'receive';
+  const openingTransmitter = !closing && id === 'transmit';
   update({
     openPanel: closing ? null : id,
     receiverReturnScroll: openingReceiver ? worldScroll : state.receiverReturnScroll,
-    receiverEyebrowIndex: openingReceiver ? (state.receiverEyebrowIndex + 1) % 6 : state.receiverEyebrowIndex
-  }, { focus: openingReceiver ? (state.receiverExperiment === '0.02' ? '.receiver-v2-close' : '.receiver-panel [data-close-panel]') : undefined, restoreFieldScroll: closing && id === 'receive' ? state.receiverReturnScroll : undefined });
+    receiverEyebrowIndex: openingReceiver ? (state.receiverEyebrowIndex + 1) % 6 : state.receiverEyebrowIndex,
+    transmitterReturnScroll: openingTransmitter ? worldScroll : state.transmitterReturnScroll,
+    transmitterV2EyebrowIndex: openingTransmitter ? (state.transmitterV2EyebrowIndex + 1) % 3 : state.transmitterV2EyebrowIndex
+  }, { focus: openingReceiver ? (state.receiverExperiment === '0.02' ? '.receiver-v2-close' : '.receiver-panel [data-close-panel]') : openingTransmitter && state.receiverExperiment === '0.02' ? '.transmitter-v2-close' : undefined, restoreFieldScroll: closing && id === 'receive' ? state.receiverReturnScroll : closing && id === 'transmit' ? state.transmitterReturnScroll : undefined });
 }
 
 function activeReceiverProfile() {
@@ -358,6 +387,42 @@ function draftForCurrentContext(prefix = 'Help me understand') {
   return `${prefix} what has gravity in the ${layoutTypes.find(item => item.id === state.type)?.name} Layout Type.`;
 }
 
+function transmitterEvaluation(patch = {}) {
+  return evaluateTransmissionDraft({
+    seedIds: patch.seedIds || state.transmitterV2SeedIds,
+    destinationIds: patch.destinationIds || state.transmitterV2DestinationIds,
+    senderId: patch.senderId || state.transmitterV2SenderId,
+    message: patch.message ?? state.transmitterV2Message,
+    messagePrivacy: patch.messagePrivacy || state.transmitterV2MessagePrivacy
+  });
+}
+
+function interpretTransmitterCommand(command) {
+  const text = command.trim();
+  const lower = text.toLowerCase();
+  const seed = transmitterSeedCatalog.find(item => lower.includes(item.title.toLowerCase()));
+  const destination = transmitterDestinations.find(item => lower.includes(item.name.toLowerCase()));
+  const operations = [];
+  const summary = [];
+  if (seed) {
+    const remove = /remove|drop|without/.test(lower);
+    operations.push({ type: remove ? 'remove-seed' : 'add-seed', id: seed.id });
+    summary.push(`${remove ? 'Remove' : 'Add'} ${seed.title} ${remove ? 'from' : 'to'} the Payload.`);
+  }
+  if (destination) {
+    operations.push({ type: 'add-destination', id: destination.id });
+    summary.push(`Add ${destination.name} as a destination, subject to its privacy and sender checks.`);
+  }
+  const privacy = ['public', 'private', 'secret', 'personal'].find(level => lower.includes(level));
+  if (privacy) {
+    operations.push({ type: 'message-privacy', value: privacy[0].toUpperCase() + privacy.slice(1) });
+    summary.push(`Set the Message boundary to ${privacy}.`);
+  }
+  if (!operations.length) summary.push(text ? 'Ki can search the library, but this request needs a named Seed, destination, or privacy boundary before it changes the draft.' : 'Describe a Seed, destination, or privacy boundary first.');
+  summary.push('Applying this proposal changes the local draft only. It does not transmit anything.');
+  return { operations, summary };
+}
+
 app.addEventListener('click', event => {
   const panelButton = event.target.closest('[data-panel]');
   if (panelButton) {
@@ -388,6 +453,45 @@ app.addEventListener('click', event => {
     update({ notifications: state.notifications.filter(item => item.id !== dismiss.dataset.dismissNotification) });
     return;
   }
+
+  const txFilter = event.target.closest('[data-tx-filter]');
+  if (txFilter) {
+    const filter = txFilter.dataset.txFilter;
+    const allSelected = state.transmitterV2Filters.length === transmitterV2FilterOptions.length;
+    const filters = filter === 'All' ? (allSelected ? [] : [...transmitterV2FilterOptions]) : state.transmitterV2Filters.includes(filter) ? state.transmitterV2Filters.filter(item => item !== filter) : [...state.transmitterV2Filters, filter];
+    update({ transmitterV2Filters: filters });
+    return;
+  }
+  const txAdd = event.target.closest('[data-tx-seed-add]');
+  if (txAdd) {
+    const id = txAdd.dataset.txSeedAdd;
+    if (!state.transmitterV2SeedIds.includes(id)) update({ transmitterV2SeedIds: [...state.transmitterV2SeedIds, id], transmitterV2Prepared: false, transmitterV2Proposal: null });
+    return;
+  }
+  const txRemove = event.target.closest('[data-tx-seed-remove]');
+  if (txRemove) { update({ transmitterV2SeedIds: state.transmitterV2SeedIds.filter(id => id !== txRemove.dataset.txSeedRemove), transmitterV2Prepared: false }); return; }
+  const txInspect = event.target.closest('[data-tx-inspect]');
+  if (txInspect) { update({ transmitterV2InspectorId: txInspect.dataset.txInspect, transmitterV2DestinationInspectorId: null }, { focus: '.tx-inspector header button' }); return; }
+  const txDestinationInspect = event.target.closest('[data-tx-inspect-destination]');
+  if (txDestinationInspect) { update({ transmitterV2DestinationInspectorId: txDestinationInspect.dataset.txInspectDestination, transmitterV2InspectorId: null }, { focus: '.tx-inspector header button' }); return; }
+  const txDestination = event.target.closest('[data-tx-destination]');
+  if (txDestination) {
+    const id = txDestination.dataset.txDestination;
+    update({ transmitterV2DestinationIds: state.transmitterV2DestinationIds.includes(id) ? state.transmitterV2DestinationIds.filter(item => item !== id) : [...state.transmitterV2DestinationIds, id], transmitterV2Prepared: false });
+    return;
+  }
+  const txUp = event.target.closest('[data-tx-seed-up]');
+  const txDown = event.target.closest('[data-tx-seed-down]');
+  if (txUp || txDown) {
+    const id = (txUp || txDown).dataset[txUp ? 'txSeedUp' : 'txSeedDown'];
+    const ids = [...state.transmitterV2SeedIds];
+    const from = ids.indexOf(id); const to = from + (txUp ? -1 : 1);
+    if (from >= 0 && to >= 0 && to < ids.length) [ids[from], ids[to]] = [ids[to], ids[from]];
+    update({ transmitterV2SeedIds: ids, transmitterV2Prepared: false });
+    return;
+  }
+  const txStep = event.target.closest('[data-tx-step]');
+  if (txStep) { update({ transmitterV2Step: txStep.dataset.txStep, transmitterV2ReviewOpen: txStep.dataset.txStep === 'Review' }); return; }
 
   const v2Filter = event.target.closest('[data-v2-filter]');
   if (v2Filter) {
@@ -637,7 +741,8 @@ app.addEventListener('click', event => {
 
   if (event.target.closest('[data-close-panel]')) {
     const wasReceiver = state.openPanel === 'receive';
-    update({ openPanel: null, receiverProposal: null, receiverV2Proposal: null, receiverV2InspectorId: null, receiverV2ProfileManagerOpen: false }, { focus: wasReceiver ? '[data-panel="receive"]' : undefined, restoreFieldScroll: wasReceiver ? state.receiverReturnScroll : undefined });
+    const wasTransmitter = state.openPanel === 'transmit';
+    update({ openPanel: null, receiverProposal: null, receiverV2Proposal: null, receiverV2InspectorId: null, receiverV2ProfileManagerOpen: false, transmitterV2InspectorId: null, transmitterV2DestinationInspectorId: null, transmitterV2ReviewOpen: false, transmitterV2Proposal: null }, { focus: wasReceiver ? '[data-panel="receive"]' : wasTransmitter ? '[data-panel="transmit"]' : undefined, restoreFieldScroll: wasReceiver ? state.receiverReturnScroll : wasTransmitter ? state.transmitterReturnScroll : undefined });
     return;
   }
   if (event.target.closest('[data-close-inspector]')) {
@@ -651,6 +756,37 @@ app.addEventListener('click', event => {
 
   const action = event.target.closest('[data-action]')?.dataset.action;
   if (!action) return;
+
+  if (action === 'tx-clear-payload') { update({ transmitterV2SeedIds: [], transmitterV2Prepared: false }); return; }
+  if (action === 'tx-save-draft') { persist(); announce('Transmitter draft saved locally. Nothing has been sent.'); return; }
+  if (action === 'tx-inspect-payload') { update({ transmitterV2ReviewOpen: true }, { focus: '.tx-review header button' }); return; }
+  if (action === 'tx-review') { update({ transmitterV2ReviewOpen: true, transmitterV2Prepared: false, transmitterV2Step: 'Review' }, { focus: '.tx-review header button' }); return; }
+  if (action === 'tx-close-review') { update({ transmitterV2ReviewOpen: false, transmitterV2Step: 'Signal' }, { focus: '.tx-review-button' }); return; }
+  if (action === 'tx-close-inspector') { update({ transmitterV2InspectorId: null, transmitterV2DestinationInspectorId: null }, { focus: state.transmitterV2InspectorId ? `[data-tx-inspect="${state.transmitterV2InspectorId}"]` : state.transmitterV2DestinationInspectorId ? `[data-tx-inspect-destination="${state.transmitterV2DestinationInspectorId}"]` : undefined }); return; }
+  if (action === 'tx-prepare') {
+    const result = transmitterEvaluation();
+    if (!result.ready) { announce('Resolve the visible Signal, sender, and privacy checks before preparation.'); return; }
+    update({ transmitterV2Prepared: true });
+    announce('Transmission prepared locally. Nothing has been sent.');
+    return;
+  }
+  if (action === 'tx-dictate') { announce('Dictate is placed for a future voice connection; this prototype is not recording.'); return; }
+  if (action === 'tx-voice') { announce('Voice is placed for a future real-time connection; this prototype is not listening.'); return; }
+  if (action === 'tx-ki-preview') { update({ transmitterV2Proposal: interpretTransmitterCommand(state.transmitterV2KiDraft) }); return; }
+  if (action === 'tx-ki-cancel') { update({ transmitterV2Proposal: null }); return; }
+  if (action === 'tx-ki-revise') { update({ transmitterV2Proposal: null }, { focus: '#tx-ki-input' }); return; }
+  if (action === 'tx-ki-apply') {
+    let seedIds = [...state.transmitterV2SeedIds]; let destinationIds = [...state.transmitterV2DestinationIds]; let messagePrivacy = state.transmitterV2MessagePrivacy;
+    (state.transmitterV2Proposal?.operations || []).forEach(operation => {
+      if (operation.type === 'add-seed') seedIds = [...new Set([...seedIds, operation.id])];
+      if (operation.type === 'remove-seed') seedIds = seedIds.filter(id => id !== operation.id);
+      if (operation.type === 'add-destination') destinationIds = [...new Set([...destinationIds, operation.id])];
+      if (operation.type === 'message-privacy') messagePrivacy = operation.value;
+    });
+    update({ transmitterV2SeedIds: seedIds, transmitterV2DestinationIds: destinationIds, transmitterV2MessagePrivacy: messagePrivacy, transmitterV2Proposal: null, transmitterV2Prepared: false });
+    announce('Ki’s proposed changes were applied to the local draft. Nothing was sent.');
+    return;
+  }
 
   if (action === 'receiver-v2-cancel-remove') { update({ receiverV2ConfirmRemove: null }); return; }
   if (action === 'receiver-v2-manage-profiles') { update({ receiverV2ProfileManagerOpen: true, receiverV2InspectorId: null }, { focus: '.receiver-v2-profile-manager header button' }); return; }
@@ -841,6 +977,17 @@ app.addEventListener('click', event => {
 app.addEventListener('input', event => {
   if (event.target.id === 'ki-input') state.composerDraft = event.target.value;
   if (event.target.id === 'transmit-message') state.transmitDraft = event.target.value;
+  if (event.target.id === 'tx-message') { state.transmitterV2Message = event.target.value; state.transmitterV2Prepared = false; persist(); }
+  if (event.target.id === 'tx-payload-name') { state.transmitterV2PayloadName = event.target.value; state.transmitterV2Prepared = false; persist(); }
+  if (event.target.id === 'tx-ki-input') state.transmitterV2KiDraft = event.target.value;
+  if (event.target.id === 'tx-destination-search') { state.transmitterV2DestinationQuery = event.target.value; persist(); render({ focus: '#tx-destination-search' }); return; }
+  if (event.target.id === 'tx-search') {
+    state.transmitterV2Query = event.target.value;
+    persist();
+    window.clearTimeout(receiverV2SearchTimer);
+    receiverV2SearchTimer = window.setTimeout(() => render({ focus: '#tx-search' }), 120);
+    return;
+  }
   if (event.target.id === 'receiver-command') state.receiverCommand = event.target.value;
   if (event.target.id === 'receiver-profile-name') state.receiverProfileDraft = event.target.value;
   if (event.target.id === 'receiver-topic-input') state.receiverTopicDraft = event.target.value;
@@ -910,9 +1057,12 @@ app.addEventListener('change', event => {
   if (event.target.matches('[data-receiver-experiment]')) {
     const version = event.target.value;
     if (!['0.01', '0.02'].includes(version)) return;
-    update({ receiverExperiment: version, receiverV2InspectorId: null, receiverV2ProfileManagerOpen: false, receiverV2Proposal: null, receiverV2ConfirmRemove: null }, { focus: state.openPanel === 'receive' ? (version === '0.02' ? '.receiver-v2-close' : '.receiver-panel [data-close-panel]') : undefined });
+    update({ receiverExperiment: version, receiverV2InspectorId: null, receiverV2ProfileManagerOpen: false, receiverV2Proposal: null, receiverV2ConfirmRemove: null, transmitterV2InspectorId: null, transmitterV2DestinationInspectorId: null, transmitterV2ReviewOpen: false, transmitterV2Proposal: null }, { focus: state.openPanel === 'receive' ? (version === '0.02' ? '.receiver-v2-close' : '.receiver-panel [data-close-panel]') : state.openPanel === 'transmit' && version === '0.02' ? '.transmitter-v2-close' : undefined });
     return;
   }
+  if (event.target.id === 'tx-sort') { update({ transmitterV2Sort: event.target.value }); return; }
+  if (event.target.id === 'tx-message-privacy') { update({ transmitterV2MessagePrivacy: event.target.value, transmitterV2Prepared: false }); return; }
+  if (event.target.id === 'tx-sender') { update({ transmitterV2SenderId: event.target.value, transmitterV2Prepared: false }); return; }
   if (event.target.id === 'default-type') update({ defaultType: event.target.value });
   if (event.target.id === 'calm-motion') update({ calmMotion: event.target.checked });
   if (event.target.id === 'ambient-messages') update({ ambientMessages: event.target.checked });
@@ -976,7 +1126,9 @@ app.addEventListener('change', event => {
 
 app.addEventListener('keydown', event => {
   if (event.key === 'Escape') {
-    if (state.receiverV2ProfileManagerOpen) update({ receiverV2ProfileManagerOpen: false, receiverConfirmDelete: null, receiverRenameId: null }, { focus: '.receiver-v2-manage' });
+    if (state.transmitterV2ReviewOpen) update({ transmitterV2ReviewOpen: false }, { focus: '.tx-review-button' });
+    else if (state.transmitterV2InspectorId || state.transmitterV2DestinationInspectorId) update({ transmitterV2InspectorId: null, transmitterV2DestinationInspectorId: null }, { focus: state.transmitterV2InspectorId ? `[data-tx-inspect="${state.transmitterV2InspectorId}"]` : `[data-tx-inspect-destination="${state.transmitterV2DestinationInspectorId}"]` });
+    else if (state.receiverV2ProfileManagerOpen) update({ receiverV2ProfileManagerOpen: false, receiverConfirmDelete: null, receiverRenameId: null }, { focus: '.receiver-v2-manage' });
     else if (state.receiverV2InspectorId) {
       const id = state.receiverV2InspectorId;
       update({ receiverV2InspectorId: null }, { focus: `[data-v2-inspect="${id}"]` });
@@ -984,7 +1136,8 @@ app.addEventListener('keydown', event => {
     else if (state.inspector) update({ inspector: null });
     else if (state.openPanel) {
       const wasReceiver = state.openPanel === 'receive';
-      update({ openPanel: null, receiverProposal: null, receiverV2Proposal: null, receiverV2ConfirmRemove: null }, { focus: wasReceiver ? '[data-panel="receive"]' : undefined, restoreFieldScroll: wasReceiver ? state.receiverReturnScroll : undefined });
+      const wasTransmitter = state.openPanel === 'transmit';
+      update({ openPanel: null, receiverProposal: null, receiverV2Proposal: null, receiverV2ConfirmRemove: null, transmitterV2Proposal: null }, { focus: wasReceiver ? '[data-panel="receive"]' : wasTransmitter ? '[data-panel="transmit"]' : undefined, restoreFieldScroll: wasReceiver ? state.receiverReturnScroll : wasTransmitter ? state.transmitterReturnScroll : undefined });
     }
     else if (state.selectedObject) update({ selectedObject: null });
     return;
@@ -1004,6 +1157,11 @@ app.addEventListener('keydown', event => {
     update({ receiverV2KiDraft: event.target.value, receiverV2Proposal: interpretReceiverV2Command(event.target.value) });
     return;
   }
+  if (event.target.id === 'tx-ki-input' && event.key === 'Enter') {
+    event.preventDefault();
+    update({ transmitterV2KiDraft: event.target.value, transmitterV2Proposal: interpretTransmitterCommand(event.target.value) });
+    return;
+  }
   if ((event.target.id === 'receiver-profile-name' || event.target.id === 'receiver-topic-input') && event.key === 'Enter') {
     event.preventDefault();
     document.querySelector(`[data-action="${event.target.id === 'receiver-profile-name' ? 'receiver-create-profile' : 'receiver-add-topic'}"]`)?.click();
@@ -1019,7 +1177,7 @@ app.addEventListener('keydown', event => {
 window.__layoutKit = {
   getState: () => ({ ...state }),
   layoutTypes: layoutTypes.map(type => type.id),
-  version: '0.5.0'
+  version: '0.6.0'
 };
 
 render();
