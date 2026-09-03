@@ -1,4 +1,4 @@
-import { coherenceDimensions, evaluateTransmissionDraft, fieldObjects, historyEntries, layoutTypes, packages, receiverThemes, receiverV2Catalog, receiverV2ReceivedAt, transmitterCatalog, transmitterDestinations, transmitterSeedCatalog, transmitterSeedTypes, transmitterSenders } from './data.js?v=0.7.0';
+import { coherenceDimensions, evaluateTransmissionDraft, fieldObjects, historyEntries, layoutTypes, packages, receiverThemes, receiverV2Catalog, receiverV2ReceivedAt, transmitterCatalog, transmitterDestinations, transmitterSeedCatalog, transmitterSeedTypes, transmitterSenders } from './data.js?v=0.8.0';
 import { icon } from './icons.js';
 
 const escapeHtml = (value = '') => String(value).replace(/[&<>'"]/g, character => ({
@@ -46,7 +46,7 @@ function composedWorld(objects, selectedObject) {
       <circle cx="214" cy="530" r="2" fill="#EAAA00" fill-opacity=".4"/>
     </svg>
 
-    <div class="composed-orientation"><span>Field Canvas</span><h2>Anything can enter here.</h2><p>Alice has placed three beginnings in Moto’s Field.</p></div>
+    <div class="composed-orientation"><span>Your Field</span><h2>A few things are waiting for you.</h2><p>Alice shared three places to begin.</p></div>
     <div class="composed-context"><i></i>Invitation context · Alice → Moto</div>
 
     <article class="composed-card composed-alliance ${selected('service-alliance')}" tabindex="0" role="button" aria-pressed="${selectedObject === 'service-alliance'}" data-object="service-alliance" data-ki-address="field:service-alliance">

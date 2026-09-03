@@ -1,4 +1,4 @@
-import { defaultReceptionProfiles, evaluateTransmissionDraft, initialNotifications, layoutTypes, railItems, receiverV2Catalog, transmitterCatalog, transmitterDestinations, transmitterSeedCatalog, transmitterSeedTypes, transmitterSenders } from './data.js?v=0.7.0';
+import { defaultReceptionProfiles, evaluateTransmissionDraft, initialNotifications, layoutTypes, railItems, receiverV2Catalog, transmitterCatalog, transmitterDestinations, transmitterSeedCatalog, transmitterSeedTypes, transmitterSenders } from './data.js?v=0.8.0';
 import {
   fieldStage,
   findObject,
@@ -10,9 +10,9 @@ import {
   railAction,
   selectionBar,
   toast
-} from './components.js?v=0.7.0';
+} from './components.js?v=0.8.0';
 import { icon } from './icons.js';
-import { expressionInspector, expressionOverlay, expressions, fieldExplorer, proposeKiActions, universalKi, workspaceFor } from './workspaces.js?v=0.7.0';
+import { expressionInspector, expressionOverlay, expressions, fieldExplorer, proposeKiActions, universalKi, workspaceFor } from './workspaces.js?v=0.8.0';
 
 const storageKey = 'kiduna-layout-kit-v0.2';
 const clone = value => JSON.parse(JSON.stringify(value));
@@ -35,7 +35,7 @@ function normalizeReceiverV2Profile(profile) {
 }
 
 const defaults = {
-  uiRevision: '0.7.0',
+  uiRevision: '0.8.0',
   type: 'composed',
   defaultType: 'composed',
   openPanel: null,
@@ -117,6 +117,7 @@ const defaults = {
   creatorLayout: 'composed',
   inspectorWorkspaceQuery: '',
   brokerTab: 'Overview',
+  metricsScope: 'network',
   sentinelPreset: 'Balanced',
   sentinelBoundaries: { participation: 72, stewardship: 66, belonging: 64, legibility: 76 },
   kiDraft: '',
@@ -175,10 +176,10 @@ let state = loadState();
 let toastTimer;
 let receiverV2SearchTimer;
 const app = document.getElementById('app');
-const routePanels = { field: null, receiver: 'receive', transmitter: 'transmit', connector: 'connector', creator: 'creator', inspector: 'inspector-workspace', broker: 'broker', envoy: 'envoy', sentinel: 'sentinel' };
+const routePanels = { field: null, receiver: 'receive', transmitter: 'transmit', connector: 'connector', creator: 'creator', inspector: 'inspector-workspace', broker: 'broker', envoy: 'envoy', sentinel: 'sentinel', metrics: 'metrics' };
 const panelRoutes = Object.fromEntries(Object.entries(routePanels).map(([route, panel]) => [panel || 'field', route]));
-const routeLabels = { field: 'Field', receive: 'Receiver', transmit: 'Transmitter', connector: 'Connector', creator: 'Creator', 'inspector-workspace': 'Inspector', broker: 'Broker', envoy: 'Envoy', sentinel: 'Sentinel' };
-const fullFieldPanels = new Set(['receive', 'transmit', 'connector', 'creator', 'inspector-workspace', 'broker', 'envoy', 'sentinel']);
+const routeLabels = { field: 'Field', receive: 'Receiver', transmit: 'Transmitter', connector: 'Connector', creator: 'Creator', 'inspector-workspace': 'Inspector', broker: 'Broker', envoy: 'Envoy', sentinel: 'Sentinel', metrics: 'Metrics' };
+const fullFieldPanels = new Set(['receive', 'transmit', 'connector', 'creator', 'inspector-workspace', 'broker', 'envoy', 'sentinel', 'metrics']);
 
 function routeFromLocation() {
   const parts = location.pathname.split('/').filter(Boolean);
@@ -231,7 +232,7 @@ function announce(message) {
 function titlebar() {
   const layoutType = layoutTypes.find(item => item.id === state.type)?.name;
   return `<header class="titlebar">
-    <div class="title-left"><div class="window-controls" aria-label="Window controls"><i></i><i></i><i></i><span>Kiduna</span></div><a class="release-stamp" href="${routePath(state.openPanel, true)}">Version 0.02 · Published Sep 3, 2026 at 12:42 AM EDT</a><button class="reset-to-default" type="button" data-action="reset-layout">Reset to default</button></div>
+    <div class="title-left"><div class="window-controls" aria-label="Window controls"><i></i><i></i><i></i><span>Kiduna</span></div><a class="release-stamp" href="${routePath(state.openPanel, true)}">Version 0.02 · Published Sep 3, 2026 at 1:24 AM EDT</a><button class="reset-to-default" type="button" data-action="reset-layout">Reset to default</button></div>
     <div class="title-identity"><img src="assets/design-system/assets/kiduna-mark.svg" alt=""><span>Layout Kit</span><i>/</i><strong>Moto’s Field</strong><i>/</i><b>${state.routeLabel}${state.routeLabel === 'Field' ? ` · ${layoutType}` : ''}</b></div>
     <div class="title-state"><span><i></i>Development</span><button type="button" data-action="open-ki">Ki is present</button></div>
   </header>`;
@@ -511,11 +512,11 @@ app.addEventListener('click', event => {
     const expression = expressions.find(item => item.id === expressionOpen.dataset.expressionOpen);
     if (!expression) return;
     update({ activeExpressionId: expression.id, type: expression.layout, selectedObject: null, expressionInspectId: null });
-    announce(`${expression.title} opened in its ${layoutTypes.find(type => type.id === expression.layout)?.name} Layout.`);
+    announce(`${expression.title} is open in its ${layoutTypes.find(type => type.id === expression.layout)?.name} view.`);
     return;
   }
   const expressionInspect = event.target.closest('[data-expression-inspect]');
-  if (expressionInspect) { update({ expressionInspectId: expressionInspect.dataset.expressionInspect }); announce('Expression detail staged locally with provenance and access context.'); return; }
+  if (expressionInspect) { update({ expressionInspectId: expressionInspect.dataset.expressionInspect }); announce('Details are open. Nothing was changed or shared.'); return; }
   const expressionFavorite = event.target.closest('[data-expression-favorite]');
   if (expressionFavorite) {
     const id = expressionFavorite.dataset.expressionFavorite;
@@ -536,7 +537,7 @@ app.addEventListener('click', event => {
     if (action === 'deactivate') next.active = false;
     if (action === 'mute') next.muted = !next.muted;
     update({ connectorConnections: { ...state.connectorConnections, [id]: next } });
-    announce(`Connection state updated locally for this prototype. No external service or relationship changed.`);
+    announce('Saved for this preview. No account or relationship outside this page changed.');
     return;
   }
   const creatorLayout = event.target.closest('[data-creator-layout]');
@@ -549,8 +550,10 @@ app.addEventListener('click', event => {
     const values = preset === 'Open' ? { participation: 100, stewardship: 100, belonging: 100, legibility: 100 } : preset === 'Guided' ? { participation: 45, stewardship: 65, belonging: 55, legibility: 80 } : { participation: 72, stewardship: 66, belonging: 64, legibility: 76 };
     update({ sentinelPreset: preset, sentinelBoundaries: values }); return;
   }
+  const metricsScope = event.target.closest('[data-metrics-scope]');
+  if (metricsScope) { update({ metricsScope: metricsScope.dataset.metricsScope }); return; }
   const prototypeAction = event.target.closest('[data-prototype-action]');
-  if (prototypeAction) { announce(`${prototypeAction.dataset.prototypeAction} is staged as a local proposal. No external Action occurred.`); return; }
+  if (prototypeAction) { announce(`${prototypeAction.dataset.prototypeAction} is ready to explore in this preview. Nothing outside this page changed.`); return; }
 
   const txFilter = event.target.closest('[data-tx-filter]');
   if (txFilter) {
@@ -856,7 +859,7 @@ app.addEventListener('click', event => {
   const action = event.target.closest('[data-action]')?.dataset.action;
   if (!action) return;
 
-  if (action === 'close-expression') { update({ activeExpressionId: null, type: 'composed' }, { focus: '.expression-explorer h1' }); return; }
+  if (action === 'close-expression') { update({ activeExpressionId: null, type: 'composed' }, { focus: '.field-home h1' }); return; }
   if (action === 'close-expression-inspector') { update({ expressionInspectId: null }, { focus: '[data-expression-inspect]' }); return; }
   if (action === 'expression-saved') { update({ expressionSavedOnly: !state.expressionSavedOnly }); return; }
   if (action === 'universal-dictate') { announce('Dictate is visible for a future voice connection; this prototype is not recording.'); return; }
@@ -1198,6 +1201,7 @@ app.addEventListener('change', event => {
   if (event.target.id === 'expression-source') { update({ expressionSource: event.target.value }); return; }
   if (event.target.id === 'expression-seed') { update({ expressionSeed: event.target.value }); return; }
   if (event.target.id === 'expression-sort') { update({ expressionSort: event.target.value }); return; }
+  if (event.target.id === 'metrics-scope') { update({ metricsScope: event.target.value }); return; }
   if (event.target.id === 'tx-sort') { update({ transmitterV2Sort: event.target.value }); return; }
   if (event.target.id === 'tx-message-privacy') { update({ transmitterV2MessagePrivacy: event.target.value, transmitterV2Prepared: false }); return; }
   if (event.target.id === 'tx-sender') { update({ transmitterV2SenderId: event.target.value, transmitterV2Prepared: false }); return; }
@@ -1321,7 +1325,7 @@ app.addEventListener('keydown', event => {
 window.__layoutKit = {
   getState: () => ({ ...state }),
   layoutTypes: layoutTypes.map(type => type.id),
-  version: '0.7.0'
+  version: '0.8.0'
 };
 
 window.addEventListener('popstate', () => {

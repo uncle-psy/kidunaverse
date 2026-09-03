@@ -2,62 +2,63 @@ export const layoutTypes = [
   {
     id: 'composed',
     name: 'Composed',
-    meta: 'WIMP · connected interface',
-    description: 'Windows, icons, menus, and pointer-ready controls composed over a living backdrop.'
+    meta: 'Familiar · connected',
+    description: 'A familiar interface where windows, menus, and useful connections work together.'
   },
   {
     id: 'setting',
     name: 'Setting',
-    meta: 'Isometric · Moto’s working room',
-    description: 'A spatial environment for arranging live work, relationships, and instruments.'
+    meta: 'A place · shared or personal',
+    description: 'A room or place for arranging work, people, and useful tools.'
   },
   {
     id: 'pulse',
     name: 'Pulse',
-    meta: '11 signals · 3 near',
-    description: 'A Layout Type for encountering many relevant objects spatially.'
+    meta: 'Live · what matters now',
+    description: 'A living view of many relevant things changing around you.'
   },
   {
     id: 'graph',
     name: 'Graph',
-    meta: 'Build Kiduna · 8 nodes',
-    description: 'Meaningful nodes and typed relationships from active Power Maps and Realms.'
+    meta: 'Relationships · paths',
+    description: 'A view for following meaningful relationships, paths, and possibilities.'
   },
   {
     id: 'theater',
     name: 'Theater',
-    meta: 'Focused · media stage',
-    description: 'A quiet stage for watching, listening to, or experiencing one work.'
+    meta: 'Focused · watch and listen',
+    description: 'A quiet stage for watching, listening to, or experiencing one thing.'
   },
   {
     id: 'world',
     name: 'World',
-    meta: '3D · embodied environment',
-    description: 'A full spatial environment for movement, presence, simulation, and action.'
+    meta: 'Immersive · move and explore',
+    description: 'An immersive place for movement, presence, discovery, and action.'
   },
   {
     id: 'reader',
     name: 'Reader',
-    meta: 'Editorial · documents and books',
-    description: 'A reading-led layout for documents, magazines, books, essays, audio, and video.'
+    meta: 'Calm · read and follow',
+    description: 'A calm flow for documents, books, essays, audio, and video.'
   },
   {
     id: 'game',
     name: 'Game',
-    meta: 'Playable · rules and feedback',
-    description: 'An interactive layout for bounded play, choices, challenges, scoring, and shared or solo game states.'
+    meta: 'Playable · choices and challenge',
+    description: 'A playful space for choices, challenges, feedback, and solo or shared games.'
   }
 ];
 
 export const railItems = [
-  { id: 'broker', label: 'Broker', roleIcon: 'broker' },
+  { id: 'receive', label: 'Receiver', roleIcon: 'receiver' },
+  { id: 'transmit', label: 'Transmitter', roleIcon: 'transmitter' },
   { id: 'connector', label: 'Connector', roleIcon: 'connector' },
   { id: 'creator', label: 'Creator', roleIcon: 'creator' },
   { id: 'inspector-workspace', label: 'Inspector', roleIcon: 'inspector' },
-  { id: 'receive', label: 'Receiver', roleIcon: 'receiver' },
-  { id: 'transmit', label: 'Transmitter', roleIcon: 'transmitter' },
+  { id: 'broker', label: 'Broker', roleIcon: 'broker' },
   { id: 'envoy', label: 'Envoy', roleIcon: 'envoy', extension: true },
-  { id: 'sentinel', label: 'Sentinel', roleIcon: 'sentinel', extension: true }
+  { id: 'sentinel', label: 'Sentinel', roleIcon: 'sentinel', extension: true },
+  { id: 'metrics', label: 'Metrics', roleIcon: 'metrics', extension: true }
 ];
 
 export const instruments = [
