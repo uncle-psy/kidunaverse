@@ -1,4 +1,4 @@
-import { coherenceDimensions, fieldObjects, historyEntries, layoutTypes, packages, receiverThemes, transmitterCatalog } from './data.js';
+import { coherenceDimensions, fieldObjects, historyEntries, layoutTypes, packages, receiverThemes, receiverV2Catalog, transmitterCatalog } from './data.js?v=0.4.0';
 import { icon } from './icons.js';
 
 const escapeHtml = (value = '') => String(value).replace(/[&<>'"]/g, character => ({
@@ -294,6 +294,107 @@ function receivePanel(state) {
   </aside>`;
 }
 
+function receiverVersionSelect(state, location = 'panel') {
+  return `<label class="receiver-version-select receiver-version-${location}"><span>Receiver experiment</span><select data-receiver-experiment aria-label="Receiver experiment version"><option value="0.01" ${state.receiverExperiment === '0.01' ? 'selected' : ''}>Version 0.01</option><option value="0.02" ${state.receiverExperiment === '0.02' ? 'selected' : ''}>Version 0.02</option></select></label>`;
+}
+
+function receiverV2Tuning(profile, item) {
+  return profile.receiverV2Tuning?.[item.id] || { intensity: 35, range: 20, muted: false };
+}
+
+function receiverV2Visual(item) {
+  return `<div class="receiver-v2-visual visual-${item.visual}">${item.image ? `<img src="${item.image}" alt="">` : `<span>${item.title.split(' ').map(word => word[0]).join('').slice(0, 2)}</span>`}<small>${escapeHtml(item.visualStatus)}</small></div>`;
+}
+
+function receiverV2Box(state, profile, item) {
+  const tuning = receiverV2Tuning(profile, item);
+  const added = profile.transmitterIds.includes(item.id);
+  const held = profile.sourcePreferences[item.id]?.stage === 'Hold';
+  const selected = state.receiverV2InspectorId === item.id;
+  const unavailable = item.available === false;
+  return `<article class="receiver-v2-box kind-${item.kind.toLowerCase().replace(/\s+/g, '-')} ${added ? 'added' : 'available'} ${tuning.muted ? 'muted' : ''} ${held ? 'held' : ''} ${selected ? 'selected' : ''} ${unavailable ? 'unavailable' : ''}" data-receiver-v2-box="${item.id}">
+    ${receiverV2Visual(item)}
+    <div class="receiver-v2-copy"><div class="receiver-v2-box-head"><span>${item.kind}</span><b class="verification-${item.verification.toLowerCase().includes('verified') ? 'verified' : 'provisional'}">${escapeHtml(item.verification)}</b></div><h2>${escapeHtml(item.title)}</h2><h3>${escapeHtml(item.eyebrow)}</h3><p>${escapeHtml(item.description)}</p><small>${escapeHtml(item.origin)}</small></div>
+    <div class="receiver-v2-tuning">
+      <label><span>Intensity <output data-v2-intensity-output="${item.id}">${tuning.intensity}</output></span><input data-v2-intensity="${item.id}" type="range" min="0" max="100" value="${tuning.intensity}" aria-describedby="v2-intensity-help-${item.id}"><div class="receiver-v2-scale"><span>Minimal</span><span>Balanced</span><span>Full</span></div><small id="v2-intensity-help-${item.id}">${tuning.intensity === 0 ? 'Minimal eligible reception; not muted' : tuning.intensity >= 75 ? 'More of this exact object' : tuning.intensity >= 40 ? 'Balanced reception' : 'Light reception'}</small></label>
+      <label><span>Range <output data-v2-range-output="${item.id}">${tuning.range}</output></span><input data-v2-range="${item.id}" type="range" min="0" max="100" value="${tuning.range}" aria-describedby="v2-range-help-${item.id}"><div class="receiver-v2-scale"><span>Exact</span><span>Close</span><span>Wider Field</span></div><small id="v2-range-help-${item.id}">${tuning.range === 0 ? 'This object only' : tuning.range >= 75 ? 'Wider visibility-safe Field' : tuning.range >= 40 ? 'Close relations' : 'Immediate neighbors'}</small></label>
+    </div>
+    <div class="receiver-v2-box-actions">
+      <button type="button" data-v2-mute="${item.id}" aria-pressed="${tuning.muted}">${tuning.muted ? 'Restore' : 'Mute'}</button>
+      ${added ? `<button class="danger-text" type="button" data-v2-remove="${item.id}">Remove</button>` : `<button class="add" type="button" data-v2-add="${item.id}" ${unavailable ? 'disabled' : ''}>Add</button>`}
+      <button type="button" data-v2-inspect="${item.id}">Inspect</button>
+    </div>
+    ${state.receiverV2ConfirmRemove === item.id ? `<div class="receiver-v2-remove-confirm" role="alert"><span>Remove this from ${escapeHtml(profile.name)}? Prior authorized Records and Landings remain preserved.</span><button type="button" data-v2-remove-confirm="${item.id}">Remove</button><button type="button" data-action="receiver-v2-cancel-remove">Cancel</button></div>` : ''}
+  </article>`;
+}
+
+function receiverV2Inspector(state, profile) {
+  const item = receiverV2Catalog.find(candidate => candidate.id === state.receiverV2InspectorId);
+  if (!item) return '';
+  const tuning = receiverV2Tuning(profile, item);
+  const added = profile.transmitterIds.includes(item.id);
+  const preference = profile.sourcePreferences[item.id] || { stage: 'Normal', interruption: 'Ambient only' };
+  const rows = [
+    ['Stable ID', item.id], ['Object class', item.kind], ['Source / originator', item.origin], ['Transmitting context', item.eyebrow],
+    ['Signal kinds', transmitterCatalog.find(entry => entry.id === item.id)?.signalKinds?.join(', ') || item.topic], ['Verification', item.verification], ['Evidence', item.evidence], ['Provenance', item.provenance],
+    ['Transformation lineage', item.transform], ['Visibility boundary', item.visibility], ['Delivery Landing', item.delivery], ['Semantic Landing', item.semantic],
+    ['Why eligible', transmitterCatalog.find(entry => entry.id === item.id)?.why || item.recommendation], ['Why in this profile', added ? `Explicitly included in ${profile.name}.` : 'Available to add; not currently included.'],
+    ['Intensity', `${tuning.intensity}/100 · Source-relative volume`], ['Range', `${tuning.range}/100 · ${tuning.range >= 75 ? 'wider related Field' : tuning.range >= 40 ? 'close relations' : 'immediate neighborhood'}`],
+    ['Staging preference', preference.stage], ['Interruption', preference.interruption], ['Published dimensions', item.vibes], ['Visible Valence', item.valence], ['Measurement status', item.measurement],
+    ['Recent reception change', (state.recentReceiverChanges || []).find(change => change.label.includes(item.title))?.label || 'No recent local change'],
+    ['What this does not establish', 'Truth, trust, membership, Authority, Permission, Consent, urgency, or universal importance.']
+  ];
+  return `<section class="receiver-v2-inspector" aria-label="Inspect ${escapeHtml(item.title)}"><header>${receiverV2Visual(item)}<div><span>${item.kind} · expanded inspection</span><h2>${escapeHtml(item.title)}</h2><p>${escapeHtml(item.description)}</p></div><button class="receiver-v2-inspector-close" type="button" data-action="receiver-v2-close-inspector" aria-label="Close inspection">${icon('close', 20)}</button></header><div class="receiver-v2-inspector-scroll"><div class="receiver-v2-distinction"><b>Reception distinctions</b><span>Received ≠ verified ≠ true</span><span>Delivered ≠ semantically landed</span><span>Relevant ≠ urgent ≠ allowed to interrupt</span></div><dl>${rows.map(([term, detail]) => `<div><dt>${term}</dt><dd>${escapeHtml(detail)}</dd></div>`).join('')}</dl><div class="receiver-v2-inspector-actions"><button type="button" data-v2-mute="${item.id}">${tuning.muted ? 'Restore reception' : 'Mute'}</button>${added ? `<button class="danger-text" type="button" data-v2-remove="${item.id}">Remove from profile</button>` : `<button class="add" type="button" data-v2-add="${item.id}">Add to profile</button>`}</div></div></section>`;
+}
+
+function receiverV2Recommendations(state, profile) {
+  if (!state.receiverV2RecommendationsOpen) return '';
+  const items = receiverV2Catalog.filter(item => !profile.transmitterIds.includes(item.id) && !(profile.receiverV2Dismissed || []).includes(item.id)).slice(0, 3);
+  return `<section class="receiver-v2-recommendations" aria-label="Ki recommendations"><header><div><span>Ki · recommendations</span><h2>Possible new reception</h2></div><button type="button" data-action="receiver-v2-hide-recommendations">Hide</button></header><div>${items.map(item => `<article><span>${item.kind}</span><h3>${escapeHtml(item.title)}</h3><p>${escapeHtml(item.recommendation)}</p><small><b>Basis:</b> ${escapeHtml(item.related)}</small><small><b>Origin:</b> ${escapeHtml(item.origin)} · ${escapeHtml(item.verification)}</small><small><b>If accepted:</b> adds this object with default Intensity and Range; visibility and permission do not widen.</small><div><button type="button" data-v2-recommend-preview="${item.id}">Preview</button><button class="add" type="button" data-v2-add="${item.id}">Add</button><button type="button" data-v2-inspect="${item.id}">Inspect</button><button type="button" data-v2-not-interested="${item.id}">Not interested</button><button type="button" data-v2-send-farther="${item.id}">Send farther</button></div></article>`).join('') || '<p>No new recommendations in this visible, authorized catalog.</p>'}</div></section>`;
+}
+
+function receiverV2ProfileManager(state, active) {
+  if (!state.receiverV2ProfileManagerOpen) return '';
+  const compared = state.receiverV2CompareId && state.receiverProfiles.find(profile => profile.id === state.receiverV2CompareId);
+  const activeIds = new Set(active.transmitterIds);
+  const comparedIds = new Set(compared?.transmitterIds || []);
+  const compareSummary = compared ? `<section class="receiver-v2-profile-compare"><header><span>Profile comparison</span><button type="button" data-action="receiver-v2-clear-compare">Clear</button></header><div><article><b>${escapeHtml(active.name)}</b><strong>${active.transmitterIds.length}</strong><small>objects · ${active.strength}% general strength · ${escapeHtml(active.time.preset)}</small></article><article><b>${escapeHtml(compared.name)}</b><strong>${compared.transmitterIds.length}</strong><small>objects · ${compared.strength}% general strength · ${escapeHtml(compared.time.preset)}</small></article></div><p>${[...activeIds].filter(id => !comparedIds.has(id)).length} only in ${escapeHtml(active.name)} · ${[...comparedIds].filter(id => !activeIds.has(id)).length} only in ${escapeHtml(compared.name)} · ${[...activeIds].filter(id => comparedIds.has(id)).length} shared</p></section>` : '';
+  return `<section class="receiver-v2-profile-manager" aria-label="Manage Reception Profiles">
+    <header><div><span>Shared across Receiver experiments</span><h2>Reception Profiles</h2><p>Switching versions changes the interface, not the underlying profile.</p></div><button type="button" data-action="receiver-v2-close-profiles" aria-label="Close profile manager">${icon('close', 20)}</button></header>
+    <div class="receiver-v2-profile-tools"><div class="receiver-v2-profile-create"><input id="receiver-profile-name" type="text" value="${escapeHtml(state.receiverProfileDraft)}" placeholder="Name a new profile"><button class="add" type="button" data-action="receiver-create-profile">Create</button></div>${compareSummary}</div>
+    <div class="receiver-v2-profile-list">${state.receiverProfiles.map(profile => `<article class="${profile.id === active.id ? 'active' : ''}"><div><span>${profile.id === active.id ? 'Active profile' : 'Reception profile'}</span><h3>${escapeHtml(profile.name)}</h3><small>${profile.transmitterIds.length} tuned objects · ${profile.strength}% general strength</small></div><div><button type="button" data-receiver-activate="${profile.id}" ${profile.id === active.id ? 'disabled' : ''}>${profile.id === active.id ? 'Active' : 'Activate'}</button>${profile.id !== active.id ? `<button type="button" data-v2-compare="${profile.id}">Compare</button>` : ''}<button type="button" data-receiver-rename="${profile.id}">Rename</button><button type="button" data-receiver-duplicate="${profile.id}">Duplicate</button><button class="danger-text" type="button" data-receiver-delete="${profile.id}" ${state.receiverProfiles.length === 1 ? 'disabled' : ''}>Delete</button></div>${state.receiverConfirmDelete === profile.id ? `<div class="receiver-v2-profile-confirm" role="alert"><span>Delete “${escapeHtml(profile.name)}”? It can be restored during this session.</span><button type="button" data-receiver-delete-confirm="${profile.id}">Delete</button><button type="button" data-action="receiver-cancel-delete">Cancel</button></div>` : ''}${state.receiverRenameId === profile.id ? `<div class="receiver-v2-profile-rename"><input id="receiver-rename-input" type="text" value="${escapeHtml(profile.name)}"><button type="button" data-action="receiver-save-rename">Save</button><button type="button" data-action="receiver-cancel-rename">Cancel</button></div>` : ''}</article>`).join('')}</div>
+    <footer><button type="button" data-action="receiver-reset-profile">Reset active profile</button>${state.deletedReceiverProfile ? `<button type="button" data-action="receiver-restore-profile">Restore “${escapeHtml(state.deletedReceiverProfile.name)}”</button>` : ''}</footer>
+  </section>`;
+}
+
+function receiverV2Ki(state) {
+  return `<section class="receiver-v2-ki" aria-label="Work with Ki in Receiver"><div class="ki-word-circle" aria-hidden="true">Ki</div><label><span>Ki · Receiver</span><input id="receiver-v2-ki-input" type="text" value="${escapeHtml(state.receiverV2KiDraft)}" placeholder="Search, recommend, add, mute, inspect, or tune this Receiver…"></label><button type="button" data-action="receiver-v2-ki-preview">Preview</button>${state.receiverV2Proposal ? `<div class="receiver-v2-ki-proposal" role="status"><span>Review Ki’s proposed changes</span><ul>${state.receiverV2Proposal.summary.map(item => `<li>${escapeHtml(item)}</li>`).join('')}</ul><div><button class="add" type="button" data-action="receiver-v2-ki-apply" ${state.receiverV2Proposal.operations.length ? '' : 'disabled'}>Apply</button><button type="button" data-action="receiver-v2-ki-revise">Revise</button><button type="button" data-action="receiver-v2-ki-cancel">Cancel</button></div></div>` : ''}</section>`;
+}
+
+function receivePanelV2(state) {
+  const profile = activeReceptionProfile(state);
+  const query = state.receiverV2Query.toLowerCase();
+  const filter = state.receiverV2Filter;
+  const searchable = item => [item.title, item.eyebrow, item.description, item.kind, item.theme, item.focus, item.topic, item.origin, item.verification, item.vibes, item.valence].join(' ').toLowerCase();
+  let items = receiverV2Catalog.filter(item => (!query || searchable(item).includes(query)) && (filter === 'All' || item.kind === filter));
+  items = [...items].sort((a, b) => {
+    const aTune = receiverV2Tuning(profile, a); const bTune = receiverV2Tuning(profile, b);
+    if (state.receiverV2Sort === 'Range') return bTune.range - aTune.range || a.title.localeCompare(b.title);
+    if (state.receiverV2Sort === 'Topic') return a.topic.localeCompare(b.topic) || a.title.localeCompare(b.title);
+    if (state.receiverV2Sort === 'Transmitter') return a.origin.localeCompare(b.origin) || a.title.localeCompare(b.title);
+    return bTune.intensity - aTune.intensity || a.title.localeCompare(b.title);
+  });
+  const visible = items.slice(0, state.receiverV2Limit);
+  const classes = ['All', 'Transmitter', 'Realm', 'Power Map', 'Package', 'Node'];
+  return `<section class="receiver-v2" aria-label="Receiver Version 0.02" data-open-panel="receive">
+    <div class="receiver-v2-atmosphere" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+    <header class="receiver-v2-topbar"><div class="receiver-v2-brand"><span class="rail-role-icon role-icon-receiver" aria-hidden="true"></span><div><span>Source-relative reception field</span><h1>Receiver</h1></div></div>${receiverVersionSelect(state, 'fullscreen')}<label class="receiver-v2-profile"><span>Reception Profile</span><select id="receiver-v2-profile-select">${state.receiverProfiles.map(item => `<option value="${item.id}" ${item.id === profile.id ? 'selected' : ''}>${escapeHtml(item.name)}</option>`).join('')}</select></label><button class="receiver-v2-manage" type="button" data-action="receiver-v2-manage-profiles">Manage profiles</button><button class="receiver-v2-close" type="button" data-close-panel aria-label="Close Receiver">${icon('close', 22)}</button></header>
+    <section class="receiver-v2-controls"><label class="receiver-v2-search">${icon('search', 19)}<span class="sr-only">Search reception field</span><input id="receiver-v2-search" type="search" value="${escapeHtml(state.receiverV2Query)}" placeholder="Search transmitters, Realms, Maps, Packages, Nodes, topics, Vibes…"></label><nav aria-label="Receiver object classes">${classes.map(item => `<button class="${filter === item ? 'active' : ''}" type="button" data-v2-filter="${item}" aria-pressed="${filter === item}">${item === 'All' ? 'All signals' : `${item}s`}</button>`).join('')}</nav><label class="receiver-v2-sort"><span>Sort by</span><select id="receiver-v2-sort"><option ${state.receiverV2Sort === 'Intensity' ? 'selected' : ''}>Intensity</option><option ${state.receiverV2Sort === 'Range' ? 'selected' : ''}>Range</option><option ${state.receiverV2Sort === 'Topic' ? 'selected' : ''}>Topic</option><option ${state.receiverV2Sort === 'Transmitter' ? 'selected' : ''}>Transmitter</option></select></label><button class="receiver-v2-recommend-button" type="button" data-action="receiver-v2-show-recommendations">Ki recommends</button>${state.receiverUndo ? '<button class="receiver-v2-undo" type="button" data-action="receiver-undo">Undo</button>' : ''}</section>
+    <div class="receiver-v2-scroll"><div class="receiver-v2-field-heading"><div><span>${visible.length} of ${items.length} visible</span><h2>Tune the Field</h2><p>Intensity controls how much of the exact object reaches this profile. Range explores visibility-safe relationships. Neither changes shared Field truth.</p></div><div><span>Default sort</span><strong>${state.receiverV2Sort}</strong></div></div>${receiverV2Recommendations(state, profile)}<div class="receiver-v2-grid">${visible.map(item => receiverV2Box(state, profile, item)).join('') || '<div class="receiver-v2-empty"><h2>No visible matches</h2><p>Try another search or object class. Private exclusions are not counted or disclosed.</p></div>'}</div>${visible.length < items.length ? `<button class="receiver-v2-more" type="button" data-action="receiver-v2-more">Show ${Math.min(6, items.length - visible.length)} more</button>` : ''}</div>
+    ${receiverV2ProfileManager(state, profile)}${receiverV2Inspector(state, profile)}${receiverV2Ki(state)}
+  </section>`;
+}
+
 function transmitPanel(state) {
   return panelShell('transmit', 'Transmit', 'Beacon · send my signal', `
     <p class="panel-lede">Compose here, then choose a relationship or channel. Nothing leaves the Field without an explicit send action.</p>
@@ -413,7 +514,7 @@ function culturePanel() {
 export function panelFor(state) {
   switch (state.openPanel) {
     case 'vault': return vaultPanel();
-    case 'receive': return receivePanel(state);
+    case 'receive': return state.receiverExperiment === '0.02' ? receivePanelV2(state) : receivePanel(state);
     case 'transmit': return transmitPanel(state);
     case 'connect': return connectPanel(state);
     case 'create': return createPanel();
